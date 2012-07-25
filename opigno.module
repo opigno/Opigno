@@ -4,6 +4,12 @@
  * @file
  * Contains all hook_implementations.
  */
+
+/**
+ * @todo
+ *  - Add new permission + callback for views pages
+ *  - Add views to install (Features ?)
+ */
  
 /**
  * Implements hook_menu()
@@ -11,20 +17,43 @@
 function opigno_menu() {
   $menu = array();
   
-  foreach (array('wiki') as $type) {
-    $menu["og/%node/$type"] = array(
-      'title callback' => 'opigno_node_title',
-      'title arguments' => array(1, 2),
-      'access callback' => 'opigno_node_access',
-      'access arguments' => array(1, 2),
-      'page callback' => "opigno_og_$type",
-      'page arguments' => array(1),
-      'file' => 'includes/opigno.pages.inc',
-      'type' => MENU_CALLBACK
-    );
-  }
-  
   return $menu;
+}
+
+/**
+ * Implements hook_block_info()
+ */
+function opigno_block_info() {
+  return array(
+    'course_tools' => array(
+      'info' => t("Course tools"),
+      'cache' => DRUPAL_CACHE_PER_PAGE
+    )
+  );
+}
+
+/**
+ * Implements hook_block_view()
+ */
+function opigno_block_view($delta) {
+  module_load_include('inc', 'opigno', 'includes/opigno.block');
+  
+  switch ($delta) {
+    case 'course_tools':
+      return opigno_course_tools_block();
+  }
+}
+
+/**
+ * Implements hook_theme()
+ */
+function opigno_theme() {
+  return array(
+    'opigno_og_tool' => array(
+      'variables' => array('og_type' => NULL, 'machine_name' => NULL, 'name' => NULL, 'uri' => NULL),
+      'template' => 'theme/opigno--og-tool'
+    )
+  );
 }
 
 /**
