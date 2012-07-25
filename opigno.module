@@ -12,12 +12,10 @@
  */
  
 /**
- * Implements hook_menu()
+ * Implements hook_menu_alter()
  */
-function opigno_menu() {
-  $menu = array();
+function opigno_menu_alter(&$items) {
   
-  return $menu;
 }
 
 /**
@@ -26,7 +24,7 @@ function opigno_menu() {
 function opigno_block_info() {
   return array(
     'course_tools' => array(
-      'info' => t("Course tools"),
+      'info' => t("Opigno: Course tools"),
       'cache' => DRUPAL_CACHE_PER_PAGE
     )
   );
@@ -50,8 +48,28 @@ function opigno_block_view($delta) {
 function opigno_theme() {
   return array(
     'opigno_og_tool' => array(
-      'variables' => array('og_type' => NULL, 'machine_name' => NULL, 'name' => NULL, 'uri' => NULL),
+      'variables' => array('og_type' => NULL, 'machine_name' => NULL, 'name' => NULL, 'url' => NULL),
       'template' => 'theme/opigno--og-tool'
+    )
+  );
+}
+
+/**
+ * Implements hook_opigno_course_tools()
+ */
+function opigno_opigno_course_tools($node) {
+  return array(
+    'wikis' => array(
+      'name' => t("Wikis"),
+      'url' => url("node/{$node->nid}/wikis")
+    ),
+    'quizzes' => array(
+      'name' => t("Quizzes"),
+      'url' => url("node/{$node->nid}/quizzes")
+    ),
+    'calendar' => array(
+      'name' => t("Calendar"),
+      'url' => url("node/{$node->nid}/calendar")
     )
   );
 }

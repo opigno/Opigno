@@ -14,15 +14,19 @@
 function opigno_course_tools_block() {
   $html = '';
   
-  $tools = module_invoke_all('opigno_course_tools');
+  $node = menu_get_object('node');
   
-  foreach ($tools as $i => $tool) {
-    $html .= theme('opigno_og_tool', array(
-      'og_type' => 'course',
-      'machine_name' => isset($tool['machine_name']) ? $tool['machine_name'] : "tool-$i",
-      'name' => $tool['name'],
-      'uri' => $tool['uri']
-    ));
+  if (isset($node) && $node->type == 'course') {  
+    $tools = module_invoke_all('opigno_course_tools', $node);
+    
+    foreach ($tools as $machine_name => $tool) {
+      $html .= theme('opigno_og_tool', array(
+        'og_type' => 'course',
+        'machine_name' => $machine_name,
+        'name' => $tool['name'],
+        'url' => $tool['url']
+      ));
+    }
   }
   
   return array(
