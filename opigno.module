@@ -26,6 +26,10 @@ function opigno_block_info() {
     'course_tools' => array(
       'info' => t("Opigno: Course tools"),
       'cache' => DRUPAL_CACHE_PER_PAGE
+    ),
+    'add_course_content' => array(
+      'info' => t("Opigno: Add course content"),
+      'cache' => DRUPAL_CACHE_PRE_USER
     )
   );
 }
@@ -39,6 +43,9 @@ function opigno_block_view($delta) {
   switch ($delta) {
     case 'course_tools':
       return opigno_course_tools_block();
+    
+    case 'add_course_content':
+      return opigno_course_add_content_block();
   }
 }
 
@@ -58,18 +65,26 @@ function opigno_theme() {
  * Implements hook_opigno_course_tools()
  */
 function opigno_opigno_course_tools($node) {
+  // @todo - activate/deactivate certain tools ?
+  
   return array(
     'wikis' => array(
-      'name' => t("Wikis"),
-      'url' => url("node/{$node->nid}/wikis")
+      'tool_name' => t("Wikis"),
+      'tool_url' => url("node/{$node->nid}/wikis"),
+      'item_name' => t("Wiki"),
+      'create_url' => url("node/add/wiki", array('query' => array('gids_node[]' => $node->nid)))
     ),
     'quizzes' => array(
-      'name' => t("Quizzes"),
-      'url' => url("node/{$node->nid}/quizzes")
+      'tool_name' => t("Quizzes"),
+      'tool_url' => url("node/{$node->nid}/quizzes"),
+      'item_name' => t("Quiz"),
+      'create_url' => url("node/add/quiz", array('query' => array('gids_node[]' => $node->nid)))
     ),
     'calendar' => array(
-      'name' => t("Calendar"),
-      'url' => url("node/{$node->nid}/calendar")
+      'tool_name' => t("Calendar"),
+      'tool_url' => url("node/{$node->nid}/calendar"),
+      'item_name' => t("Calendar entry"),
+      'create_url' => url("node/add/calendar_entry", array('query' => array('gids_node[]' => $node->nid)))
     )
   );
 }

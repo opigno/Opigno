@@ -23,8 +23,8 @@ function opigno_course_tools_block() {
       $html .= theme('opigno_og_tool', array(
         'og_type' => 'course',
         'machine_name' => $machine_name,
-        'name' => $tool['name'],
-        'url' => $tool['url']
+        'name' => $tool['tool_name'],
+        'url' => $tool['tool_url']
       ));
     }
   }
