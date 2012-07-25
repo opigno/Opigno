@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Contains all hook_implementations.
+ */
+ 
+/**
+ * Implements hook_menu()
+ */
+function opigno_menu() {
+  $menu = array();
+  
+  foreach (array('wiki') as $type) {
+    $menu["og/%node/$type"] = array(
+      'title callback' => 'opigno_node_title',
+      'title arguments' => array(1, 2),
+      'access callback' => 'opigno_node_access',
+      'access arguments' => array(1, 2),
+      'page callback' => "opigno_og_$type",
+      'page arguments' => array(1),
+      'file' => 'includes/opigno.pages.inc',
+      'type' => MENU_CALLBACK
+    );
+  }
+  
+  return $menu;
+}
+
+/**
+ * Custom title callback.
+ * Generates a title based on the node title and page type.
+ * 
+ * @param object $node
+ * 
+ * @param string $type
+ *        The page type. Can be 'wiki', 'quiz', 'workgroup', etc
+ * 
+ * @return string
+ */
+function opigno_node_title($node, $type) {
+  $node_title = $node->title;
+  
+  switch($type) {
+    case 'wiki':
+      $objects = t("wikis");
+      break;
+      
+    case 'files':
+      $objects = t("documents");
+      break;
+      
+    case 'quiz':
+      $objects = t("assessments");
+      break;
+      
+    default:
+      $objects = t("content");
+      break;
+  }
+  
+  return t("@title !objects", array('@title' => $title, '!objects' => $objects));
+}
+
+/**
+ * Custom access callback
+ * Use the settings from og_access to determine if a user has access to the current
+ * node.
+ *
+ * @param object $node
+ *
+ * @param string $type
+ *        The page type. Can be 'wiki', 'quiz', 'workgroup', etc
+ *
+ * @return bool
+ */
+function opigno_node_access($node, $type) {
+  return TRUE;
+}

@@ -1,1 +1,6 @@
 name = Opigno
+description = Opigno LMS features module
+core = 7.x
+package = Opigno
+
+dependencies[] = og
