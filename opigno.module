@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains all hook_implementations.
+ * Contains all hook_implementations and module specific API.
  */
 
 /**
@@ -23,13 +23,13 @@ function opigno_menu_alter(&$items) {
  */
 function opigno_block_info() {
   return array(
-    'course_tools' => array(
-      'info' => t("Opigno: Course tools"),
+    'og_tools' => array(
+      'info' => t("Opigno: OG tools"),
       'cache' => DRUPAL_CACHE_PER_PAGE
     ),
-    'add_course_content' => array(
-      'info' => t("Opigno: Add course content"),
-      'cache' => DRUPAL_CACHE_PRE_USER
+    'add_og_content' => array(
+      'info' => t("Opigno: Add OG content"),
+      'cache' => DRUPAL_CACHE_PER_USER
     )
   );
 }
@@ -41,11 +41,11 @@ function opigno_block_view($delta) {
   module_load_include('inc', 'opigno', 'includes/opigno.block');
   
   switch ($delta) {
-    case 'course_tools':
-      return opigno_course_tools_block();
+    case 'og_tools':
+      return opigno_og_tools_block();
     
-    case 'add_course_content':
-      return opigno_course_add_content_block();
+    case 'add_og_content':
+      return opigno_og_add_content_block();
   }
 }
 
@@ -54,9 +54,13 @@ function opigno_block_view($delta) {
  */
 function opigno_theme() {
   return array(
-    'opigno_og_tool' => array(
+    'opigno__og_tool' => array(
       'variables' => array('og_type' => NULL, 'machine_name' => NULL, 'name' => NULL, 'url' => NULL),
       'template' => 'theme/opigno--og-tool'
+    ),
+    'opigno__add_content_to_og_list' => array(
+      'variables' => array('og_type' => NULL, 'tools' => array()),
+      'template' => 'theme/opigno--add-content-to-og-list'
     )
   );
 }
@@ -71,20 +75,66 @@ function opigno_opigno_course_tools($node) {
     'wikis' => array(
       'tool_name' => t("Wikis"),
       'tool_url' => url("node/{$node->nid}/wikis"),
-      'item_name' => t("Wiki"),
-      'create_url' => url("node/add/wiki", array('query' => array('gids_node[]' => $node->nid)))
+      'create_label' => t("Add a wiki"),
+      'create_url' => url('node/add/wiki', array('query' => array('gids_node[]' => $node->nid)))
     ),
     'quizzes' => array(
       'tool_name' => t("Quizzes"),
       'tool_url' => url("node/{$node->nid}/quizzes"),
-      'item_name' => t("Quiz"),
-      'create_url' => url("node/add/quiz", array('query' => array('gids_node[]' => $node->nid)))
+      'create_label' => t("Add a quiz"),
+      'create_url' => url('node/add/quiz', array('query' => array('gids_node[]' => $node->nid)))
     ),
     'calendar' => array(
       'tool_name' => t("Calendar"),
       'tool_url' => url("node/{$node->nid}/calendar"),
-      'item_name' => t("Calendar entry"),
-      'create_url' => url("node/add/calendar_entry", array('query' => array('gids_node[]' => $node->nid)))
+      'create_label' => t("Add a calendar entry"),
+      'create_url' => url('node/add/calendar-entry', array('query' => array('gids_node[]' => $node->nid)))
+    ),
+    'poll' => array(
+      'tool_name' => t("Polls"),
+      'tool_url' => url("node/{$node->nid}/polls"),
+      'create_label' => t("Add a poll"),
+      'create_url' => url('node/add/poll', array('query' => array('gids_node[]' => $node->nid)))
+    ),
+    'workgroups' => array(
+      'tool_name' => t("Workgroups"),
+      'tool_url' => url("node/{$node->nid}/workgroups"),
+      'create_label' => t("Add a workgroup"),
+      'create_url' => url('node/add/workgroup', array('query' => array('gids_node[]' => $node->nid)))
+    )
+  );
+}
+
+/**
+ * Implements hook_opigno_workgroup_tools()
+ */
+function opigno_opigno_workgroup_tools($node) {
+  // @todo - activate/deactivate certain tools ?
+  
+  return array(
+    'wikis' => array(
+      'tool_name' => t("Wikis"),
+      'tool_url' => url("node/{$node->nid}/wikis"),
+      'create_label' => t("Add a wiki"),
+      'create_url' => url('node/add/wiki', array('query' => array('gids_node[]' => $node->nid)))
+    ),
+    'calendar' => array(
+      'tool_name' => t("Calendar"),
+      'tool_url' => url("node/{$node->nid}/calendar"),
+      'create_label' => t("Add a calendar entry"),
+      'create_url' => url('node/add/calendar-entry', array('query' => array('gids_node[]' => $node->nid)))
+    ),
+    'poll' => array(
+      'tool_name' => t("Polls"),
+      'tool_url' => url("node/{$node->nid}/polls"),
+      'create_label' => t("Add a poll"),
+      'create_url' => url('node/add/poll', array('query' => array('gids_node[]' => $node->nid)))
+    ),
+    'workgroups' => array(
+      'tool_name' => t("Workgroups"),
+      'tool_url' => url("node/{$node->nid}/workgroups"),
+      'create_label' => t("Add a workgroup"),
+      'create_url' => url('node/add/workgroup', array('query' => array('gids_node[]' => $node->nid)))
     )
   );
 }

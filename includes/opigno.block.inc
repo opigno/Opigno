@@ -6,22 +6,22 @@
  */
 
 /**
- * Course Tools block.
- * Displays all available course tools, with links ot the appropriate overview pages.
+ * OG Tools block.
+ * Displays all available OG tools, with links ot the appropriate overview pages.
  *
  * @return array
  */
-function opigno_course_tools_block() {
+function opigno_og_tools_block() {
   $html = '';
   
   $node = menu_get_object('node');
   
-  if (isset($node) && $node->type == 'course') {  
-    $tools = module_invoke_all('opigno_course_tools', $node);
+  if (isset($node) && ($node->type == 'course' || $node->type == 'workgroup')) {  
+    $tools = module_invoke_all("opigno_{$node->type}_tools", $node);
     
     foreach ($tools as $machine_name => $tool) {
-      $html .= theme('opigno_og_tool', array(
-        'og_type' => 'course',
+      $html .= theme('opigno__og_tool', array(
+        'og_type' => $node->type,
         'machine_name' => $machine_name,
         'name' => $tool['tool_name'],
         'url' => $tool['tool_url']
@@ -31,6 +31,32 @@ function opigno_course_tools_block() {
   
   return array(
     'subject' => t("Tools"),
+    'content' => $html
+  );
+}
+
+/**
+ * OG Add content block.
+ * Display links to create content for the current OG.
+ *
+ * @return array
+ */
+function opigno_og_add_content_block() {
+  $html = '';
+  
+  $node = menu_get_object('node');
+  
+  if (isset($node) && ($node->type == 'course' || $node->type == 'workgroup')) {  
+    $tools = module_invoke_all("opigno_{$node->type}_tools", $node);
+    
+    $html = theme('opigno__add_content_to_og_list', array(
+      'og_type' => $node->type,
+      'tools' => $tools
+    ));
+  }
+  
+  return array(
+    'subject' => t("Add content"),
     'content' => $html
   );
 }
