@@ -58,7 +58,25 @@ function opigno_theme() {
 }
 
 /**
- * Implements hook_form_alter()
+ * Implements hook_node_insert()
+ */
+function opigno_node_insert($node) {
+  if (opigno_is_og_type($node->type)) {
+    opigno_node_update($node);
+  }
+}
+
+/**
+ * Implements hook_node_update()
+ */
+function opigno_node_update($node) {
+  if (opigno_is_og_type($node->type)) {
+    variable_set('opigno_og_tools_nid_' . $node->nid, $node->tools_activate);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter()
  */
 function opigno_form_course_node_form_alter(&$form, $form_state) {
   _opigno_form_og_node_form_alter($form, $form_state, 'course');
@@ -74,6 +92,15 @@ function opigno_form_course_node_form_alter(&$form, $form_state) {
  * @param string $type
  */
 function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {  
+  if (!isset($form['#node']->nid)) {
+    $node = (object) array(
+      'nid' => 0
+    );
+  }
+  else {
+    $node = $form['#node'];
+  }
+  
   $form['tools'] = array(
     '#type' => 'fieldset',
     '#title' => $type == 'course' ? t("Course tools") : t("Workgroup tools"),
@@ -81,7 +108,7 @@ function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {
   
   $tools = array();
   
-  foreach(module_invoke_all("opigno_{$type}_tools", $form['#node']) as $tool => $tool_info) {
+  foreach(module_invoke_all("opigno_{$type}_tools", $node) as $tool => $tool_info) {
     $tools[$tool] = $tool_info['tool_name'];
   }
   
@@ -89,7 +116,7 @@ function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {
     '#type' => 'checkboxes',
     '#title' => t("Choose which tools to activate"),
     '#options' => $tools,
-    '#default_value' => variable_get('opigno_og_tools_nid_' . $form['#node']->nid, array()),
+    '#default_value' => variable_get('opigno_og_tools_nid_' . $node->nid, array()),
   );
   
   if (!isset($form['#submit'])) {
@@ -103,7 +130,7 @@ function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {
  * Helper submit callback for altering OG forms
  */
 function _opigno_form_og_node_form_alter_submit($form, $form_state) {
-  variable_set('opigno_og_tools_nid_' . $form['#node']->nid, $form_state['values']['tools_activate']);
+  $form['#node']->opigno_og_tools = $form_state['values']['tools_activate'];
 }
 
 /**
@@ -217,4 +244,15 @@ function opigno_get_og_tools($node, $only_active = TRUE) {
   }
   
   return $tools;
+}
+
+/**
+ * Determines if the node type is an OG type.
+ *
+ * @param string $type
+ *
+ * @return bool
+ */
+function opigno_is_og_type($type) {
+  return in_array($type, array('course', 'workgroup'));
 }
