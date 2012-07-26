@@ -61,7 +61,49 @@ function opigno_theme() {
  * Implements hook_form_alter()
  */
 function opigno_form_course_node_form_alter(&$form, $form_state) {
+  _opigno_form_og_node_form_alter($form, $form_state, 'course');
+}
+
+/**
+ * Helper function for altering OG forms
+ *
+ * @param array &$form
+ *
+ * @param array $form_state
+ *
+ * @param string $type
+ */
+function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {  
+  $form['tools'] = array(
+    '#type' => 'fieldset',
+    '#title' => $type == 'course' ? t("Course tools") : t("Workgroup tools"),
+  );
   
+  $tools = array();
+  
+  foreach(module_invoke_all("opigno_{$type}_tools", $form['#node']) as $tool => $tool_info) {
+    $tools[$tool] = $tool_info['tool_name'];
+  }
+  
+  $form['tools']['tools_activate'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t("Choose which tools to activate"),
+    '#options' => $tools,
+    '#default_value' => variable_get('opigno_og_tools_nid_' . $form['#node']->nid, array()),
+  );
+  
+  if (!isset($form['#submit'])) {
+    $form['#submit'] = array();
+  }
+  
+  $form['#submit'][] = '_opigno_form_og_node_form_alter_submit';
+}
+
+/**
+ * Helper submit callback for altering OG forms
+ */
+function _opigno_form_og_node_form_alter_submit($form, $form_state) {
+  variable_set('opigno_og_tools_nid_' . $form['#node']->nid, $form_state['values']['tools_activate']);
 }
 
 /**
@@ -135,41 +177,6 @@ function opigno_opigno_workgroup_tools($node) {
 }
 
 /**
- * Custom title callback.
- * Generates a title based on the node title and page type.
- * 
- * @param object $node
- * 
- * @param string $type
- *        The page type. Can be 'wiki', 'quiz', 'workgroup', etc
- * 
- * @return string
- */
-function opigno_node_title($node, $type) {
-  $node_title = $node->title;
-  
-  switch($type) {
-    case 'wiki':
-      $objects = t("wikis");
-      break;
-      
-    case 'files':
-      $objects = t("documents");
-      break;
-      
-    case 'quiz':
-      $objects = t("assessments");
-      break;
-      
-    default:
-      $objects = t("content");
-      break;
-  }
-  
-  return t("@title !objects", array('@title' => $title, '!objects' => $objects));
-}
-
-/**
  * Custom access callback
  * Use the settings from og_access to determine if a user has access to the current
  * node.
@@ -183,4 +190,31 @@ function opigno_node_title($node, $type) {
  */
 function opigno_node_access($node, $type) {
   return TRUE;
+}
+
+/**
+ * Returns the list tools for the OG node.
+ *
+ * @param object $node
+ *
+ * @param bool $only_active = TRUE
+ *
+ * @return array
+ */
+function opigno_get_og_tools($node, $only_active = TRUE) {
+  $tools = module_invoke_all("opigno_{$node->type}_tools", $node);
+  
+  if ($only_active) {
+    $all_tools = $tools;
+    
+    $tools = array();
+    
+    foreach (variable_get('opigno_og_tools_nid_' . $node->nid, array()) as $tool => $active) {
+      if ($active) {
+        $tools[$tool] = $all_tools[$tool];
+      }
+    }
+  }
+  
+  return $tools;
 }

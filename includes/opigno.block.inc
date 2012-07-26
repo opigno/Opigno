@@ -17,7 +17,7 @@ function opigno_og_tools_block() {
   $node = menu_get_object('node');
   
   if (isset($node) && ($node->type == 'course' || $node->type == 'workgroup')) {  
-    $tools = module_invoke_all("opigno_{$node->type}_tools", $node);
+    $tools = opigno_get_og_tools($node);
     
     foreach ($tools as $machine_name => $tool) {
       $html .= theme('opigno__og_tool', array(
@@ -47,7 +47,7 @@ function opigno_og_add_content_block() {
   $node = menu_get_object('node');
   
   if (isset($node) && ($node->type == 'course' || $node->type == 'workgroup')) {  
-    $tools = module_invoke_all("opigno_{$node->type}_tools", $node);
+    $tools = opigno_get_og_tools($node);
     
     $html = theme('opigno__add_content_to_og_list', array(
       'og_type' => $node->type,
