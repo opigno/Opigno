@@ -8,16 +8,8 @@
 /**
  * @todo
  *  - Add new permission + callback for views pages
- *  - Add views to install (Features ?)
  */
  
-/**
- * Implements hook_menu_alter()
- */
-function opigno_menu_alter(&$items) {
-  
-}
-
 /**
  * Implements hook_block_info()
  */
@@ -66,11 +58,16 @@ function opigno_theme() {
 }
 
 /**
+ * Implements hook_form_alter()
+ */
+function opigno_form_course_node_form_alter(&$form, $form_state) {
+  
+}
+
+/**
  * Implements hook_opigno_course_tools()
  */
 function opigno_opigno_course_tools($node) {
-  // @todo - activate/deactivate certain tools ?
-  
   return array(
     'wikis' => array(
       'tool_name' => t("Wikis"),
@@ -109,8 +106,6 @@ function opigno_opigno_course_tools($node) {
  * Implements hook_opigno_workgroup_tools()
  */
 function opigno_opigno_workgroup_tools($node) {
-  // @todo - activate/deactivate certain tools ?
-  
   return array(
     'wikis' => array(
       'tool_name' => t("Wikis"),
