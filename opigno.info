@@ -5,3 +5,5 @@ package = Opigno
 
 ; Will enable the features module
 dependencies[] = opigno_features
+
+files[] = tests/AbstractOpignoTestCase.inc
