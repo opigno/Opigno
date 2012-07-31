@@ -27,7 +27,10 @@ function opigno_assessment_menu() {
 function opigno_assessment_permission() {
   return array(
     'edit course assessment options' => array(
-      'title' => t("Edit course assessment oprtons")
+      'title' => t("Edit course assessment options")
+    ),
+    'edit quiz assessment options' => array(
+      'title' => t("Edit quiz assessment options")
     )
   );
 }
@@ -37,6 +40,9 @@ function opigno_assessment_permission() {
  */
 function opigno_assessment_node_insert($node) {
   if ($node->type === 'course') {
+    opigno_assessment_node_update($node);
+  }
+  elseif ($node->type === 'quiz') {
     opigno_assessment_node_update($node);
   }
 }
@@ -54,23 +60,29 @@ function opigno_assessment_node_update($node) {
       'min'     => $node->opigno_assessment['min'],
     ));
   }
+  elseif ($node->type === 'quiz') {
+    variable_set('opigno_assessment_nid_' . $node->nid, array(
+      'ponderation'  => $node->opigno_assessment['ponderation'],
+    ));
+  }
 }
 
 /**
  * Implements hook_node_load()
  */
 function opigno_assessment_node_load($nodes, $types) {
-  if (!in_array('course', $types)) {
+  if (!in_array('course', $types) && !in_array('quiz', $types)) {
     return;
   }
   
   foreach ($nodes as $nid => $node) {
-    if ($node->type == 'course') {
-      $node->opigno_assessment = array();
-      
-      $options = variable_get("opigno_assessment_nid_$nid", NULL);
-      
-      if ($options) {
+    $node->opigno_assessment = array();
+    
+    $options = variable_get("opigno_assessment_nid_$nid", NULL);
+    
+    
+    if ($options) {
+      if ($node->type == 'course') {      
         $node->opigno_assessment['option'] = $options['option'];
         
         $node->opigno_assessment['quizzes'] = $options['quizzes'];
@@ -81,8 +93,25 @@ function opigno_assessment_node_load($nodes, $types) {
         
         $node->opigno_assessment['min'] = $options['min'];
       }
+      elseif ($node->type == 'quiz') {     
+        $node->opigno_assessment['ponderation'] = $options['ponderation'];
+      }
     }
   }
+}
+
+/**
+ * Implements hook_action_info()
+ */
+function opigno_assessment_action_info() {
+  return array(
+    'opigno_assessment_action_assess_quiz' => array(
+      'type' => 'node',
+      'label' => t("Opigno Assessment: assess quiz results"),
+      'configurable' => FALSE,
+      'triggers' => array('quiz_scored'),
+    )
+  );
 }
 
 /**
@@ -156,6 +185,39 @@ function opigno_assessment_form_course_node_form_alter(&$form, $form_state) {
 }
 
 /**
+ * Implements hook_form_quiz_node_form_alter()
+ */
+function opigno_assessment_form_quiz_node_form_alter(&$form, $form_state) {
+  if (user_access('edit quiz assessment options')) {
+    $node = $form['#node'];
+    
+    // @todo Check if in selected quiz list
+    // @todo Make quiz selectable for assessment from here ?
+    $form['opigno_assessment'] = array(
+      '#type' => 'fieldset',
+      '#title' => t("Assessment"),
+      '#weight' => 10,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'opigno_assessment') . '/js/opigno_assessment.js'),
+      ),
+      '#attributes' => array(
+        'class' => array('opigno-assessment-form')
+      ),
+      '#tree' => TRUE,
+    );
+    
+    $form['opigno_assessment']['ponderation'] = array(
+      '#type' => 'textfield',
+      '#title' => t("Assessment ponderation"),
+      '#default_value' => isset($node->opigno_assessment['ponderation']) ? $node->opigno_assessment['ponderation'] : 1
+    );
+  }
+}
+
+/**
  *
  */
 function opigno_assessment_get_scale() {
@@ -191,12 +253,21 @@ function opigno_assessment_get_quizzes($og_node) {
   return $nodes;
 }
 
+function opigno_assessment_quiz_scored($quiz, $score, $rid) {
+  opigno_assessment_quiz_finished($quiz, $score, $rid);
+}
+
 /**
- * Implements hook_quiz_scored()
+ *
  */
-function opigno_assessment_quiz_scored($quiz, $score_data, $rid) {
-  $args = func_get_args();
-  dpm($args);
+function opigno_assessment_quiz_finished($quiz, $score, $session_data) {
+  if ($score['is_evaluated']) {
+    global $user;
+    
+    module_load_include('inc', 'opigno_assessment', 'includes/opigno_assessment.assess');
+    
+    opigno_assessment_assess_course($quiz->group_audience[LANGUAGE_NONE][0]['gid'], $user->uid);
+  }
 }
 
 

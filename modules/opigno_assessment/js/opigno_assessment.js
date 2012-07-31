@@ -7,14 +7,21 @@
       $('fieldset.opigno-assessment-form', context).drupalSetSummary(function (context) {
         var option = $('input[name="opigno_assessment[option]"]:checked', context).val();
         
-        if (option === 'all') {
-          return Drupal.t("All assignments must be completed");
-        }
-        else if (option === 'some') {
-          return Drupal.t("Selected assignments must be completed");
+        if (option) {
+          if (option === 'all') {
+            return Drupal.t("All assignments must be completed");
+          }
+          else if (option === 'some') {
+            return Drupal.t("Selected assignments must be completed");
+          }
+          else {
+            return Drupal.t("No assessment");
+          }
         }
         else {
-          return Drupal.t("No assessment");
+          option = $('input[name="opigno_assessment[ponderation]"]', context).val();
+          
+          return Drupal.t("Ponderation of @num", { '@num': option });
         }
       });
     }
