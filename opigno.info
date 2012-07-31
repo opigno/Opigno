@@ -3,5 +3,5 @@ description = Opigno LMS features module
 core = 7.x
 package = Opigno
 
-dependencies[] = og
-dependencies[] = og_access
+; Will enable the features module
+dependencies[] = opigno_features
