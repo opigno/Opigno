@@ -5,7 +5,7 @@
  * Defines a Unit test for quiz assessments and module settings.
  */
 
-class OpignoAssessmentTest extends DrupalWebTestCase {
+class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
   
   protected $privileged_user;
   
@@ -20,7 +20,10 @@ class OpignoAssessmentTest extends DrupalWebTestCase {
   }
   
   public function setUp() {
-    parent::setUp('opigno_assessment');
+    parent::setUp('opigno_assessment', 'matching');
+    
+    // Configure Opigno
+    $this->configureOpigno();
     
     // Create users
     $this->privileged_user = $this->drupalCreateUser(array(
@@ -50,7 +53,7 @@ class OpignoAssessmentTest extends DrupalWebTestCase {
     ));
     
     // Login privileged user
-    $this->drupalLogin($this->privileged_user);    
+    $this->drupalLogin($this->privileged_user);
   }
   
   /**
