@@ -1,0 +1,6 @@
+name = Opigno Assessment
+description = Opigno Assessment consolidates all quiz results and validates a course completion
+core = 7.x
+package = Opigno
+
+dependencies[] = quiz

@@ -1,0 +1,6 @@
+<?php
+
+/**
+ * @file
+ * Contains all hook_implementations and module specific API.
+ */
