@@ -2,5 +2,20 @@
 
 /**
  * @file
- *
+ * Defines a Unit test for quiz assessments.
  */
+
+class OpignoAssessmentTest extends DrupalWebTestCase {
+  
+  public function getInfo() {
+    return array(
+      'name' => 'Opigno Assessment',
+      'description' => 'Ensure that the assessment on quizzes works correctly.',
+      'group' => 'Opigno',
+    );
+  }
+  
+  public function setUp() {
+    parent::setUp('opigno_assessment');
+  }
+}
