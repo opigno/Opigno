@@ -3,6 +3,6 @@ description = Opigno Assessment consolidates all quiz results and validates a co
 core = 7.x
 package = Opigno
 
-files[] = tests/opigno_assessment.quiz.test
+files[] = tests/opigno_assessment.test
 
 dependencies[] = quiz

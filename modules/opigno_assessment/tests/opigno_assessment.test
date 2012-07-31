@@ -2,10 +2,14 @@
 
 /**
  * @file
- * Defines a Unit test for quiz assessments.
+ * Defines a Unit test for quiz assessments and module settings.
  */
 
 class OpignoAssessmentTest extends DrupalWebTestCase {
+  
+  protected $privileged_user;
+  
+  protected $authenticated_user;
   
   public function getInfo() {
     return array(
@@ -17,5 +21,43 @@ class OpignoAssessmentTest extends DrupalWebTestCase {
   
   public function setUp() {
     parent::setUp('opigno_assessment');
+    
+    // Create users
+    $this->privileged_user = $this->drupalCreateUser(array(
+      // Node
+      'access content',
+      'create quiz content',
+      'edit any quiz content',
+      'create matching content',
+      'edit any matching content',
+      'create course content',
+      'edit any course content',
+      // Opigno
+      'administer opigno',
+      // Opigno Assessment
+      'edit course assessment options',
+      'edit quiz assessment options',
+      // Quiz
+      'access quiz',
+      'view any quiz results',
+      'score any quiz',
+    ));
+    
+    $this->authenticated_user = $this->drupalCreateUser(array(
+      'access content',
+      'access quiz',
+      'view own quiz results',
+    ));
+    
+    // Login privileged user
+    $this->drupalLogin($this->privileged_user);    
   }
+  
+  /**
+   *
+   */
+  public function testStuff() {
+    $this->assertTrue(1, 'true');
+  }
+  
 }
