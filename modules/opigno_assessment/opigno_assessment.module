@@ -20,3 +20,184 @@ function opigno_assessment_menu() {
     )
   );
 }
+
+/**
+ * Implements hook_permission()
+ */
+function opigno_assessment_permission() {
+  return array(
+    'edit course assessment options' => array(
+      'title' => t("Edit course assessment oprtons")
+    )
+  );
+}
+
+/**
+ * Implements hook_node_insert()
+ */
+function opigno_assessment_node_insert($node) {
+  if ($node->type === 'course') {
+    opigno_assessment_node_update($node);
+  }
+}
+
+/**
+ * Implements hook_node_update()
+ */
+function opigno_assessment_node_update($node) {
+  if ($node->type === 'course') {
+    variable_set('opigno_assessment_nid_' . $node->nid, array(
+      'option'  => $node->opigno_assessment['option'],
+      'quizzes' => $node->opigno_assessment['quizzes'],
+      'rule'    => $node->opigno_assessment['rule'],
+      'average' => $node->opigno_assessment['average'],
+      'min'     => $node->opigno_assessment['min'],
+    ));
+  }
+}
+
+/**
+ * Implements hook_node_load()
+ */
+function opigno_assessment_node_load($nodes, $types) {
+  if (!in_array('course', $types)) {
+    return;
+  }
+  
+  foreach ($nodes as $nid => $node) {
+    if ($node->type == 'course') {
+      $node->opigno_assessment = array();
+      
+      $options = variable_get("opigno_assessment_nid_$nid", NULL);
+      
+      if ($options) {
+        $node->opigno_assessment['option'] = $options['option'];
+        
+        $node->opigno_assessment['quizzes'] = $options['quizzes'];
+        
+        $node->opigno_assessment['rule'] = $options['rule'];
+        
+        $node->opigno_assessment['average'] = $options['average'];
+        
+        $node->opigno_assessment['min'] = $options['min'];
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_course_node_form_alter()
+ */
+function opigno_assessment_form_course_node_form_alter(&$form, $form_state) {
+  if (user_access('edit course assessment options')) {
+    $node = $form['#node'];
+    
+    $form['opigno_assessment'] = array(
+      '#type' => 'fieldset',
+      '#title' => t("Course assessment"),
+      '#weight' => 10,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'opigno_assessment') . '/js/opigno_assessment.js'),
+      ),
+      '#attributes' => array(
+        'class' => array('opigno-assessment-form')
+      ),
+      '#tree' => TRUE,
+    );
+    
+    $form['opigno_assessment']['option'] = array(
+      '#type' => 'radios',
+      '#title' => t("Assessment options"),
+      '#options' => array(
+        'no' => t("No assessment for this course"),
+        'all' => t("Student must accomplish all assignments"),
+        'some' => t("Student must accomplish certain assignments")
+      ),
+      '#default_value' => isset($node->opigno_assessment['option']) ? $node->opigno_assessment['option'] : 'no'
+    );
+    
+    $form['opigno_assessment']['quizzes'] = array(
+      '#type' => 'select',
+      '#title' => t("Select assignments to complete"),
+      '#description' => t("A student must accomplish all selected assignments in order to finish the course."),
+      '#options' => opigno_assessment_get_quizzes($node),
+      '#multiple' => TRUE,
+      '#default_value' => isset($node->opigno_assessment['quizzes']) ? $node->opigno_assessment['quizzes'] : array()
+    );
+    
+    $form['opigno_assessment']['rule'] = array(
+      '#type' => 'radios',
+      '#title' => t("Success rule"),
+      '#description' => t("A student successfully accomplishes this course if the following rule(s) is(are) met."),
+      '#options' => array(
+        'average' => t("The average grade is higher than X"),
+        'average_neg' => t("The average grade is higher than X AND no grade is lower than Y"),
+      ),
+      '#default_value' => isset($node->opigno_assessment['rule']) ? $node->opigno_assessment['rule'] : 'average'
+    );
+    
+    $form['opigno_assessment']['average'] = array(
+      '#type' => 'select',
+      '#title' => t("Minimum grade"),
+      '#options' => opigno_assessment_get_scale(),
+      '#default_value' => isset($node->opigno_assessment['average']) ? $node->opigno_assessment['average'] : round(variable_get('opigno_assessment_grade_scale', 10) / 2),
+    );
+    
+    $form['opigno_assessment']['min'] = array(
+      '#type' => 'select',
+      '#title' => t("No grade lower than"),
+      '#options' => opigno_assessment_get_scale(),
+      '#default_value' => isset($node->opigno_assessment['min']) ? $node->opigno_assessment['min'] : round(variable_get('opigno_assessment_grade_scale', 10) / 2),
+    );
+  }
+}
+
+/**
+ *
+ */
+function opigno_assessment_get_scale() {
+  return array_keys(array_fill(1, variable_get('opigno_assessment_grade_scale', 10), 1));
+}
+
+/**
+ *
+ */
+function opigno_assessment_get_quizzes($og_node) {
+  $nodes = array();
+  
+  $query = db_select('node', 'n');
+  
+  $query->leftJoin('node_revision', 'v', 'v.vid = n.vid');
+  
+  $query->leftJoin('og_membership', 'om', 'om.etid = n.nid');
+  
+  $query->leftJoin('og', 'o', 'o.gid = om.gid');
+  
+  $result = $query->fields('n', array('nid'))
+                  ->fields('v', array('title'))
+                  ->condition('n.type', 'quiz')
+                  ->condition('om.state', 1)
+                  ->condition('o.entity_type', 'node')
+                  ->condition('o.etid', $og_node->nid)
+                  ->execute();
+  
+  while ($node = $result->fetchObject()) {
+    $nodes[$node->nid] = $node->title;
+  }
+  
+  return $nodes;
+}
+
+/**
+ * Implements hook_quiz_scored()
+ */
+function opigno_assessment_quiz_scored($quiz, $score_data, $rid) {
+  $args = func_get_args();
+  dpm($args);
+}
+
+
+
