@@ -4,3 +4,19 @@
  * @file
  * Contains all hook_implementations and module specific API.
  */
+
+/**
+ * Implements hook_menu()
+ */
+function opigno_assessment_menu() {
+  return array(
+    'admin/config/opigno/assessment' => array(
+      'title' => "Opigno Assessment",
+      'description' => "Set assessment scaling and rules.",
+      'access arguments' => array('administer opigno'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('opigno_assessment_settings_form'),
+      'file' => 'includes/opigno_assessment.admin.inc',
+    )
+  );
+}

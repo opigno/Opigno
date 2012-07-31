@@ -9,7 +9,34 @@
  * @todo
  *  - Add new permission + callback for views pages
  */
- 
+
+/**
+ * Implements hook_menu()
+ */
+function opigno_menu() {
+  return array(
+    'admin/config/opigno' => array(
+      'title' => "Opigno",
+      'description' => "Administer the suite of Opigno modules.",
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('administer opigno'),
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+    )
+  );
+}
+
+/**
+ * Implements hook_permission()
+ */
+function opigno_permission() {
+  return array(
+    'administer opigno' => array(
+      'title' => t("Administer the Opigno LMS")
+    )
+  );
+}
+
 /**
  * Implements hook_block_info()
  */
