@@ -1,0 +1,5 @@
+name = Opigno Context
+description = Determines a node or view context within a group. Updates the breadcrumbs accordingly.
+core = 7.x
+package = Opigno
+dependencies[] = og
