@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for Opigno Simple UI to check if overrides still apply against more recent modules.
+ * Check all form changes, path changes to see if we're correctly overriding them.
+ */
+
+class OpignoSimpleUITest extends DrupalWebTestCase {
+  
+  public function getInfo() {
+    return array(
+      'name' => 'Opigno Simple UI',
+      'description' => 'Ensure that the assessment on quizzes worksall overrides work correctly.',
+      'group' => 'Opigno',
+    );
+  }
+  
+  public function setUp() {
+    parent::setUp('opigno_simple_ui');
+  }
+  
+  public function testOG() {
+    if (module_enable(array('og'))) {  
+      $this->assertTrue(1);
+    }
+    else {
+      $this->pass("OG module not found, skipping...");
+    }
+  }
+}

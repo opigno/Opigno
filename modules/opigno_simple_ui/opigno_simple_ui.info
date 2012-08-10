@@ -1,5 +1,6 @@
 name = Opigno Simple UI
-description = This module simplifies and unifies the different UIs of all third-party modules used by Opigno. It will redirect certain forms and hide certain options when configuring these modules. 
+description = This module simplifies and unifies the different UIs of some third-party modules used by Opigno. It will redirect certain forms and hide certain options when configuring these modules. 
 core = 7.x
-version = 0.1
 package = Opigno
+
+files[] = tests/opigno_simple_ui.test

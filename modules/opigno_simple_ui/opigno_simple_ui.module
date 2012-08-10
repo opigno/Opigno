@@ -2,4 +2,12 @@
 
 /**
  * @file
+ * Contains all hook definitions and module specific API
  */
+
+/**
+ * Implements hook_menu_alter()
+ */
+function opigno_simple_ui_menu_alter(&$items) {
+  dpm($items);
+}
