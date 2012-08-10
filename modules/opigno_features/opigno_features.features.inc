@@ -22,6 +22,86 @@ function opigno_features_views_api() {
 }
 
 /**
+ * Implements hook_homebox().
+ */
+function opigno_features_homebox() {
+  $homeboxes = array();
+
+  $homeboxes['user_dashboard'] = array (
+    'regions' => 3,
+    'cache' => 1,
+    'color' => 1,
+    'colors' => 
+    array (
+      0 => '#E4F0F8',
+      1 => '#E4F0F8',
+      2 => '#E4F0F8',
+      3 => '#E4F0F8',
+      4 => '#E4F0F8',
+      5 => '#E4F0F8',
+    ),
+    'blocks' => 
+    array (
+      'forum_active' => 
+      array (
+        'module' => 'forum',
+        'delta' => 'active',
+        'region' => 1,
+        'movable' => 1,
+        'status' => 1,
+        'open' => 1,
+        'closable' => 1,
+        'title' => '',
+        'weight' => -15,
+      ),
+      'homebox_custom' => 
+      array (
+        'module' => 'homebox',
+        'delta' => 'custom',
+        'region' => 2,
+        'movable' => 1,
+        'status' => 1,
+        'open' => 1,
+        'closable' => 1,
+        'title' => '',
+        'weight' => -15,
+      ),
+      'poll_recent' => 
+      array (
+        'module' => 'poll',
+        'delta' => 'recent',
+        'region' => 3,
+        'movable' => 1,
+        'status' => 1,
+        'open' => 1,
+        'closable' => 1,
+        'title' => '',
+        'weight' => -15,
+      ),
+    ),
+    'widths' => 
+    array (
+      1 => 25,
+      2 => 50,
+      3 => 25,
+    ),
+    'title' => 'Dashboard',
+    'path' => 'dashboard',
+    'menu' => 1,
+    'enabled' => 1,
+    'auto_save' => 1,
+    'full' => 0,
+    'roles' => 
+    array (
+      0 => 'authenticated user',
+    ),
+  );
+
+
+  return $homeboxes;
+}
+
+/**
  * Implements hook_node_info().
  */
 function opigno_features_node_info() {

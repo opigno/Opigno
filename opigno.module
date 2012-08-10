@@ -167,31 +167,31 @@ function opigno_opigno_course_tools($node) {
   return array(
     'wikis' => array(
       'tool_name' => t("Wikis"),
-      'tool_url' => url("node/{$node->nid}/wikis"),
+      'tool_url' => url("course/{$node->nid}/wiki-page"),
       'create_label' => t("Add a wiki"),
       'create_url' => url('node/add/wiki', array('query' => array('gids_node[]' => $node->nid)))
     ),
     'quizzes' => array(
       'tool_name' => t("Quizzes"),
-      'tool_url' => url("node/{$node->nid}/quizzes"),
+      'tool_url' => url("course/{$node->nid}/quiz"),
       'create_label' => t("Add a quiz"),
       'create_url' => url('node/add/quiz', array('query' => array('gids_node[]' => $node->nid)))
     ),
     'calendar' => array(
       'tool_name' => t("Calendar"),
-      'tool_url' => url("node/{$node->nid}/calendar"),
+      'tool_url' => url("course/{$node->nid}/calendar-item"),
       'create_label' => t("Add a calendar entry"),
       'create_url' => url('node/add/calendar-entry', array('query' => array('gids_node[]' => $node->nid)))
     ),
     'poll' => array(
       'tool_name' => t("Polls"),
-      'tool_url' => url("node/{$node->nid}/polls"),
+      'tool_url' => url("course/{$node->nid}/poll"),
       'create_label' => t("Add a poll"),
       'create_url' => url('node/add/poll', array('query' => array('gids_node[]' => $node->nid)))
     ),
     'workgroups' => array(
       'tool_name' => t("Workgroups"),
-      'tool_url' => url("node/{$node->nid}/workgroups"),
+      'tool_url' => url("course/{$node->nid}/workgroup"),
       'create_label' => t("Add a workgroup"),
       'create_url' => url('node/add/workgroup', array('query' => array('gids_node[]' => $node->nid)))
     )
@@ -202,6 +202,7 @@ function opigno_opigno_course_tools($node) {
  * Implements hook_opigno_workgroup_tools()
  */
 function opigno_opigno_workgroup_tools($node) {
+  // @todo !!
   return array(
     'wikis' => array(
       'tool_name' => t("Wikis"),
