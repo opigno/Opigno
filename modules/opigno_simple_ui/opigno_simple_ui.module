@@ -9,5 +9,20 @@
  * Implements hook_menu_alter()
  */
 function opigno_simple_ui_menu_alter(&$items) {
-  dpm($items);
+  if (module_exists('og_ui')) {
+    module_load_include('inc', 'opigno_simple_ui', 'includes/og');
+    
+    opigno_simple_ui_og_menu_alter($items);
+  }
+}
+
+/**
+ * Implements hook_form_alter()
+ */
+function opigno_simple_ui_form_alter(&$form, &$form_state, $form_id) {
+  if (module_exists('og_ui')) {
+    module_load_include('inc', 'opigno_simple_ui', 'includes/og');
+    
+    opigno_simple_ui_og_form_alter($form, $form_state, $form_id);
+  }
 }

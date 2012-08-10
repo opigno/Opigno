@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Check OG overrides.
+ */
+
+class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
+  
+  public function getInfo() {
+    return array(
+      'name' => 'Opigno Simple OG UI',
+      'description' => 'Ensure that OG overrides work correctly.',
+      'group' => 'Opigno Simple UI',
+    );
+  }
+  
+  public function setUp() {
+    parent::setUp('opigno_simple_ui', 'og', 'og_ui');
+    
+    $this->admin = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    
+    $this->authenticated_user = $this->drupalCreateUser(array(
+      'access content',
+      'administer nodes',
+    ));
+  }
+  
+  /**
+   * Simple UI overrides several URLs to more user-friendly, logical items.
+   * For example, an OG node will have a "Members" tab, and underneath that
+   * an "Add members" sub tab. However, the "Group" tab is removed.
+   */
+  public function testOGNodeUrls() {
+    if ($this->_checkDependency('og') || $this->_checkDependency('og_ui')) {
+      $this->drupalLogin($this->admin);
+      
+      $this->_prepareOGType();
+      
+      $this->_createOGNode();
+      
+      $this->clickLink('Members');    
+      
+      $this->assertText($this->admin->name);
+      
+      $this->clickLink('Add members');
+      
+      $this->assertText('Add a group member to');
+    }
+  }
+  
+  /**
+   * Create an OG node type.
+   */
+  protected function _prepareOGType() {    
+    $this->drupalGet('admin/structure/types/add');
+    
+    $edit = array(
+      'name' => 'OG',
+      'type' => 'og',
+      'og_group_type' => 'group',
+    );
+    
+    $this->drupalPost($this->getURL(), $edit, 'Save content type');
+    
+    $this->drupalGet('admin/config/development/performance');
+    
+    $edit = array();
+    
+    $this->drupalPost($this->getURL(), $edit, 'Clear all caches');
+  }
+  
+  /**
+   * Create an OG node
+   */
+  protected function _createOGNode() {    
+    $this->drupalGet('node/add/og');
+    
+    // Check that Group field is on by default
+    $this->assertNoFieldById('edit-group-group-und', '', 'Group checkbox is hidden.');
+    
+    $edit = array(
+      'title' => $this->randomName(8),
+      'body[' . LANGUAGE_NONE . '][0][value]' => $this->randomName(8),
+    );
+    
+    $this->drupalPost($this->getURL(), $edit, 'Save');
+  }
+}
