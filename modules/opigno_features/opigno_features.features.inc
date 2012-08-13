@@ -87,7 +87,7 @@ function opigno_features_homebox() {
     ),
     'title' => 'Dashboard',
     'path' => 'dashboard',
-    'menu' => 1,
+    'menu' => 0,
     'enabled' => 1,
     'auto_save' => 1,
     'full' => 0,
