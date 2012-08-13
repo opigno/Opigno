@@ -39,6 +39,9 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
       
       $gid = $this->_createOGNode();
       
+      // There should be no "Group" tab
+      $this->assertNoLink('Group', 'Should be no "Group" tab.');
+      
       $this->clickLink('Members');    
       
       $this->assertText($this->admin->name);
@@ -46,6 +49,48 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
       $this->clickLink('Add members');
       
       $this->assertText('Add a group member to');
+      
+      // Hide membership state
+      $this->assertNoFieldById('edit-og-add-user-state', '', 'Hide membership state. Defaults to active.');    
+      
+      // Hide membership type
+      $this->assertNoFieldById('edit-og-add-user-membership-type', '', 'Hide membership type. Defaults to default anyway.');
+      
+      // Possibility to select role directly
+      $this->assertFieldById('edit-og-role-3', '', 'Roles checkboxes');
+      
+      // Add user to group and grant admin rights (role #3 by default)
+      $edit = array(
+        'og_add_user' => $this->authenticated_user->name,
+        'og_role[3]' => '3',
+      );
+      
+      $this->drupalPost($this->getURL(), $edit, 'Add users');
+      
+      $this->clickLink('Members');
+      
+      $this->assertText($this->authenticated_user->name);
+      
+      $this->assertText('administrator member');
+      
+      // Adding the same member again should not produce any errors
+      $this->clickLink('Add members');
+      
+      // Add user to group and grant no role
+      $edit = array(
+        'og_add_user' => $this->authenticated_user->name,
+      );
+      
+      $this->drupalPost($this->getURL(), $edit, 'Add users');
+      
+      $this->assertText($this->authenticated_user->name . ' has been added to group.');
+      
+      $this->clickLink('Members');
+      
+      $this->assertText($this->authenticated_user->name);
+      
+      // Should not have admin rights anymore
+      $this->assertNoText('administrator member');
       
       $this->_createOGContentNode($gid);
     }
@@ -106,8 +151,6 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
    */
   protected function _createOGContentNode($gid = NULL) {    
     $this->drupalGet('node/add/og-content', isset($gid) ? array('query' => array('gids_node[]' => $gid)) : array());
-    
-    $this->verbose(htmlentities($this->drupalGetContent()));
     
     // Check that the audience field is hidden
     $this->assertTrue(preg_match('/div (class="[\sa-z0-9\-\_]*element-hidden[\sa-z0-9\-\_]*"(\s)?)?id="edit-group-audience"((\s)?class="[\sa-z0-9\-\_]*element-hidden[\sa-z0-9\-\_]*")?/', $this->drupalGetContent()), 'Group audience select is hidden');

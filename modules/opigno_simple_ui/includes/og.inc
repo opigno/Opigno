@@ -51,4 +51,70 @@ function opigno_simple_ui_og_form_alter(&$form, &$form_state, $form_id) {
       }
     }
   }
+  elseif ($form_id == 'og_ui_add_users') {
+    $form['og_user']['og_add_user_state']['#type'] = 'hidden';
+    $form['og_user']['og_add_user_state']['#value'] = 1;
+    
+    $form['og_user']['og_add_user_membership_type']['#type'] = 'hidden';
+    $form['og_user']['og_add_user_membership_type']['#value'] = 'og_membership_type_default';
+    
+    $roles = og_roles($form['group']['#value']->gid);    
+    
+    $form['og_user']['og_select_membership'] = array(
+      '#markup' => '<div><label>' . t("Role(s)") . '</label></div>'
+    );
+    
+    // Always check "Member" role
+    $member_role = $roles[2];
+    
+    $form['og_user']['og_member'] = array(
+      '#type' => 'checkbox',
+      '#title' => $member_role,
+      '#value' => 1,
+      '#attributes' => array('disabled' => 'disabled')
+    );
+    
+    // Remove "Non-member" and "Member" roles
+    unset($roles[1], $roles[2]);
+    
+    $form['og_user']['og_role'] = array(
+      '#type' => 'checkboxes',
+      '#options' => $roles,
+      '#required' => TRUE
+    );
+    
+    $form['#submit'][] = 'opigno_simple_ui_og_form_alter__add_role_to_user';
+  }
+}
+
+function opigno_simple_ui_og_form_alter__add_role_to_user($form, $form_state) {
+  // Get uid by username
+  $uid = db_select('users', 'u')
+          ->fields('u', array('uid'))
+          ->condition('u.name', $form_state['values']['og_add_user'])
+          ->execute()
+          ->fetchField();
+  
+  $gid = $form_state['values']['group']->gid;
+  
+  // Add "Member" role
+  $form_state['values']['og_role'][2] = '2';
+  
+  // Remove all roles to avoid duplicates
+  db_delete('og_users_roles')
+    ->condition('uid', $uid)
+    ->condition('gid', $gid)
+    ->execute();
+  
+  foreach ($form_state['values']['og_role'] as $rid => $value) {
+    if ((string) $rid === $value) {
+      db_insert('og_users_roles')
+        ->fields(array(
+          'uid' => $uid,
+          'rid' => $rid,
+          'gid' => $gid
+          ))
+        ->execute();
+    }
+  }
 }
