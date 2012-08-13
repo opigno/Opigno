@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Check Quiz overrides.
+ */
+
+class OpignoSimpleUIQuizTest extends AbstractOpignoSimpleUITest {
+  
+  public function getInfo() {
+    return array(
+      'name' => 'Opigno Simple Quiz UI',
+      'description' => 'Ensure that Quiz overrides work correctly.',
+      'group' => 'Opigno Simple UI',
+    );
+  }
+  
+  public function setUp() {
+    parent::setUp('opigno_simple_ui', 'quiz', 'quiz_question', 'multichoice');
+    
+    $this->admin = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    
+    $this->authenticated_user = $this->drupalCreateUser(array(
+      'access content',
+      'administer nodes',
+    ));
+  }
+  
+  /**
+   * 
+   */
+  public function testQuizForm() {
+    if ($this->_checkDependency('quiz') || $this->_checkDependency('quiz_question') || $this->_checkDependency('multichoice')) {
+      $this->drupalLogin($this->admin);
+      
+      $gid = $this->_createQuiz();
+      
+      $this->assertNoText('Browse for questions to add');
+      
+      $this->assertText('Browse existing questions to add them to this quiz', 'Changed label of fieldset for browsing questions.');
+      
+      $matches = array();
+    
+      preg_match('/node\/([0-9]+)\/questions$/', $this->getURL(), $matches);
+      
+      $this->drupalGET('node/' . $matches[1]);
+      
+      // Should not be any "Manage questions" tab
+      $this->assertNoLink('Manage questions', 'Should be no "Manage questions" tab.');
+      
+      $this->clickLink('Edit');
+      
+      $this->assertLink('Manage questions', 0, 'The "Manage questions" link should be a sub tab for the node edit form.');
+    }
+  }
+  
+  /**
+   * Create a quiz
+   */
+  protected function _createQuiz() {    
+    $this->drupalGet('node/add/quiz');
+    
+    $edit = array(
+      'title' => $this->randomName(8),
+      'body[' . LANGUAGE_NONE . '][0][value]' => $this->randomName(8),
+    );
+    
+    $this->drupalPost($this->getURL(), $edit, 'Save');
+  }
+}
