@@ -164,38 +164,38 @@ function _opigno_form_og_node_form_alter_submit($form, $form_state) {
  * Implements hook_opigno_course_tools()
  */
 function opigno_opigno_course_tools($node) {
-  return array(
+  $tools = array(
     'wikis' => array(
       'tool_name' => t("Wikis"),
-      'tool_url' => url("course/{$node->nid}/wiki-page"),
-      'create_label' => t("Add a wiki"),
-      'create_url' => url('node/add/wiki', array('query' => array('gids_node[]' => $node->nid)))
+      'tool_url' => url("course/{$node->nid}/wiki-page")
     ),
     'quizzes' => array(
       'tool_name' => t("Quizzes"),
-      'tool_url' => url("course/{$node->nid}/quiz"),
-      'create_label' => t("Add a quiz"),
-      'create_url' => url('node/add/quiz', array('query' => array('gids_node[]' => $node->nid)))
+      'tool_url' => url("course/{$node->nid}/quiz")
     ),
     'calendar' => array(
       'tool_name' => t("Calendar"),
-      'tool_url' => url("course/{$node->nid}/calendar-item"),
-      'create_label' => t("Add a calendar entry"),
-      'create_url' => url('node/add/calendar-entry', array('query' => array('gids_node[]' => $node->nid)))
+      'tool_url' => url("course/{$node->nid}/calendar-item")
     ),
     'poll' => array(
       'tool_name' => t("Polls"),
-      'tool_url' => url("course/{$node->nid}/poll"),
-      'create_label' => t("Add a poll"),
-      'create_url' => url('node/add/poll', array('query' => array('gids_node[]' => $node->nid)))
+      'tool_url' => url("course/{$node->nid}/poll")
     ),
     'workgroups' => array(
       'tool_name' => t("Workgroups"),
       'tool_url' => url("course/{$node->nid}/workgroup"),
-      'create_label' => t("Add a workgroup"),
-      'create_url' => url('node/add/workgroup', array('query' => array('gids_node[]' => $node->nid)))
     )
   );
+  
+  foreach (array('wikis' => 'wiki', 'quizzes' => 'quiz', 'calendar' => 'calendar_entry', 'poll' => 'poll', 'workgroups' => 'workgroup') as $tool => $type) {
+    if (user_access("create $type content")) {
+      $tools[$tool]['create_label'] = t("Add a !type", array('!type' => str_replace('_', ' ', $type)));
+      
+      $tools[$tool]['create_url'] = url('node/add/' . str_replace('_', '-', $type), array('query' => array('gids_node[]' => $node->nid)));
+    }
+  }
+  
+  return $tools;
 }
 
 /**

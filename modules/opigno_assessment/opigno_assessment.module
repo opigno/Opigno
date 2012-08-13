@@ -148,14 +148,24 @@ function opigno_assessment_form_course_node_form_alter(&$form, $form_state) {
       '#default_value' => isset($node->opigno_assessment['option']) ? $node->opigno_assessment['option'] : 'no'
     );
     
+    $quizzes = opigno_assessment_get_quizzes($node);
+    
     $form['opigno_assessment']['quizzes'] = array(
       '#type' => 'select',
       '#title' => t("Select assignments to complete"),
       '#description' => t("A student must accomplish all selected assignments in order to finish the course."),
-      '#options' => opigno_assessment_get_quizzes($node),
+      '#options' => $quizzes,
       '#multiple' => TRUE,
       '#default_value' => isset($node->opigno_assessment['quizzes']) ? $node->opigno_assessment['quizzes'] : array()
     );
+    
+    if (empty($quizzes)) {
+      $form['opigno_assessment']['quizzes'] = array_merge($form['opigno_assessment']['quizzes'], array(
+        '#options' => array(t("This course has no assignments yet.")),
+        '#multiple' => FALSE,
+        '#attributes' => array('disabled' => 'disabled')
+      ));
+    }
     
     $form['opigno_assessment']['rule'] = array(
       '#type' => 'radios',
@@ -230,24 +240,26 @@ function opigno_assessment_get_scale() {
 function opigno_assessment_get_quizzes($og_node) {
   $nodes = array();
   
-  $query = db_select('node', 'n');
-  
-  $query->leftJoin('node_revision', 'v', 'v.vid = n.vid');
-  
-  $query->leftJoin('og_membership', 'om', 'om.etid = n.nid');
-  
-  $query->leftJoin('og', 'o', 'o.gid = om.gid');
-  
-  $result = $query->fields('n', array('nid'))
-                  ->fields('v', array('title'))
-                  ->condition('n.type', 'quiz')
-                  ->condition('om.state', 1)
-                  ->condition('o.entity_type', 'node')
-                  ->condition('o.etid', $og_node->nid)
-                  ->execute();
-  
-  while ($node = $result->fetchObject()) {
-    $nodes[$node->nid] = $node->title;
+  if (isset($og_node->nid)) {  
+    $query = db_select('node', 'n');
+    
+    $query->leftJoin('node_revision', 'v', 'v.vid = n.vid');
+    
+    $query->leftJoin('og_membership', 'om', 'om.etid = n.nid');
+    
+    $query->leftJoin('og', 'o', 'o.gid = om.gid');
+    
+    $result = $query->fields('n', array('nid'))
+                    ->fields('v', array('title'))
+                    ->condition('n.type', 'quiz')
+                    ->condition('om.state', 1)
+                    ->condition('o.entity_type', 'node')
+                    ->condition('o.etid', $og_node->nid)
+                    ->execute();
+    
+    while ($node = $result->fetchObject()) {
+      $nodes[$node->nid] = $node->title;
+    }
   }
   
   return $nodes;

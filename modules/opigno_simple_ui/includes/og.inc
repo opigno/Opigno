@@ -39,9 +39,16 @@ function opigno_simple_ui_og_menu_alter(&$items) {
 function opigno_simple_ui_og_form_alter(&$form, &$form_state, $form_id) {
   global $language;
   
-  if (strpos($form_id, '_node_form') && og_is_group_type('node', $form['#node']->type)) {
-    $form['group_group']['#type'] = 'hidden';
-    $form['group_group'][$form['#node']->language]['#type'] = 'hidden';
-    $form['group_group'][$form['#node']->language]['#value'] = 1;
+  if (strpos($form_id, '_node_form')) {
+    if (og_is_group_type('node', $form['#node']->type)) {
+      $form['group_group']['#type'] = 'hidden';
+      $form['group_group'][$form['#node']->language]['#type'] = 'hidden';
+      $form['group_group'][$form['#node']->language]['#value'] = 1;
+    }
+    elseif (og_is_group_content_type('node', $form['#node']->type)) {
+      if (isset($_GET['gids_node'])) {
+        $form['group_audience']['#attributes']['class'][] = 'element-hidden';
+      }
+    }
   }
 }

@@ -37,7 +37,7 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
       
       $this->_prepareOGType();
       
-      $this->_createOGNode();
+      $gid = $this->_createOGNode();
       
       $this->clickLink('Members');    
       
@@ -46,11 +46,13 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
       $this->clickLink('Add members');
       
       $this->assertText('Add a group member to');
+      
+      $this->_createOGContentNode($gid);
     }
   }
   
   /**
-   * Create an OG node type.
+   * Create an OG node type and an OG content node type.
    */
   protected function _prepareOGType() {    
     $this->drupalGet('admin/structure/types/add');
@@ -63,11 +65,15 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
     
     $this->drupalPost($this->getURL(), $edit, 'Save content type');
     
-    $this->drupalGet('admin/config/development/performance');
+    $this->drupalGet('admin/structure/types/add');
     
-    $edit = array();
+    $edit = array(
+      'name' => 'OG content',
+      'type' => 'og_content',
+      'og_group_content_type' => 'og_content',
+    );
     
-    $this->drupalPost($this->getURL(), $edit, 'Clear all caches');
+    $this->drupalPost($this->getURL(), $edit, 'Save content type');
   }
   
   /**
@@ -76,12 +82,38 @@ class OpignoSimpleUIOGTest extends AbstractOpignoSimpleUITest {
   protected function _createOGNode() {    
     $this->drupalGet('node/add/og');
     
-    // Check that Group field is on by default
-    $this->assertNoFieldById('edit-group-group-und', '', 'Group checkbox is hidden.');
+    // Check that Group field is on by default and hiddent
+    $this->assertNoFieldById('edit-group-group-und', '', 'Group checkbox is hidden.');    
     
     $edit = array(
       'title' => $this->randomName(8),
       'body[' . LANGUAGE_NONE . '][0][value]' => $this->randomName(8),
+    );
+    
+    $this->drupalPost($this->getURL(), $edit, 'Save');
+    
+    $matches = array();
+    
+    preg_match('/node\/([0-9]+)$/', $this->getURL(), $matches);
+    
+    $node = node_load($matches[1]);
+    
+    return $node->group_group[LANGUAGE_NONE][0]['value'];
+  }
+  
+  /**
+   * Create an OG contentg node
+   */
+  protected function _createOGContentNode($gid = NULL) {    
+    $this->drupalGet('node/add/og-content', isset($gid) ? array('query' => array('gids_node[]' => $gid)) : array());
+    
+    $this->verbose(htmlentities($this->drupalGetContent()));
+    
+    // Check that the audience field is hidden
+    $this->assertTrue(preg_match('/div (class="[\sa-z0-9\-\_]*element-hidden[\sa-z0-9\-\_]*"(\s)?)?id="edit-group-audience"((\s)?class="[\sa-z0-9\-\_]*element-hidden[\sa-z0-9\-\_]*")?/', $this->drupalGetContent()), 'Group audience select is hidden');
+    
+    $edit = array(
+      'title' => $this->randomName(8),
     );
     
     $this->drupalPost($this->getURL(), $edit, 'Save');
