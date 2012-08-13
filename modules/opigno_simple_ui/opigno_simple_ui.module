@@ -14,15 +14,31 @@ function opigno_simple_ui_menu_alter(&$items) {
     
     opigno_simple_ui_og_menu_alter($items);
   }
+  
+  if (module_exists('quiz')) {
+    module_load_include('inc', 'opigno_simple_ui', 'includes/quiz');
+    
+    opigno_simple_ui_quiz_menu_alter($items);
+  }
 }
 
 /**
  * Implements hook_form_alter()
  */
 function opigno_simple_ui_form_alter(&$form, &$form_state, $form_id) {
+  $path = drupal_get_path('module', 'opigno_simple_ui');
+  
+  drupal_add_css("$path/css/opigno_simple_ui.css");
+  
   if (module_exists('og_ui')) {
     module_load_include('inc', 'opigno_simple_ui', 'includes/og');
     
     opigno_simple_ui_og_form_alter($form, $form_state, $form_id);
+  }
+  
+  if (module_exists('quiz')) {
+    module_load_include('inc', 'opigno_simple_ui', 'includes/quiz');
+    
+    opigno_simple_ui_quiz_form_alter($form, $form_state, $form_id);
   }
 }

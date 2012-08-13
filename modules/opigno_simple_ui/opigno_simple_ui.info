@@ -5,3 +5,4 @@ package = Opigno
 
 files[] = tests/opigno_simple_ui.test
 files[] = tests/opigno_simple_ui.og.test
+files[] = tests/opigno_simple_ui.quiz.test
