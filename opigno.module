@@ -14,16 +14,71 @@
  * Implements hook_menu()
  */
 function opigno_menu() {
-  return array(
-    'admin/config/opigno' => array(
+  $menu = array();
+  
+  if (module_exists('opigno_simple_ui')) {
+    // Top level "Opigno" menu.
+    /*$menu[opigno_simple_ui_get_admin_root()] = array(
       'title' => "Opigno",
       'description' => "Administer the suite of Opigno modules.",
       'page callback' => 'system_admin_menu_block_page',
-      'access arguments' => array('administer opigno'),
+      'access arguments' => array('access administration pages'),
       'file' => 'system.admin.inc',
       'file path' => drupal_get_path('module', 'system'),
-    )
+      'weight' => -6
+    );*/
+  }
+  
+  $admin_root_path = opigno_get_admin_root_path('config', 'config');
+  
+  $menu[$admin_root_path] = array(
+    'title' => module_exists('opigno_simple_ui') ? "Configuration" : "Opigno",
+    'description' => "Administer the suite of Opigno modules.",
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+    'options' => array(
+      'attributes' => array(
+        'class' => array('icon-settings', 'opigno-admin-config') // Add icon-settings in case we're using the Platon theme
+      )
+    ),
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => -50,
   );
+  
+  return $menu;
+}
+
+/**
+ * Implements hook_hook_info()
+ */
+function opigno_hook_info() {
+  $hooks = array(
+    'opigno_widgets_info' => array(
+      'group' => 'opigno',
+    ),
+    'opigno_widget_view' => array(
+      'group' => 'opigno',
+    ),
+    'opigno_tools' => array(
+      'group' => 'opigno',
+    ),
+  );
+
+  return $hooks;
+}
+
+/**
+ *
+ */
+function opigno_get_admin_root_path($drupal_system_path, $opigno_system_path) {
+  if (module_exists('opigno_simple_ui')) {
+    return opigno_simple_ui_get_admin_root() . "/$opigno_system_path";
+  }
+  else {
+    return "admin/$drupal_system_path/opigno";
+  }
 }
 
 /**
@@ -43,7 +98,7 @@ function opigno_permission() {
 function opigno_block_info() {
   $blocks = array();
   
-  $opigno_widgets = module_invoke_all('opigno_widgets_info');
+  $opigno_widgets = module_invoke_all('opigno_widget_info');
   
   return $blocks + $opigno_widgets;
 }
@@ -58,9 +113,9 @@ function opigno_block_view($delta) {
 }
 
 /**
- * Implements hook_opigno_widgets_info()
+ * Implements hook_opigno_widget_info()
  */
-function opigno_opigno_widgets_info() {
+function opigno_opigno_widget_info() {
   $widgets = array(
     'og_tools' => array(
       'info' => t("Opigno: OG tools"),

@@ -9,8 +9,10 @@
  * Implements hook_menu()
  */
 function opigno_assessment_menu() {
+  $admin_root_path = opigno_get_admin_root_path('config', 'course');
+  
   return array(
-    'admin/config/opigno/assessment' => array(
+    "$admin_root_path/assessment" => array(
       'title' => "Opigno Assessment",
       'description' => "Set assessment scaling and rules.",
       'access arguments' => array('administer opigno'),

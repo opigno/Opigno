@@ -5,3 +5,18 @@
 .form-item-og-member {
   margin-bottom: 0;
 }
+
+/**
+ * Overlay
+ */
+#opigno-simple-ui-overlay-left-column {
+  float: left;
+  width: 150px;
+  background: #000;
+}
+
+#opigno-simple-ui-overlay-right-column {
+  float: left;
+  width: 100%;
+  margin-left: -150px;
+}
