@@ -8,19 +8,27 @@
  */
 
 class AbstractOpignoSimpleUITest extends DrupalWebTestCase {
-  
+
   protected $admin;
-  
+
   protected $authenticated_user;
-  
+
   protected function _checkDependency($module) {
     if (!module_exists($module)) {
       $this->fail("$module module does not exist. Abort test.");
-      
+
       return FALSE;
     }
-    
+
     return TRUE;
   }
-  
+
+  /**
+   * Add a string comparing the results for easier debugging.
+   * @override
+   */
+  protected function assertEqual($first, $second, $message = '', $group = 'Other') {
+    return parent::assertEqual($first, $second, !empty($message) ? $message . t('[Value @first is equal to value @second]', array('@first' => var_export($first, TRUE), '@second' => var_export($second, TRUE))) : '', $group);
+  }
+
 }
