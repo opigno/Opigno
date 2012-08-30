@@ -6,11 +6,11 @@
  */
 
 class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
-  
+
   protected $privileged_user;
-  
+
   protected $authenticated_user;
-  
+
   public function getInfo() {
     return array(
       'name' => 'Opigno Assessment',
@@ -18,13 +18,13 @@ class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
       'group' => 'Opigno',
     );
   }
-  
+
   public function setUp() {
     parent::setUp('opigno_assessment', 'matching');
-    
+
     // Configure Opigno
     $this->configureOpigno();
-    
+
     // Create users
     $this->privileged_user = $this->drupalCreateUser(array(
       // Node
@@ -45,22 +45,29 @@ class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
       'view any quiz results',
       'score any quiz',
     ));
-    
+
     $this->authenticated_user = $this->drupalCreateUser(array(
       'access content',
       'access quiz',
       'view own quiz results',
     ));
-    
+
+    // Create a course
+    $this->gid = $this->createCourse('course', $this->privileged_user, array('tools_activate[quizzes]' => 'quizzes'));
+
     // Login privileged user
     $this->drupalLogin($this->privileged_user);
   }
-  
+
   /**
    *
    */
-  public function testStuff() {
+  public function testAssessmentSingleQuiz() {
     $this->assertTrue(1, 'true');
   }
-  
+
+  protected function _addQuiz($questions = array(), $ponderation = 1) {
+    $nid = $this->addOGContent('quiz', $this->gid, $this->privileged_user, array('opigno_assessment[ponderation]' => $ponderation));
+  }
+
 }

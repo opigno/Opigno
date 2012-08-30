@@ -3,7 +3,9 @@ description = This module simplifies and unifies the different UIs of some third
 core = 7.x
 package = Opigno
 dependencies[] = opigno
+dependencies[] = roleassign
 
 files[] = tests/opigno_simple_ui.test
 files[] = tests/opigno_simple_ui.og.test
 files[] = tests/opigno_simple_ui.quiz.test
+files[] = tests/opigno_simple_ui.user.test

@@ -28,7 +28,15 @@ class AbstractOpignoSimpleUITest extends DrupalWebTestCase {
    * @override
    */
   protected function assertEqual($first, $second, $message = '', $group = 'Other') {
-    return parent::assertEqual($first, $second, !empty($message) ? $message . t('[Value @first is equal to value @second]', array('@first' => var_export($first, TRUE), '@second' => var_export($second, TRUE))) : '', $group);
+    return parent::assertEqual($first, $second, !empty($message) ? $message . t('[@first == @second]', array('@first' => var_export($first, TRUE), '@second' => var_export($second, TRUE))) : '', $group);
+  }
+
+  /**
+   * Add a string comparing the results for easier debugging.
+   * @override
+   */
+  protected function assertNotEqual($first, $second, $message = '', $group = 'Other') {
+    return parent::assertNotEqual($first, $second, !empty($message) ? $message . t('[@first != @second]', array('@first' => var_export($first, TRUE), '@second' => var_export($second, TRUE))) : '', $group);
   }
 
 }

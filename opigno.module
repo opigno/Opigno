@@ -15,7 +15,7 @@
  */
 function opigno_menu() {
   $menu = array();
-  
+
   if (module_exists('opigno_simple_ui')) {
     // Top level "Opigno" menu.
     /*$menu[opigno_simple_ui_get_admin_root()] = array(
@@ -28,9 +28,9 @@ function opigno_menu() {
       'weight' => -6
     );*/
   }
-  
+
   $admin_root_path = opigno_get_admin_root_path('config', 'config');
-  
+
   $menu[$admin_root_path] = array(
     'title' => module_exists('opigno_simple_ui') ? "Configuration" : "Opigno",
     'description' => "Administer the suite of Opigno modules.",
@@ -46,7 +46,7 @@ function opigno_menu() {
     'type' => MENU_NORMAL_ITEM,
     'weight' => -50,
   );
-  
+
   return $menu;
 }
 
@@ -97,9 +97,9 @@ function opigno_permission() {
  */
 function opigno_block_info() {
   $blocks = array();
-  
+
   $opigno_widgets = module_invoke_all('opigno_widget_info');
-  
+
   return $blocks + $opigno_widgets;
 }
 
@@ -108,7 +108,7 @@ function opigno_block_info() {
  */
 function opigno_block_view($delta) {
   $group = og_context();
-  
+
   return module_invoke_all('opigno_widget_view', $group, $delta);
 }
 
@@ -134,16 +134,16 @@ function opigno_opigno_widget_info() {
       'cache' => DRUPAL_CACHE_PER_USER
     )
   );
-  
+
   $views_blocks = views_block_info();
-  
+
   // Calendar widget
   $key = md5('og_ressource_pages-widget_calendar');
-  
+
   if (isset($views_blocks[$key])) {
     $widgets[$key] = $views_blocks[$key];
   }
-  
+
   return $widgets;
 }
 
@@ -157,20 +157,20 @@ function opigno_opigno_widget_view($group, $delta) {
   switch ($delta) {
     case 'og_tools':
       return opigno_og_tools_block($group);
-    
+
     case 'add_og_content':
       return opigno_og_add_content_block($group);
-    
+
     case 'og_description':
       return opigno_og_description_block($group);
-    
+
     case 'og_course_progress':
       return opigno_og_course_progress_block($group);
   }
-  
+
   // Other widgets
   $views_blocks = views_block_info();
-      
+
   if (isset($views_blocks[$delta])) {
     return $views_blocks[$delta];
   }
@@ -226,38 +226,43 @@ function opigno_form_course_node_form_alter(&$form, $form_state) {
  *
  * @param string $type
  */
-function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {  
+function _opigno_form_og_node_form_alter(&$form, $form_state, $type) {
   if (!isset($form['#node']->nid)) {
     $node = (object) array(
       'nid' => 0
     );
   }
   else {
-    $node = $form['#node'];
+    $node = clone $form['#node'];
   }
-  
+
   $form['tools'] = array(
     '#type' => 'fieldset',
     '#title' => $type == 'course' ? t("Course tools") : t("Workgroup tools"),
   );
-  
+
   $tools = array();
-  
+
+  // We need a type on the node. Add one if it's empty (node/add form)
+  if (!isset($node->type)) {
+    $node->type = $form['type']['#value'];
+  }
+
   foreach(opigno_get_og_tools($node, FALSE) as $tool => $tool_info) {
     $tools[$tool] = $tool_info['tool_name'];
   }
-  
+
   $form['tools']['tools_activate'] = array(
     '#type' => 'checkboxes',
     '#title' => t("Choose which tools to activate"),
     '#options' => $tools,
     '#default_value' => variable_get('opigno_og_tools_nid_' . $node->nid, array()),
   );
-  
+
   if (!isset($form['#submit'])) {
     $form['#submit'] = array();
   }
-  
+
   $form['#submit'][] = '_opigno_form_og_node_form_alter_submit';
 }
 
@@ -273,60 +278,60 @@ function _opigno_form_og_node_form_alter_submit($form, $form_state) {
  */
 function opigno_opigno_tools($node) {
   $tools = array();
-  
+
   $tools['wikis'] = array(
     'tool_name' => t("Wikis"),
     'tool_url'  => url("node/{$node->nid}/wikis")
   );
-  
+
   if (user_access('create wiki content')) {
     $tools['wikis']['create_label'] = t("Add a !type", array('!type' => 'wiki'));
     $tools['wikis']['create_url']   = url('node/add/wiki', array('query' => array('gids_node[]' => $node->nid)));
   }
-  
+
   $tools['calendar'] = array(
     'tool_name' => t("Calendar"),
     'tool_url'  => url("node/{$node->nid}/calendar")
   );
-  
+
   if (user_access('create calendar_entry content')) {
     $tools['calendar']['create_label'] = t("Add a !type", array('!type' => 'calendar entry'));
     $tools['calendar']['create_url']  = url('node/add/calendar-entry', array('query' => array('gids_node[]' => $node->nid)));
   }
-  
+
   $tools['poll'] = array(
     'tool_name' => t("Polls"),
     'tool_url' => url("node/{$node->nid}/polls")
   );
-  
+
   if (user_access('create poll content')) {
     $tools['poll']['create_label'] = t("Add a !type", array('!type' => 'poll'));
     $tools['poll']['create_url']  = url('node/add/poll', array('query' => array('gids_node[]' => $node->nid)));
   }
-  
+
   $tools['workgroups'] = array(
     'tool_name' => t("Workgroups"),
     'tool_url' => url("node/{$node->nid}/workgroups"),
   );
-  
+
   if (user_access('create workgroup content')) {
     $tools['workgroups']['create_label'] = t("Add a !type", array('!type' => 'workgroup'));
     $tools['workgroups']['create_url']  = url('node/add/workgroup', array('query' => array('gids_node[]' => $node->nid)));
   }
-  
+
   // Course specific tools
   if (opigno_is_course($node)) {
     $tools['quizzes'] = array(
       'tool_name' => t("Quizzes"),
       'tool_url'  => url("node/{$node->nid}/quizzes")
     );
-    
+
     if (user_access('create quiz content')) {
       $tools['quizzes']['create_label'] = t("Add a !type", array('!type' => 'quiz'));
       $tools['quizzes']['create_url']   = url('node/add/quiz', array('query' => array('gids_node[]' => $node->nid)));
     }
   }
-  
+
   return $tools;
 }
 
@@ -357,21 +362,21 @@ function opigno_node_access($node, $type) {
  */
 function opigno_get_og_tools($group, $only_active = TRUE) {
   $node = opigno_get_og_node($group);
-  
+
   $tools = module_invoke_all('opigno_tools', $node);
-  
+
   if ($only_active) {
     $all_tools = $tools;
-    
+
     $tools = array();
-    
+
     foreach (variable_get('opigno_og_tools_nid_' . $node->nid, array()) as $tool => $active) {
       if ($active) {
         $tools[$tool] = $all_tools[$tool];
       }
     }
   }
-  
+
   return $tools;
 }
 
@@ -385,7 +390,7 @@ function opigno_get_og_node($group) {
   else {
     $node = node_load($group->etid);
   }
-  
+
   return $node;
 }
 
