@@ -97,13 +97,11 @@ class AbstractOpignoTestCase extends DrupalWebTestCase {
       $nid = $matches[1];
       $node = node_load($nid);
 
-      // Return group gid
-      return $node->group_group[LANGUAGE_NONE][0]['value'];
+      // Return group gid and nid
+      return array($node->group_group[LANGUAGE_NONE][0]['value'], $nid);
     }
     else {
       $this->assertTrue(FALSE, 'Could not find the new node nid in the URL.');
-
-      return 0;
     }
   }
 

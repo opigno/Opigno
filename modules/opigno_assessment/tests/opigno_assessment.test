@@ -7,6 +7,10 @@
 
 class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
 
+  protected $og_nid;
+
+  protected $og_gid;
+
   protected $privileged_user;
 
   protected $authenticated_user;
@@ -20,8 +24,8 @@ class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
   }
 
   public function setUp() {
-    parent::setUp('opigno_assessment', 'matching');
-
+    parent::setUp('opigno_assessment');
+return;;
     // Configure Opigno
     $this->configureOpigno();
 
@@ -53,21 +57,181 @@ class OpignoAssessmentTestCase extends AbstractOpignoTestCase {
     ));
 
     // Create a course
-    $this->gid = $this->createCourse('course', $this->privileged_user, array('tools_activate[quizzes]' => 'quizzes'));
+    list($this->og_gid, $this->og_nid) = $this->createCourse('course', $this->privileged_user, array('tools_activate[quizzes]' => 'quizzes'));
 
     // Login privileged user
     $this->drupalLogin($this->privileged_user);
   }
 
   /**
-   *
+   * Test taking a single quiz.
+   * Assessment should work for both "all" and "single" quiz options in the
+   * OG node.
    */
   public function testAssessmentSingleQuiz() {
-    $this->assertTrue(1, 'true');
+    $this->assertTrue(0);
+    return;
+    // Assess all quizzes
+    $this->_setOGAssessment('all');
+
+    // Add a quizz with 2 questions
+    $nid = $this->_addQuiz(array(
+      array(
+        'type' => 'matching',
+        'match[1][question]' => 'A',
+        'match[1][answer]' => 'A',
+        'match[2][question]' => 'B',
+        'match[2][answer]' => 'B',
+      ),
+      array(
+        'type' => 'matching',
+        'match[1][question]' => 'A',
+        'match[1][answer]' => 'A',
+        'match[2][question]' => 'B',
+        'match[2][answer]' => 'B',
+      )
+    ));
+
+    // Take quiz, 100% correct
+    $this->_takeQuiz($nid, array(
+      array(
+        'tries[1]' => 'A',
+        'tries[2]' => 'B'
+      ),
+      array(
+        'tries[1]' => 'A',
+        'tries[2]' => 'B'
+      )
+    ));
+
+    $this->assertText('You have successfully completed the course. Your grade is 10/10', 'Assessment was successfull. Passed with 10/10 grade.');
+
+    // Take quiz, 50% correct
+    $this->_takeQuiz($nid, array(
+      array(
+        'tries[1]' => 'A',
+        'tries[2]' => 'B'
+      ),
+      array(
+        'tries[1]' => 'B',
+        'tries[2]' => 'A'
+      )
+    ));
+
+    $this->assertText('You have successfully completed the course. Your grade is 5/10', 'Assessment was successfull. Passed with 5/10 grade.');
+
+    // Assess all quizzes, but must have 7/10 minumum to pass
+    $this->_setOGAssessment('all', array(), 'average', 7);
+
+    // Take quiz, 50% correct
+    $this->_takeQuiz($nid, array(
+      array(
+        'tries[1]' => 'A',
+        'tries[2]' => 'B'
+      ),
+      array(
+        'tries[1]' => 'B',
+        'tries[2]' => 'A'
+      )
+    ));
+
+    $this->assertText('You completed the course. However, your average grade is lower than the minimum allowed. Minimum to pass is 7, your grade is 5', 'Assessment was successfull. Failed with 5/10 grade.');
   }
 
+  /**
+   * Create a quiz and add questions directly.
+   * @param array   $questions = array()
+   *                An array of questions with type and specific fields.
+   *
+   * @param integer $ponderation = 1
+   *                The ponderation of this quiz in the assessment.
+   */
   protected function _addQuiz($questions = array(), $ponderation = 1) {
-    $nid = $this->addOGContent('quiz', $this->gid, $this->privileged_user, array('opigno_assessment[ponderation]' => $ponderation));
+    $nid = $this->addOGContent('quiz', $this->og_gid, $this->privileged_user, array('opigno_assessment[ponderation]' => $ponderation));
+
+    foreach ($questions as $question) {
+      $this->drupalGet("node/add/{$question['type']}?quiz_nid=$nid&quiz_vid=$nid");
+
+      $edit = array(
+        'body[und][0][value]' => $this->randomString(16),
+        'title'
+      );
+
+      $edit = !empty($question['edit']) ? $question['edit'] + $edit : $edit;
+
+      $this->drupalPost($this->getURL(), $edit, 'Save');
+    }
+
+    return $nid;
+  }
+
+  /**
+   * Take the quiz. Specify the different steps by setting the form fields.
+   *
+   * @param  array $steps
+   *               An array of steps. Each is an edit array for a form submission
+   */
+  protected function _takeQuiz($nid, $steps) {
+    // Go to quiz and take it
+    $this->drupalGet("node/$nid");
+    $this->drupalPost($this->getURL, array(), 'Start quiz');
+
+    // Keep track of steps
+    $max = count($steps) - 1;
+    $steps = array_values($steps);
+
+    foreach ($steps as $i => $edit) {
+      if ($i < $max) {
+        $button = 'Next';
+      }
+      else {
+        $button = 'Finish';
+      }
+
+      $this->drupalPost($this->getURL(), $edit, $button);
+    }
+  }
+
+  /**
+   * Set the assessment options on the OG node.
+   *
+   * @param string  $type = 'all'
+   *                Set the type of assessment. Either 'all', 'some' or 'no'
+   * @param array   $quizzes = array()
+   *                An array of quiz nids for assessment. Only used if $type = 'some'
+   * @param string  $rule = 'average'
+   *                The assessment rule. Either 'average' or 'average_neg'
+   * @param integer $average = 5
+   *                The average grade required to pass
+   * @param integet $min = NULL
+   *                The minimum grade required to pass. Only used if $rule = 'average_neg'
+   */
+  protected function _setOGAssessment($type = 'all', $quizzes = array(), $rule = 'average', $average = 5, $min = NULL) {
+    // Go to node edit form
+    $this->drupalGet("node/{$this->og_nid}/edit");
+
+    // Prepare fields
+    $edit = array(
+      'opigno_assessment[option]' => $type
+    );
+
+    if ($type == 'all' || $type == 'some') {
+      $edit['opigno_assessment[rule]'] = $rule;
+      $edit['opigno_assessment[average]'] = $average;
+
+      // Only some quizzes ?
+      if ($type == 'some') {
+        $edit['opigno_assessment[quizzes][]'] = $quizzes;
+      }
+
+      // Minimum grade required ?
+      if ($rule == 'average_neg') {
+        $edit['opigno_assessment[min]'] = $min;
+      }
+    }
+
+    // Submit
+    $this->drupalPost($this->getURL(), $edit, 'Save');
   }
 
 }
