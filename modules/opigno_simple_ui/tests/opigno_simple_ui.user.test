@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * Check User overrides.
+ */
+
+class OpignoSimpleUIUserTest extends AbstractOpignoSimpleUITest {
+
+  public function getInfo() {
+    return array(
+      'name' => 'Opigno Simple User UI',
+      'description' => 'Ensure that User overrides work correctly.',
+      'group' => 'Opigno Simple UI',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('opigno_simple_ui');
+
+    $this->admin = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+
+    $this->authenticated_user = $this->drupalCreateUser(array(
+      'access content',
+      'assign roles',
+      'administer users',
+      'access administration pages',
+      'administer opigno',
+    ));
+
+    $this->simple_user = $this->drupalCreateUser(array(
+      'access content',
+    ));
+  }
+
+  /**
+   * Check that the people overview page works correctly.
+   * There should be no tabs to administer permissions here. That will be
+   * handled by a different page.
+   */
+  public function testPeopleAdministration() {
+    // Login admin
+    $this->drupalLogin($this->authenticated_user);
+
+    // Go to user admin page
+    $this->drupalGet('admin/opigno/user/list');
+
+    // Check page content
+    $this->assertText($this->admin->name, 'Admin page shows admin username.');
+    $this->assertText($this->authenticated_user->name, 'Admin page shows authenticated username.');
+    $this->assertText($this->simple_user->name, 'Admin page shows simple username.');
+
+    // Try editing a user. Should display the regular user form and roleassign
+    // checkboxes.
+    // Submit should redirect back to the Opigno user admin page.
+    // Click the second link, as the first one is user-1, which is not editable.
+    $this->clickLink('edit', 1);
+    $this->assertTrue(preg_match('/user\/[0-9]+\/edit/', $this->getURL()), 'On regular user edit page.');
+    $this->assertText('Assignable roles', 'Found "Assignable roles" fieldset.');
+    $this->drupalPost($this->getURL(), array(), 'Save');
+    $this->assertTrue(preg_match('/admin\/opigno\/user\/list/', $this->getURL()), 'Back on Simple UI admin page.');
+  }
+
+  /**
+   * Check that the role administration page, as well as the new permissions page,
+   * work correctly.
+   * Check new permissions checkboxes. Should be different from the default ones.
+   */
+  public function __testRoleAndPermissionsAdministration() {
+    $this->assertTrue(0);
+  }
+
+}
