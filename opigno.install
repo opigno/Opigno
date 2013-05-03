@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements hook_install()
+ * Implements hook_install().
  */
 function opigno_install() {
   db_update('system')
@@ -15,27 +15,4 @@ function opigno_install() {
     ))
     ->condition('name', 'opigno')
     ->execute();
-  
-  // Import panels
-  if (module_exists('panels') && module_exists('page_manager')) {
-    $page = page_manager_get_page_cache('node_view');
-    
-    ob_start();
-    eval(file_get_contents(drupal_get_path('module', 'opigno') . '/install/panels/opigno.og_home_page.definition'));
-    ob_end_clean();
-    
-    if (isset($handler)) {
-      page_manager_handler_add_to_page($page, $handler, $handler->conf['title']);
-    }
-    else {
-      drupal_set_message(t("An error occured while importing the panels definition."), 'error');
-    }
-  }
-}
-
-/**
- * Implements hook_uninstall()
- */
-function opigno_uninstall() {
-  //
 }
