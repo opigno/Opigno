@@ -189,3 +189,36 @@ function opigno_node_title($node, $type) {
 function opigno_node_access($node, $type) {
   return TRUE;
 }
+
+
+function opigno_course_students_info($node) {
+  $node_id=$node->id;
+  $group_members = opigno_get_users_in_group($node_id);
+  $students_number=0;
+  foreach ($group_members AS $member)
+  {
+    $user = user_load($member->uid);
+    $user_roles=og_get_user_roles('node',$node_id,$user->uid,FALSE);
+    foreach ($user_roles as $roleid=> $rolename)
+    {
+      if (($roleid==5)&&(sizeof($user_roles)==1))
+      {
+        $students_number++;
+      }
+    }
+  }
+  $available=$node->field_course_places[LANGUAGE_NONE][0]['value']-$students_number;
+  return array('places' => $node->field_course_places[LANGUAGE_NONE][0]['value'],
+    'available_places' => $available,
+    'students' => $students_number);
+}
+
+function opigno_get_users_in_group($gid) {
+  $query = db_select('users', 'u');
+  $query
+    ->condition('u.uid', 0, '<>')
+    ->condition('u.status', 1, '=')
+    ->fields('u', array('uid', 'name'))
+    ->join('og_membership', 'ogm', "ogm.gid = :gid AND u.uid = ogm.etid AND ogm.entity_type = 'user'", array(':gid' => $gid));
+  return $query->execute();
+}
