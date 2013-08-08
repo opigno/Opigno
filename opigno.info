@@ -1,6 +1,8 @@
-name = Opigno
-description = Opigno LMS
+name = Opigno Core
+description = Opigno LMS Core
 core = 7.x
 package = Opigno
+
+dependencies[] = og
 
 files[] = tests/AbstractOpignoTestCase.inc

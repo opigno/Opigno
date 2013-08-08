@@ -1,0 +1,7 @@
+name = Opigno Course Prerequisite
+description  = Allows courses to have other courses as prerequisites.
+core = 7.x
+package = Opigno
+dependencies[] = og
+dependencies[] = entityreference
+dependencies[] = opigno
