@@ -5,3 +5,76 @@
  * Module hook implementations.
  */
 
+/**
+ * Implements hook_modules_installed().
+ */
+function opigno_og_prereq_modules_installed($modules) {
+  if (in_array('opigno_quiz_app', $modules)) {
+    foreach (_opgino_og_prereq_install_opigno_quiz_app_rules() as $rule) {
+      rules_import($rule);
+    }
+  }
+}
+
+/**
+ * Enable a rule depending on Opigno Quiz App.
+ */
+function _opgino_og_prereq_install_opigno_quiz_app_rules() {
+  return array(
+    'rules_course_required_courses_are_completed' => '{ "rules_course_required_courses_are_completed" : {
+        "LABEL" : "Course required courses are completed",
+        "PLUGIN" : "rule condition set",
+        "TAGS" : [ "og", "opigno", "quiz" ],
+        "REQUIRES" : [ "rules_conditional", "rules" ],
+        "USES VARIABLES" : {
+          "course" : { "label" : "Course", "type" : "node" },
+          "user" : { "label" : "User", "type" : "user" },
+          "has_finished_courses" : { "label" : "Has finished required courses", "type" : "boolean" }
+        },
+        "DO" : [
+          { "component_rules_get_course_required_courses" : {
+              "USING" : { "course" : [ "course" ] },
+              "PROVIDE" : { "required_courses" : { "required_courses" : "Required courses" } }
+            }
+          },
+          { "LOOP" : {
+              "USING" : { "list" : [ "required-courses" ] },
+              "ITEM" : { "list_item" : "Current list item" },
+              "DO" : [
+                { "CONDITIONAL" : [
+                    {
+                      "IF" : { "NOT component_rules_user_has_answered_all_required_quizzes" : { "course" : [ "course" ], "user" : [ "user" ] } },
+                      "DO" : [ { "data_set" : { "data" : [ "has-finished-courses" ], "value" : 0 } } ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "RESULT" : [  ]
+      }
+    }',
+    'rules_new_user_on_course_with_required_courses' => '{ "rules_new_user_on_course_with_required_courses" : {
+        "LABEL" : "Set student status to pending if requirements are not met",
+        "PLUGIN" : "reaction rule",
+        "TAGS" : [ "og", "opigno" ],
+        "REQUIRES" : [ "rules", "og" ],
+        "ON" : [ "og_user_insert" ],
+        "IF" : [
+          { "entity_is_of_type" : { "entity" : [ "og-membership:group" ], "type" : "node" } },
+          { "component_rules_course_has_required_courses_cond_ruleset" : { "course" : [ "og-membership:group" ], "has_required_courses" : 0 } },
+          { "NOT component_rules_course_required_courses_are_completed" : {
+              "course" : [ "og-membership:group" ],
+              "user" : [ "account" ],
+              "has_finished_courses" : 0
+            }
+          }
+        ],
+        "DO" : [
+          { "drupal_message" : { "message" : "This course has required courses" } }
+        ]
+      }
+    }',
+  );
+}

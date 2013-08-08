@@ -3,5 +3,7 @@ description  = Allows courses to have other courses as prerequisites.
 core = 7.x
 package = Opigno
 dependencies[] = og
+dependencies[] = rules
+dependencies[] = rules_conditional
 dependencies[] = entityreference
 dependencies[] = opigno

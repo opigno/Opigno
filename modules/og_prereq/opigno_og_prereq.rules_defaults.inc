@@ -45,6 +45,62 @@ function opigno_og_prereq_default_rules_configuration() {
       "PROVIDES VARIABLES" : [ "required_courses" ]
     }
   }');
+  $items['rules_course_has_required_courses'] = entity_import('rules_config', '{ "rules_course_has_required_courses" : {
+      "LABEL" : "Course has required courses",
+      "PLUGIN" : "action set",
+      "TAGS" : [ "og", "opigno" ],
+      "REQUIRES" : [ "rules", "rules_conditional" ],
+      "USES VARIABLES" : {
+        "course" : { "label" : "Course", "type" : "node" },
+        "has_required_courses" : {
+          "label" : "Has required courses",
+          "type" : "boolean",
+          "parameter" : false
+        }
+      },
+      "ACTION SET" : [
+        { "component_rules_get_course_required_courses" : {
+            "USING" : { "course" : [ "course" ] },
+            "PROVIDE" : { "required_courses" : { "required_courses" : "Required courses" } }
+          }
+        },
+        { "CONDITIONAL" : [
+            {
+              "IF" : { "data_is_empty" : { "data" : [ "required-courses" ] } },
+              "DO" : [ { "data_set" : { "data" : [ "has-required-courses" ], "value" : 0 } } ]
+            },
+            { "ELSE" : [ { "data_set" : { "data" : [ "has-required-courses" ], "value" : 1 } } ] }
+          ]
+        }
+      ],
+      "PROVIDES VARIABLES" : [ "has_required_courses" ]
+    }
+  }');
+  $items['rules_course_has_required_courses_cond_ruleset'] = entity_import('rules_config', '{ "rules_course_has_required_courses_cond_ruleset" : {
+      "LABEL" : "Course has required courses",
+      "PLUGIN" : "rule condition set",
+      "TAGS" : [ "og", "opigno" ],
+      "REQUIRES" : [ "rules_conditional", "rules" ],
+      "USES VARIABLES" : {
+        "course" : { "label" : "Course", "type" : "node" },
+        "has_required_courses" : { "label" : "Course has required courses", "type" : "boolean" }
+      },
+      "DO" : [
+        { "component_rules_course_has_required_courses" : {
+            "USING" : { "course" : [ "course" ] },
+            "PROVIDE" : { "has_required_courses" : { "has_req" : "Has required courses" } }
+          }
+        },
+        { "data_set" : { "data" : [ "has-required-courses" ], "value" : [ "has-req" ] } }
+      ],
+      "RESULT" : [  ]
+    }
+  }');
+  if (module_exists('opigno_quiz_app')) {
+    foreach (_opgino_og_prereq_install_opigno_quiz_app_rules() as $key => $rule) {
+      $items[$key] = entity_import('rules_config', $rule);
+    }
+  }
   return $items;
 }
 
