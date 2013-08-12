@@ -76,5 +76,41 @@ function _opgino_og_prereq_install_opigno_quiz_app_rules() {
         ]
       }
     }',
+    'rules_activate_membership_when_required_course_is_passed' => '{ "rules_activate_membership_when_required_course_is_passed" : {
+        "LABEL" : "Activate membership when required course is passed",
+        "PLUGIN" : "reaction rule",
+        "TAGS" : [ "og", "opigno", "quiz" ],
+        "REQUIRES" : [ "rules", "rules_conditional", "og", "opigno_quiz_app" ],
+        "ON" : [ "opigno_quiz_app_rules_quiz_passed" ],
+        "DO" : [
+          { "component_rules_get_course_from_quiz" : {
+              "USING" : { "quiz" : [ "node" ] },
+              "PROVIDE" : { "course" : { "course" : "Course" } }
+            }
+          },
+          { "component_rules_get_courses_that_require_this_course" : {
+              "USING" : { "course" : [ "course" ] },
+              "PROVIDE" : { "requiring_courses" : { "requiring_courses" : "Requiring courses" } }
+            }
+          },
+          { "LOOP" : {
+              "USING" : { "list" : [ "requiring-courses" ] },
+              "ITEM" : { "list_item" : "Current list item" },
+              "DO" : [
+                { "CONDITIONAL" : [
+                    {
+                      "IF" : { "og_entity_in_group" : { "entity" : [ "user" ], "group" : [ "list-item" ] } },
+                      "DO" : [
+                        { "component_rules_activate_group_membership" : { "course" : [ "course" ], "user" : [ "user" ] } }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }',
   );
 }

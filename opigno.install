@@ -20,7 +20,7 @@ function opigno_install() {
     'type' => OPIGNO_COURSE_BUNDLE,
     'name' => st('Course'),
     'base' => 'node_content',
-    'description' => st("A course"),
+    'description' => st("A <em>course</em> entity. This is the fundamental building bloc for Opigno. It can contain students, teachers, quizzes, files and many other ressources."),
     'custom' => 1,
     'modified' => 1,
     'locked' => 0,

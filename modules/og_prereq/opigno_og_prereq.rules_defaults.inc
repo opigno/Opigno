@@ -10,7 +10,7 @@
  */
 function opigno_og_prereq_default_rules_configuration() {
   $items = array();
-  $items['rules_get_course_required_quizzes'] = entity_import('rules_config', '{ "rules_get_course_required_courses" : {
+  $items['rules_get_course_required_courses'] = entity_import('rules_config', '{ "rules_get_course_required_courses" : {
       "LABEL" : "Get course required courses",
       "PLUGIN" : "rule",
       "TAGS" : [ "og", "opigno" ],
@@ -135,42 +135,6 @@ function opigno_og_prereq_default_rules_configuration() {
         }
       ],
       "PROVIDES VARIABLES" : [ "requiring_courses" ]
-    }
-  }');
-  $items['rules_activate_membership_when_required_course_is_passed'] = entity_import('rules_config', '{ "rules_activate_membership_when_required_course_is_passed" : {
-      "LABEL" : "Activate membership when required course is passed",
-      "PLUGIN" : "reaction rule",
-      "TAGS" : [ "og", "opigno", "quiz" ],
-      "REQUIRES" : [ "rules", "rules_conditional", "og", "opigno_quiz_app" ],
-      "ON" : [ "opigno_quiz_app_rules_quiz_passed" ],
-      "DO" : [
-        { "component_rules_get_course_from_quiz" : {
-            "USING" : { "quiz" : [ "node" ] },
-            "PROVIDE" : { "course" : { "course" : "Course" } }
-          }
-        },
-        { "component_rules_get_courses_that_require_this_course" : {
-            "USING" : { "course" : [ "course" ] },
-            "PROVIDE" : { "requiring_courses" : { "requiring_courses" : "Requiring courses" } }
-          }
-        },
-        { "LOOP" : {
-            "USING" : { "list" : [ "requiring-courses" ] },
-            "ITEM" : { "list_item" : "Current list item" },
-            "DO" : [
-              { "CONDITIONAL" : [
-                  {
-                    "IF" : { "og_entity_in_group" : { "entity" : [ "user" ], "group" : [ "list-item" ] } },
-                    "DO" : [
-                      { "component_rules_activate_group_membership" : { "course" : [ "course" ], "user" : [ "user" ] } }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
     }
   }');
   if (module_exists('opigno_quiz_app')) {

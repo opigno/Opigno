@@ -10,7 +10,7 @@
  */
 function opigno_default_rules_configuration() {
   $items = array();
-  $items['rules_get_course_required_quizzes'] = entity_import('rules_config', '{ "rules_activate_group_membership" : {
+  $items['rules_activate_group_membership'] = entity_import('rules_config', '{ "rules_activate_group_membership" : {
       "LABEL" : "Activate group membership",
       "PLUGIN" : "rule",
       "TAGS" : [ "og", "opigno" ],
