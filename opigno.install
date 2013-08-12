@@ -15,4 +15,20 @@ function opigno_install() {
     ))
     ->condition('name', 'opigno')
     ->execute();
+
+  $type = node_type_set_defaults(array(
+    'type' => OPIGNO_COURSE_BUNDLE,
+    'name' => st('Course'),
+    'base' => 'node_content',
+    'description' => st("A course"),
+    'custom' => 1,
+    'modified' => 1,
+    'locked' => 0,
+  ));
+  node_type_save($type);
+
+  if (function_exists('og_ui_node_type_save')) {
+    variable_set('og_group_type_course', TRUE);
+    og_create_field(OG_GROUP_FIELD, 'node', OPIGNO_COURSE_BUNDLE);
+  }
 }
