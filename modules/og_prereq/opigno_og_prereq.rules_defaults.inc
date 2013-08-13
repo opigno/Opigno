@@ -24,7 +24,7 @@ function opigno_og_prereq_default_rules_configuration() {
         }
       },
       "IF" : [
-        { "entity_has_field" : { "entity" : [ "course" ], "field" : "course_required_course" } },
+        { "entity_has_field" : { "entity" : [ "course" ], "field" : "course_required_course_ref" } },
         { "NOT data_is_empty" : { "data" : [ "course:course-required-course" ] } }
       ],
       "DO" : [
@@ -113,7 +113,7 @@ function opigno_og_prereq_default_rules_configuration() {
         { "entity_query" : {
             "USING" : {
               "type" : "node",
-              "property" : "course_required_course",
+              "property" : "course_required_course_ref",
               "value" : [ "course:nid" ],
               "limit" : "100"
             },
