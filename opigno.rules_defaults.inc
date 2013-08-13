@@ -14,43 +14,23 @@ function opigno_default_rules_configuration() {
       "LABEL" : "Activate group membership",
       "PLUGIN" : "rule",
       "TAGS" : [ "og", "opigno" ],
-      "REQUIRES" : [ "og", "rules", "rules_conditional" ],
+      "REQUIRES" : [ "og" ],
       "USES VARIABLES" : {
         "course" : { "label" : "Course", "type" : "node" },
         "user" : { "label" : "User", "type" : "user" }
       },
       "IF" : [
         { "og_entity_is_group" : { "entity" : [ "course" ] } },
-        { "og_entity_in_group" : { "entity" : [ "user" ], "group" : [ "course" ] } }
-      ],
-      "DO" : [
-        { "entity_query" : {
-            "USING" : {
-              "type" : "og_membership",
-              "property" : "entity",
-              "value" : [ "user" ],
-              "limit" : "100"
-            },
-            "PROVIDE" : { "entity_fetched" : { "entity_fetched" : "Fetched entity" } }
-          }
-        },
-        { "LOOP" : {
-            "USING" : { "list" : [ "entity-fetched" ] },
-            "ITEM" : { "list_item" : "Current list item" },
-            "DO" : [
-              { "CONDITIONAL" : [
-                  {
-                    "IF" : { "data_is" : { "data" : [ "list-item:group" ], "value" : [ "course" ] } },
-                    "DO" : [
-                      { "data_set" : { "data" : [ "list-item:state" ], "value" : "1" } },
-                      { "drupal_message" : { "message" : "Your membership for the next courses has been approved." } }
-                    ]
-                  }
-                ]
-              }
-            ]
+        { "og_user_in_group" : {
+            "account" : [ "user" ],
+            "group" : [ "course" ],
+            "states" : { "value" : { "2" : "2" } }
           }
         }
+      ],
+      "DO" : [
+        { "og_unsubscribe_user" : { "user" : [ "user" ], "group" : [ "course" ] } },
+        { "og_subcribe_user" : { "user" : [ "user" ], "group" : [ "course" ] } }
       ]
     }
   }');
