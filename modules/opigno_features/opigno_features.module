@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Opigno Features feature.
- */
-
-include_once 'opigno_features.features.inc';
