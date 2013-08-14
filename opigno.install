@@ -33,3 +33,24 @@ function opigno_install() {
     og_create_field(OG_GROUP_FIELD, 'node', OPIGNO_COURSE_BUNDLE);
   }
 }
+
+/**
+ * Implements hook_field_schema().
+ */
+function opigno_field_schema($field) {
+  if ($field['type'] == 'opigno_tools') {
+    return array(
+      'columns' => array(
+        'tool' => array(
+          'type' =>
+          'varchar',
+          'length' => 50,
+          'not null' => TRUE
+        ),
+      ),
+      'indexes' => array(
+        'tool' => array('tool'),
+      ),
+    );
+  }
+}

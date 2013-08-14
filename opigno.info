@@ -4,6 +4,7 @@ core = 7.x
 package = Opigno
 
 dependencies[] = og
+dependencies[] = options
 dependencies[] = og_ui
 dependencies[] = rules
 dependencies[] = rules_conditional
