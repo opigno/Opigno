@@ -26,6 +26,7 @@ function opigno_install() {
     'locked' => 0,
   ));
   node_type_save($type);
+  node_add_body_field($type);
 
   if (function_exists('og_ui_node_type_save')) {
     variable_set('og_group_type_course', TRUE);
