@@ -246,3 +246,19 @@ function opigno_get_courses($only_published = FALSE) {
 
   return $nids;
 }
+
+
+
+
+/**
+ * Implements hook_opigno_tool().
+ */
+function opigno_opigno_tool() {
+  return array(
+    'wiki' => array(
+      'name' => t("Wiki"),
+      'path' => 'course/:nid/wikis',
+      'description' => t("Wikis allow teachers and students to collaborate and organize information.")
+    ),
+  );
+}
