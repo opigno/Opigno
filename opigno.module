@@ -19,6 +19,7 @@ function opigno_menu() {
       'page callback' => 'opigno_tools_page',
       'page arguments' => array(1),
       'type' => MENU_LOCAL_TASK,
+      'weight' => 10,
     ),
   );
 }
