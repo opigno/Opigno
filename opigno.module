@@ -469,3 +469,26 @@ function coisa(&$form_state)
   return TRUE;
 }
 
+function opigno_og_role_grant($type,$node_id,$user_id,$role_id)
+{
+  dpm($type);
+  dpm($node_id);
+  dpm($user_id);
+  dpm($role_id);
+  if (($type=="node")&&(module_exists('rules')))
+  {
+    rules_invoke_event('og_user_was_granted_role', $type, $node_id,$user_id,$role_id);
+  }
+}
+
+function opigno_og_role_revoke($type,$node_id,$user_id,$role_id)
+{
+  dpm($type);
+  dpm($node_id);
+  dpm($user_id);
+  dpm($role_id);
+  if (($type=="node")&&(module_exists('rules'))&&($role_id!=7)&&($role_id!=8))
+  {
+    rules_invoke_event('og_user_was_revoked_role', $type, $node_id,$user_id,$role_id);
+  }
+}
