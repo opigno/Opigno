@@ -143,3 +143,54 @@ $items['og_user_has_role'] = array(
 
 return $items;
 }
+
+function opigno_rules_event_info() {
+  return array(
+    'og_user_was_granted_role' => array(
+      'variables' => array(
+        'entity_type' => array(
+          'type' => 'token',
+          'label' => t("The type of the entity the user is getting role to"),
+        ),
+        'node_id' => array(
+          'type' => 'integer',
+          'label' => t('Node id'),
+        ),
+        'user_id' => array(
+          'type' => 'integer',
+          'label' => t('User id'),
+        ),
+        'role_id' => array(
+          'type' => 'integer',
+          'label' => t('Role id'),
+        ),
+      ),
+      'group' => t('OG membership'),
+      'label' => t('User has been granted a role'),
+      'help' => t("A user has been granted a role"),
+    ),
+    'og_user_was_revoked_role' => array(
+      'variables' => array(
+        'entity_type' => array(
+          'type' => 'token',
+          'label' => t("The type of the entity the user is getting the role taken from"),
+        ),
+        'node_id' => array(
+          'type' => 'integer',
+          'label' => t('Node id'),
+        ),
+        'user_id' => array(
+          'type' => 'integer',
+          'label' => t('User id'),
+        ),
+        'role_id' => array(
+          'type' => 'integer',
+          'label' => t('Role id'),
+        ),
+      ),
+      'group' => t('OG membership'),
+      'label' => t('User has been revoked a role'),
+      'help' => t("A user has been revoked a role"),
+    ),
+  );
+}
