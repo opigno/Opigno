@@ -318,3 +318,154 @@ function opigno_opigno_tool() {
     ),
   );
 }
+
+function opigno_course_students_info($node) {
+  $node_id=$node->nid;
+  $group_members = opigno_get_users_in_group($node_id);
+  $students_number=0;
+  foreach ($group_members AS $member)
+  {
+    $user = user_load($member->uid);
+    $user_roles=og_get_user_roles('node',$node_id,$user->uid,FALSE);
+    foreach ($user_roles as $roleid=> $rolename)
+    {
+      if (($roleid==5)&&(sizeof($user_roles)==1))
+      {
+        $students_number++;
+      }
+    }
+  }
+    return array('places' => $node->field_course_places[LANGUAGE_NONE][0]['value'],
+      'available_places' => $node->field_course_places[LANGUAGE_NONE][0]['value']-$students_number,
+      'students' => $students_number);
+}
+
+function opigno_get_users_in_group($gid) {
+  $query = db_select('users', 'u');
+  $query
+    ->condition('u.uid', 0, '<>')
+    ->condition('u.status', 1, '=')
+    ->fields('u', array('uid', 'name'))
+    ->join('og_membership', 'ogm', "ogm.gid = :gid AND u.uid = ogm.etid AND ogm.entity_type = 'user'", array(':gid' => $gid));
+  return $query->execute();
+}
+
+function opigno_form_alter(&$form, &$form_state, $form_id) {
+
+  if (($form['#form_id']=="views_form_og_massadd_block_1"))
+  {
+    $node=node_load($form_state['build_info']['args'][0]->args[0]);
+    if ($node->type=="course")
+    {
+    $info=opigno_course_students_info($node);
+    if ($info['available_places']<=0)
+    {
+      drupal_set_message(t('This course is full at the moment, ').t('it has at the moment ').($info['available_places']*-1).t(" more student(s) than quota"),'warning');
+    }
+    }
+  }
+
+  if (($form['#form_id']=="og_ui_add_users"))
+  {
+    $node=node_load($form['membership_fields']['#entity']->gid);
+    if ($node->type=="course")
+    {
+      $info=opigno_course_students_info($node);
+      if ($info['available_places']<=0)
+      {
+        drupal_set_message(t('This course is full at the moment, ').t('it has at the moment ').($info['available_places']*-1).t(" more student(s) than quota"),'warning');
+      }
+    }
+  }
+
+  if (($form['#form_id']=="og_massadd_massadd_form"))
+  {
+    $node=node_load($form['group_ids']['#value'][0]);
+    if ($node->type=="course")
+    {
+      $info=opigno_course_students_info($node);
+      if ($info['available_places']<=0)
+      {
+        drupal_set_message(t('This course is full at the moment, ').t('it has at the moment ').($info['available_places']*-1).t(" more student(s) than quota"),'warning');
+      }
+    }
+  }
+
+  //'status' 'warning' 'error'
+  if (isset($form_state['field']['og_membership_request']))
+  {
+    $node=node_load($form_state['og_membership']->gid);
+    $info=opigno_course_students_info($node);
+    if ($info['available_places']<=0)
+    {
+      unset($form['actions']['submit']);
+      unset($form['og_membership_request']);
+      drupal_set_title(t('This course is full at the moment'));
+    }
+  }
+
+  if ($form['form_id']['#id']=="edit-og-massadd-massadd-form")
+  {
+    //dpm($form);
+    $nid=$form['group_ids']['#value'][0];
+    //dpm("Tamos no mass add");
+    //$form = array();
+    $form['description'] = array(
+      '#type' => 'item',
+    );
+    $form['massadd'] = array(
+      '#type' => 'multiselect',
+      '#title' => t('Select students to add to the course'),
+      '#default_value' => null,
+      '#multiple' => array("james" => 'james'),
+      '#size' => 15,
+      '#required' => TRUE,
+    );
+    $users = entity_load('user');
+    foreach ($users as $user_id => $user) {
+      if ($user_id!=0)
+      {
+      $userloaded=user_load($user_id);
+      $groups=og_get_groups_by_user($userloaded,NULL);
+      $found=false;
+      if (is_array($groups))
+      {
+      foreach($groups as $group)
+      {
+        if (isset($group[$nid]))
+        {
+          $found=true;
+        }
+      }
+      }
+      if ($found==false)
+      {
+        $form['massadd']['#options'][$user_id]=$user->name;
+      }
+      }
+    }
+    //$form = system_settings_form($form);
+    unset($form['#validate']);
+    //unset($form['#submit']);
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+      '#submit' => array('coisa'),
+    );
+  }
+  //dpm($form);
+}
+
+function coisa(&$form_state)
+{
+  //dpm("It did the function i wanted");
+  //dpm($form_state);
+  foreach($form_state['massadd']['#value'] as $user)
+  {
+    //dpm($user);
+    $values=array('entity' => $user);
+    og_group('node',$form_state['group_ids']['#value'][0],$values,TRUE);
+  }
+  return TRUE;
+}
+
