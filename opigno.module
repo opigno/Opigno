@@ -8,6 +8,22 @@
 define('OPIGNO_COURSE_BUNDLE', 'course');
 
 /**
+ * Implements hook_menu().
+ */
+function opigno_menu() {
+  return array(
+    'node/%node/tools' => array(
+      'title' => 'Tools',
+      'access callback' => 'opigno_access_tools',
+      'access arguments' => array(1),
+      'page callback' => 'opigno_tools_page',
+      'page arguments' => array(1),
+      'type' => MENU_LOCAL_TASK,
+    ),
+  );
+}
+
+/**
  * Implements hook_apps_servers_info()
  */
 function opigno_apps_servers_info() {
@@ -18,4 +34,62 @@ function opigno_apps_servers_info() {
       'manifest' => 'http://www.opigno.org/apps/opigno_apps_manifest.json',
     ),
   );
+}
+
+/**
+ * Fetches the list of tools activated for the current course.
+ *
+ * @param  stdClass $node
+ *
+ * @return array
+ */
+function opigno_get_tools($node) {
+  return array(1);
+}
+
+/**
+ * Custom access callback for the tools tab on course nodes.
+ *
+ * @param  stdClass $node
+ *
+ * @return bool
+ */
+function opigno_access_tools($node) {
+  if ($node->type === OPIGNO_COURSE_BUNDLE) {
+    $tools = opigno_get_tools($node);
+    return !empty($tools);
+  }
+  return FALSE;
+}
+
+/**
+ * Page callback for the tools page.
+ */
+function opigno_tools_page($node) {
+  return 'asd';
+}
+
+/**
+ * Returns an array of all course node NIDs for the platform.
+ *
+ * @param bool $only_published
+ *
+ * @return array
+ */
+function opigno_get_courses($only_published = FALSE) {
+  $query = db_select('node', 'n')
+              ->fields('n', array('nid'))
+              ->condition('n.type', OPIGNO_COURSE_BUNDLE);
+
+  if ($only_published) {
+    $query->condition('n.statue', NODE_PUBLISHED);
+  }
+
+  $nids = array();
+  $result = $query->execute();
+  while ($nid = $result->fetchField()) {
+    $nids[] = $nid;
+  }
+
+  return $nids;
 }
