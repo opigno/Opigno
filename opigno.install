@@ -26,47 +26,10 @@ function opigno_install() {
       'custom' => 1,
       'modified' => 1,
       'locked' => 0,
+      'promoted' => 0,
     ));
     node_type_save($type);
     node_add_body_field($type);
-  }
-
-  // Add the activate tools field.
-  $field = field_info_field('opigno_course_tools');
-  if (empty($field)) {
-    field_create_field(array(
-      'active' => 1,
-      'cardinality' => -1,
-      'deleted' => 0,
-      'entity_types' => array(),
-      'field_name' => 'opigno_course_tools',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'tool' => array(
-          0 => 'tool',
-        ),
-      ),
-      'locked' => 0,
-      'module' => 'opigno',
-      'settings' => array(
-        'allowed_values' => array(),
-        'allowed_values_function' => '',
-      ),
-      'translatable' => 0,
-      'type' => 'opigno_tools',
-    ));
-  }
-
-  $instance = field_info_instance('node', 'opigno_course_tools', OPIGNO_COURSE_BUNDLE);
-  if (empty($instance)) {
-    field_create_instance(array(
-      'field_name' => 'opigno_course_tools',
-      'entity_type' => 'node',
-      'bundle' => OPIGNO_COURSE_BUNDLE,
-      'label' => "Course tools",
-      'description' => "Activate tools for this course. Deactivated tools will be hidden from users.",
-      'required' => FALSE,
-    ));
   }
 
   if (function_exists('og_ui_node_type_save')) {

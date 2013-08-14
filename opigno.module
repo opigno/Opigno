@@ -25,6 +25,13 @@ function opigno_menu() {
 }
 
 /**
+ * Implements hook_init().
+ */
+function opigno_init() {
+  _opigno_install_custom_fields();
+}
+
+/**
  * Implements hook_apps_servers_info()
  */
 function opigno_apps_servers_info() {
@@ -248,7 +255,55 @@ function opigno_get_courses($only_published = FALSE) {
   return $nids;
 }
 
+/**
+ * This is a hack to circumvent the fact that we cannot easily install custom field types
+ * within the install hook. This is because the hook_field_info() is not called at that point,
+ * triggering a FieldException: Attempt to create a field of unknown type.
+ * This function installs the custom fields and sets a variable, making sure we only install it
+ * once. It is called in opigno_init().
+ */
+function _opigno_install_custom_fields() {
+  if (!variable_get('opigno_installed_fields', FALSE)) {
+    // Add the activate tools field.
+    $field = field_info_field('opigno_course_tools');
+    if (empty($field)) {
+      field_create_field(array(
+        'active' => 1,
+        'cardinality' => -1,
+        'deleted' => 0,
+        'entity_types' => array(),
+        'field_name' => 'opigno_course_tools',
+        'foreign keys' => array(),
+        'indexes' => array(
+          'tool' => array(
+            0 => 'tool',
+          ),
+        ),
+        'locked' => 0,
+        'module' => 'opigno',
+        'settings' => array(
+          'allowed_values' => array(),
+          'allowed_values_function' => '',
+        ),
+        'translatable' => 0,
+        'type' => 'opigno_tools',
+      ));
+    }
 
+    $instance = field_info_instance('node', 'opigno_course_tools', OPIGNO_COURSE_BUNDLE);
+    if (empty($instance)) {
+      field_create_instance(array(
+        'field_name' => 'opigno_course_tools',
+        'entity_type' => 'node',
+        'bundle' => OPIGNO_COURSE_BUNDLE,
+        'label' => "Course tools",
+        'description' => "Activate tools for this course. Deactivated tools will be hidden from users.",
+        'required' => FALSE,
+      ));
+    }
+    variable_set('opigno_installed_fields', TRUE);
+  }
+}
 
 
 /**
