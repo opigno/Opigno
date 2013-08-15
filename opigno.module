@@ -352,7 +352,7 @@ function opigno_get_users_in_group($gid) {
 
 function opigno_form_alter(&$form, &$form_state, $form_id) {
 
-  if (($form['#form_id']=="views_form_og_massadd_block_1"))
+  /*if (($form['#form_id']=="views_form_og_massadd_block_1"))
   {
     $node=node_load($form_state['build_info']['args'][0]->args[0]);
     if ($node->type=="course")
@@ -402,7 +402,7 @@ function opigno_form_alter(&$form, &$form_state, $form_id) {
       unset($form['og_membership_request']);
       drupal_set_title(t('This course is full at the moment'));
     }
-  }
+  }*/
 
   if ($form['form_id']['#id']=="edit-og-massadd-massadd-form")
   {
