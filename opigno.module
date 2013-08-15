@@ -49,10 +49,9 @@ function opigno_block_info() {
  * Implements hook_block_view().
  */
 function opigno_block_view($delta) {
+  $node = menu_get_object();
   switch ($delta) {
     case 'opigno_tool_actions_block':
-      $node = menu_get_object();
-
       if (!empty($node)) {
         $links = array();
         foreach (opigno_get_node_tools($node) as $tool) {
@@ -60,7 +59,7 @@ function opigno_block_view($delta) {
             foreach ($tool['actions'] as $action_id => $action) {
               $links[$action_id] = array(
                 'title' => $action['title'],
-                'href'  => opigno_tokenize_path($action['path'], $node),
+                'href'  => opigno_tokenize_path($action['href'], $node),
                 'query' => array(
                   'og_group_ref' => $node->nid,
                 ),
@@ -75,10 +74,19 @@ function opigno_block_view($delta) {
       );
 
     case 'opigno_tools_block':
-
+      if (!empty($node)) {
+        $elements = array();
+        foreach (opigno_get_node_tools($node) as $tool) {
+          $elements[$delta] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => check_plain($tool['name']),
+          );
+        }
+      }
       return array(
         'subject' => t("Tool actions"),
-        'content' => empty($links) ? '' : theme('links', array('links' => $links)),
+        'content' => empty($elements) ? '' : $elements,
       );
   }
 }
@@ -215,6 +223,15 @@ function opigno_preprocess_opigno_tool(&$vars) {
   }
 }
 
+/**
+ * Tokenize the path.
+ * @todo use tokens ??
+ * 
+ * @param  string $path
+ * @param  stdClass $node
+ *
+ * @return string
+ */
 function opigno_tokenize_path($path, $node) {
   return str_replace(':nid', $node->nid, str_replace(':vid', $node->vid, $path));
 }
@@ -286,7 +303,7 @@ function opigno_access_tools($node) {
 function opigno_get_node_tools($node) {
   $tools = array();
   foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
-    $tools[] = theme('opigno_tool', array('tool' => opigno_get_tool($item['tool']), 'course' => $node));
+    $tools[$item['tool']] = opigno_get_tool($item['tool']);
   }
   return $tools;
 }
@@ -295,7 +312,9 @@ function opigno_get_node_tools($node) {
  * Page callback for the tools page.
  */
 function opigno_tools_page($node) {
-  $tools = opigno_get_node_tools($node);
+  foreach (opigno_get_node_tools($node) as $tool) {
+    $tools[] = theme('opigno_tool', array('tool' => $tool, 'course' => $node));
+  }
   return theme('opigno_tools', array('tools' => $tools, 'course' => $node));
 }
 
