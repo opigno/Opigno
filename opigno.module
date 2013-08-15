@@ -193,6 +193,7 @@ function opigno_get_tool($name) {
     'machine_name' => $name,
     'description' => '',
     'path' => '',
+    'action_paths' => array(),
   );
 
   $tools = opigno_get_tools();
@@ -224,7 +225,7 @@ function opigno_access_tools($node) {
  */
 function opigno_tools_page($node) {
   $tools = array();
-  foreach ($node->field_tools[LANGUAGE_NONE] as $item) {
+  foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
     $tools[] = theme('opigno_tool', array('tool' => opigno_get_tool($item['tool']), 'course' => $node));
   }
   return theme('opigno_tools', array('tools' => $tools, 'course' => $node));

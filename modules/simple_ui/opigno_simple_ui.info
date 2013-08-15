@@ -1,0 +1,5 @@
+name = Opigno Simplified UI
+description = Simplifies the UI to enhance the user experience
+core = 7.x
+package = Opigno
+dependencies[] = opigno
