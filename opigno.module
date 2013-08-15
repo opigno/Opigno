@@ -32,6 +32,58 @@ function opigno_init() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function opigno_block_info() {
+  return array(
+    'opigno_tools_block' => array(
+      'info' => t("Opigno Course Tools"),
+    ),
+    'opigno_tool_actions_block' => array(
+      'info' => t("Opigno Course Tool Actions"),
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function opigno_block_view($delta) {
+  switch ($delta) {
+    case 'opigno_tool_actions_block':
+      $node = menu_get_object();
+
+      if (!empty($node)) {
+        $links = array();
+        foreach (opigno_get_node_tools($node) as $tool) {
+          if (!empty($tool['actions'])) {
+            foreach ($tool['actions'] as $action_id => $action) {
+              $links[$action_id] = array(
+                'title' => $action['title'],
+                'href'  => opigno_tokenize_path($action['path'], $node),
+                'query' => array(
+                  'og_group_ref' => $node->nid,
+                ),
+              );
+            }
+          }
+        }
+      }
+      return array(
+        'subject' => t("Tool actions"),
+        'content' => empty($links) ? '' : theme('links', array('links' => $links)),
+      );
+
+    case 'opigno_tools_block':
+
+      return array(
+        'subject' => t("Tool actions"),
+        'content' => empty($links) ? '' : theme('links', array('links' => $links)),
+      );
+  }
+}
+
+/**
  * Implements hook_apps_servers_info()
  */
 function opigno_apps_servers_info() {
@@ -159,9 +211,12 @@ function opigno_preprocess_opigno_tool(&$vars) {
   $vars['path'] = check_plain($vars['tool']['path']);
   // @todo use tokens ?
   if (isset($vars['course']->nid)) {
-    $vars['path'] = str_replace(':nid', $vars['course']->nid, $vars['path']);
-    $vars['path'] = str_replace(':vid', $vars['course']->vid, $vars['path']);
+    $vars['path'] = opigno_tokenize_path($vars['path'], $vars['course']);
   }
+}
+
+function opigno_tokenize_path($path, $node) {
+  return str_replace(':nid', $node->nid, str_replace(':vid', $node->vid, $path));
 }
 
 /**
@@ -193,7 +248,7 @@ function opigno_get_tool($name) {
     'machine_name' => $name,
     'description' => '',
     'path' => '',
-    'action_paths' => array(),
+    'actions' => array(),
   );
 
   $tools = opigno_get_tools();
@@ -220,14 +275,27 @@ function opigno_access_tools($node) {
   return FALSE;
 }
 
+
 /**
- * Page callback for the tools page.
+ * Get tools for the node.
+ *
+ * @param  stdClass $node
+ *
+ * @return array
  */
-function opigno_tools_page($node) {
+function opigno_get_node_tools($node) {
   $tools = array();
   foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
     $tools[] = theme('opigno_tool', array('tool' => opigno_get_tool($item['tool']), 'course' => $node));
   }
+  return $tools;
+}
+
+/**
+ * Page callback for the tools page.
+ */
+function opigno_tools_page($node) {
+  $tools = opigno_get_node_tools($node);
   return theme('opigno_tools', array('tools' => $tools, 'course' => $node));
 }
 
