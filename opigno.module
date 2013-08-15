@@ -57,13 +57,7 @@ function opigno_block_view($delta) {
         foreach (opigno_get_node_tools($node) as $tool) {
           if (!empty($tool['actions'])) {
             foreach ($tool['actions'] as $action_id => $action) {
-              $links[$action_id] = array(
-                'title' => $action['title'],
-                'href'  => opigno_tokenize_path($action['href'], $node),
-                'query' => array(
-                  'og_group_ref' => $node->nid,
-                ),
-              );
+              $links[$action_id] = $action;
             }
           }
         }
@@ -185,7 +179,7 @@ function opigno_field_formatter_view($entity_type, $entity, $field, $instance, $
   switch ($display['type']) {
     case 'opigno_tools_name':
       foreach ($items as $delta => $item) {
-        $info = opigno_get_tool($item['tool']);
+        $info = opigno_get_tool($item['tool'], $entity);
         $element[$delta] = array(
           '#type' => 'html_tag',
           '#tag' => 'p',
@@ -196,7 +190,7 @@ function opigno_field_formatter_view($entity_type, $entity, $field, $instance, $
 
     case 'opigno_tools_tool':
       foreach ($items as $delta => $item) {
-        $info = opigno_get_tool($item['tool']);
+        $info = opigno_get_tool($item['tool'], $entity);
         $element[$delta] = array(
           '#theme' => 'opigno_tool',
           '#tool' => $info,
@@ -217,16 +211,12 @@ function opigno_preprocess_opigno_tool(&$vars) {
   $vars['machine_name'] = check_plain($vars['tool']['machine_name']);
   $vars['description'] = check_plain($vars['tool']['description']);
   $vars['path'] = check_plain($vars['tool']['path']);
-  // @todo use tokens ?
-  if (isset($vars['course']->nid)) {
-    $vars['path'] = opigno_tokenize_path($vars['path'], $vars['course']);
-  }
 }
 
 /**
  * Tokenize the path.
  * @todo use tokens ??
- * 
+ *
  * @param  string $path
  * @param  stdClass $node
  *
@@ -239,12 +229,14 @@ function opigno_tokenize_path($path, $node) {
 /**
  * Fetches the list of tools for the platform.
  *
+ * @param  stdClass $node = NULL
+ *
  * @return array
  */
-function opigno_get_tools() {
+function opigno_get_tools($node = NULL) {
   $tools = &drupal_static(__FUNCTION__);
   if (empty($tools)) {
-    $tools = module_invoke_all('opigno_tool');
+    $tools = module_invoke_all('opigno_tool', $node);
     foreach ($tools as $key => &$tool) {
       $tool['machine_name'] = $key;
     }
@@ -256,10 +248,11 @@ function opigno_get_tools() {
  * Fetch information for a specific tool.
  *
  * @param  string $name
+ * @param  stdClass $node = NULL
  *
  * @return array|false
  */
-function opigno_get_tool($name) {
+function opigno_get_tool($name, $node = NULL) {
   // Add defaults to prevent Notices.
   $defaults = array(
     'machine_name' => $name,
@@ -268,7 +261,7 @@ function opigno_get_tool($name) {
     'actions' => array(),
   );
 
-  $tools = opigno_get_tools();
+  $tools = opigno_get_tools($node);
 
   if (isset($tools[$name])) {
     $tool = $tools[$name] + $defaults;
@@ -303,7 +296,7 @@ function opigno_access_tools($node) {
 function opigno_get_node_tools($node) {
   $tools = array();
   foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
-    $tools[$item['tool']] = opigno_get_tool($item['tool']);
+    $tools[$item['tool']] = opigno_get_tool($item['tool'], $node);
   }
   return $tools;
 }

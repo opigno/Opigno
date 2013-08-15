@@ -40,6 +40,17 @@ function opigno_simple_ui_menu_alter(&$items) {
   $items['node/%/group/add']['access arguments'][2] = 1;
   $items['node/%/group/add']['type'] = MENU_LOCAL_TASK;
 
+  if (isset($items['group/%/%/admin/people/mass-add-user'])) {
+    // Add a new secondary tab "Add members".
+    $items['node/%/group/mass-add'] = $items['group/%/%/admin/people/add-user'];
+    $items['node/%/group/mass-add']['title'] = "Add multiple members";
+    $items['node/%/group/mass-add']['page arguments'][1] = 'node';
+    $items['node/%/group/mass-add']['page arguments'][2] = 1;
+    $items['node/%/group/mass-add']['access arguments'][1] = 'node';
+    $items['node/%/group/mass-add']['access arguments'][2] = 1;
+    $items['node/%/group/mass-add']['type'] = MENU_LOCAL_TASK;
+  }
+
   // Make parent tab point to "Members" page.
   $items['node/%/group']['page callback'] = $items['node/%/group/users']['page callback'];
   $items['node/%/group']['page arguments'] = $items['node/%/group/users']['page arguments'];
