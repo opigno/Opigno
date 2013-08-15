@@ -57,6 +57,14 @@ function opigno_simple_ui_menu_alter(&$items) {
 }
 
 /**
+ * Implements hook_modules_installed().
+ */
+function opigno_simple_ui_modules_installed($modules) {
+  module_load_include('inc', 'opigno_simple_ui', 'includes/opigno_simple_ui.install');
+  opigno_simple_ui_change_quiz_question_bundles_names();
+}
+
+/**
  * Change the "View" tab title on course node pages.
  *
  * @param  stdClass $node

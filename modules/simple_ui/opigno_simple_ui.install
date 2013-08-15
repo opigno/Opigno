@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Module install logic.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function opigno_simple_ui_install() {
+  include dirname(__FILE__) . '/includes/opigno_simple_ui.install.inc';
+  opigno_simple_ui_change_quiz_question_bundles_names();
+}
