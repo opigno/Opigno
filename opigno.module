@@ -386,20 +386,6 @@ function _opigno_install_custom_fields() {
   }
 }
 
-
-/**
- * Implements hook_opigno_tool().
- */
-function opigno_opigno_tool() {
-  return array(
-    'wiki' => array(
-      'name' => t("Wiki"),
-      'path' => 'course/:nid/wikis',
-      'description' => t("Wikis allow teachers and students to collaborate and organize information.")
-    ),
-  );
-}
-
 function opigno_course_students_info($node) {
   $node_id=$node->nid;
   $group_members = opigno_get_users_in_group($node_id);
