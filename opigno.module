@@ -240,6 +240,7 @@ function opigno_get_tools($node = NULL) {
     foreach ($tools as $key => &$tool) {
       $tool['machine_name'] = $key;
     }
+    drupal_alter('opigno_tool', $tools, $node);
   }
   return $tools;
 }
