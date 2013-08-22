@@ -28,17 +28,10 @@ function opigno_og_prereq_default_rules_configuration() {
         { "NOT data_is_empty" : { "data" : [ "course:course-required-course-ref" ] } }
       ],
       "DO" : [
-        { "LOOP" : {
-            "USING" : { "list" : [ "course:course-required-course-ref" ] },
-            "ITEM" : { "list_item" : "Current list item" },
-            "DO" : [
-              { "list_add" : {
-                  "list" : [ "required-courses" ],
-                  "item" : [ "list-item" ],
-                  "unique" : 1
-                }
-              }
-            ]
+        { "list_add" : {
+            "list" : [ "required-courses" ],
+            "item" : [ "course:course-required-course-ref" ],
+            "unique" : 1
           }
         }
       ],
