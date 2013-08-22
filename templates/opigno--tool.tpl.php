@@ -19,5 +19,6 @@
       <?php print $name; ?>
     <?php endif; ?>
   </h4>
+
   <p class="opigno-tool-description"><?php print $description; ?></p>
 </div>

@@ -5,7 +5,7 @@
  */
 ?>
 <div class="opigno-tools">
-  <?php foreach($tools as $tool): ?>
+  <?php foreach ($tools as $tool): ?>
     <?php print render($tool); ?>
   <?php endforeach; ?>
 </div>

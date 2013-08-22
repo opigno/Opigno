@@ -13,9 +13,9 @@
 class AbstractOpignoTestCase extends DrupalWebTestCase {
   protected $admin_user;
 
- /**
-  *
-  */
+  /**
+   *
+   */
   protected function configureOpigno() {
     if (!isset($this->admin_user)) {
       // Create admin user
