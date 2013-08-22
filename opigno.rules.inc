@@ -1,50 +1,41 @@
 <?php
 
-function opigno_rules_add_role_to_user($role,$user,EntityDrupalWrapper $group) {
+function opigno_rules_add_role_to_user($role, $user, EntityDrupalWrapper $group) {
 // Load the user we want to add to the group
-  $all_roles=og_roles('node',$group->getBundle(),0,TRUE,TRUE);
-  foreach($all_roles as $role_id => $a_role)
-  {
-    if ($role==$a_role)
-    {
-      og_role_grant('node',$group->getIdentifier(), $user->uid, $role_id);
+  $all_roles = og_roles('node', $group->getBundle(), 0, TRUE, TRUE);
+  foreach ($all_roles as $role_id => $a_role) {
+    if ($role == $role_id) {
+      og_role_grant('node', $group->getIdentifier(), $user->uid, $role_id);
     }
   }
 }
 
-function opigno_rules_revoke_role_to_user($role,$user,EntityDrupalWrapper $group) {
+function opigno_rules_revoke_role_to_user($role, $user, EntityDrupalWrapper $group) {
 // Load the user we want to add to the group
-  $all_roles=og_roles('node',$group->getBundle(),0,TRUE,TRUE);
-  foreach($all_roles as $role_id => $a_role)
-  {
-    if ($role==$a_role)
-    {
-      og_role_revoke('node',$group->getIdentifier(), $user->uid, $role_id);
+  $all_roles = og_roles('node', $group->getBundle(), 0, TRUE, TRUE);
+  foreach ($all_roles as $role_id => $a_role) {
+    if ($role == $role_id) {
+      og_role_revoke('node', $group->getIdentifier(), $user->uid, $role_id);
     }
   }
 }
 
 function opigno_rules_user_has_roles_options_list() {
-  $all_bundles=og_get_all_group_bundle();
-  foreach($all_bundles['node'] as $bundle_machine_name => $bundle_name)
-  {
-    $all_roles=og_roles('node',$bundle_machine_name,0,TRUE,TRUE);
-    foreach($all_roles as $role)
-    {
-      $roles[$role]=$role;
+  $all_bundles = og_get_all_group_bundle();
+  foreach ($all_bundles['node'] as $bundle_machine_name => $bundle_name) {
+    $all_roles = og_roles('node', $bundle_machine_name, 0, TRUE, TRUE);
+    foreach ($all_roles as $role_id => $role) {
+      $roles[$bundle_name][$role_id] = $role;
     }
   }
   return $roles;
 }
 
 
-function opigno_rules_user_has_roles($role,$group, $account)
-{
-  $all_roles=og_get_user_roles('node', $group->nid, $account->uid,TRUE);
-  foreach($all_roles as $a_role)
-  {
-    if ($role==$a_role)
-    {
+function opigno_rules_user_has_roles($role, $group, $account) {
+  $all_roles = og_get_user_roles('node', $group->nid, $account->uid, TRUE);
+  foreach ($all_roles as $a_role) {
+    if ($role == $a_role) {
       return TRUE;
     }
   }
@@ -61,7 +52,8 @@ function opigno_rules_action_info() {
         'type' => 'text',
         'label' => t('Role'),
         'description' => t('The role to be removed'),
-        'options list' => 'opigno_rules_user_has_roles_options_list',),
+        'options list' => 'opigno_rules_user_has_roles_options_list',
+      ),
       'user' => array(
         'type' => 'user',
         'label' => t('User'),
@@ -90,7 +82,8 @@ function opigno_rules_action_info() {
         'type' => 'text',
         'label' => t('Role'),
         'description' => t('The role to add'),
-        'options list' => 'opigno_rules_user_has_roles_options_list',),
+        'options list' => 'opigno_rules_user_has_roles_options_list',
+      ),
       'user' => array(
         'type' => 'user',
         'label' => t('User'),
@@ -113,35 +106,34 @@ function opigno_rules_action_info() {
   return $items;
 }
 
-function opigno_rules_condition_info()
-{
+function opigno_rules_condition_info() {
   $items = array();
-$items['og_user_has_role'] = array(
-  'label' => t('User has role'),
-  'group' => t('Organic groups'),
-  'parameter' => array(
-    'role' => array(
-      'type' => 'text',
-      'label' => t('Role'),
-      'description' => t('The role to check for.'),
-      'options list' => 'opigno_rules_user_has_roles_options_list',
-      'restriction' => 'input',
+  $items['og_user_has_role'] = array(
+    'label' => t('User has role'),
+    'group' => t('Organic groups'),
+    'parameter' => array(
+      'role' => array(
+        'type' => 'text',
+        'label' => t('Role'),
+        'description' => t('The role to check for.'),
+        'options list' => 'opigno_rules_user_has_roles_options_list',
+        'restriction' => 'input',
+      ),
+      'group' => array(
+        'type' => array_keys(og_get_all_group_entity()),
+        'label' => t('Group'),
+        'description' => t('The group for which permission should be checked.'),
+      ),
+      'account' => array(
+        'type' => 'user',
+        'label' => t('User'),
+      ),
     ),
-    'group' => array(
-      'type' => array_keys(og_get_all_group_entity()),
-      'label' => t('Group'),
-      'description' => t('The group for which permission should be checked.'),
-    ),
-    'account' => array(
-      'type' => 'user',
-      'label' => t('User'),
-    ),
-  ),
-  'base' => 'opigno_rules_user_has_roles',
-  'access callback' => 'og_rules_integration_access',
-);
+    'base' => 'opigno_rules_user_has_roles',
+    'access callback' => 'og_rules_integration_access',
+  );
 
-return $items;
+  return $items;
 }
 
 function opigno_rules_event_info() {
