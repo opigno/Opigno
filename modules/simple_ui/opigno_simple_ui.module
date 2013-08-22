@@ -1,0 +1,171 @@
+<?php
+
+/**
+ * @file
+ * The Opigno Simple UI module simplifies the platform interface by providing shortcuts
+ * and hiding unnecessary complexity.
+ */
+
+/**
+ * Implements hook_menu_alter().
+ */
+function opigno_simple_ui_menu_alter(&$items) {
+  // Change the default node tabs title on a course node.
+  unset($items['node/%node/view']['title']);
+  $items['node/%node/view']['title callback'] = 'opigno_simple_ui_course_view_tab_title';
+  $items['node/%node/view']['title arguments'] = array(1);
+  unset($items['node/%node/edit']['title']);
+  $items['node/%node/edit']['title callback'] = 'opigno_simple_ui_course_edit_tab_title';
+  $items['node/%node/edit']['title arguments'] = array(1);
+  unset($items['node/%/group']['title']);
+  $items['node/%/group']['title callback'] = 'opigno_simple_ui_course_group_tab_title';
+  $items['node/%/group']['title arguments'] = array(1);
+
+  // Add a new secondary tab "Members".
+  $items['node/%/group/users'] = $items['group/%/%/admin/people'];
+  $items['node/%/group/users']['title'] = "Members";
+  $items['node/%/group/users']['title callback'] = 't';
+  unset($items['node/%/group/users']['title arguments']);
+  $items['node/%/group/users']['page arguments'][0] = 'node';
+  $items['node/%/group/users']['page arguments'][1] = 1;
+  $items['node/%/group/users']['access arguments'][1] = 'node';
+  $items['node/%/group/users']['access arguments'][2] = 1;
+  $items['node/%/group/users']['type'] = MENU_DEFAULT_LOCAL_TASK;
+
+  // Add a new secondary tab "Add members".
+  $items['node/%/group/add'] = $items['group/%/%/admin/people/add-user'];
+  $items['node/%/group/add']['page arguments'][1] = 'node';
+  $items['node/%/group/add']['page arguments'][2] = 1;
+  $items['node/%/group/add']['access arguments'][1] = 'node';
+  $items['node/%/group/add']['access arguments'][2] = 1;
+  $items['node/%/group/add']['type'] = MENU_LOCAL_TASK;
+
+  if (isset($items['group/%/%/admin/people/mass-add-user'])) {
+    // Add a new secondary tab "Add multiple members".
+    $items['node/%/group/mass-add'] = $items['group/%/%/admin/people/mass-add-user'];
+    $items['node/%/group/mass-add']['title'] = "Add multiple members";
+    $items['node/%/group/mass-add']['page arguments'][1] = 'node';
+    $items['node/%/group/mass-add']['page arguments'][2] = 1;
+    $items['node/%/group/mass-add']['access arguments'][1] = 'node';
+    $items['node/%/group/mass-add']['access arguments'][2] = 1;
+    $items['node/%/group/mass-add']['type'] = MENU_LOCAL_TASK;
+  }
+
+  // Make parent tab point to "Members" page.
+  $items['node/%/group']['page callback'] = $items['node/%/group/users']['page callback'];
+  $items['node/%/group']['page arguments'] = $items['node/%/group/users']['page arguments'];
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function opigno_simple_ui_theme_registry_alter(&$theme_registry) {
+  if (isset($theme_registry['menu_local_task'])) {
+    $theme_registry['menu_local_task']['function'] = 'theme_opigno_simple_ui_local_task';
+  }
+}
+
+/**
+ * Implements hook_opigno_tool_alter().
+ */
+function opigno_simple_ui_opigno_tool_alter(&$tools, $node = NULL) {
+  if (isset($tools['quiz'])) {
+    $tools['quiz']['name'] = t("Lessons");
+    $tools['quiz']['description'] =  t("Lessons allow teachers to assess students and provide slideshows with course content and/or questions.");
+  }
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function opigno_simple_ui_modules_installed($modules) {
+  module_load_include('inc', 'opigno_simple_ui', 'includes/opigno_simple_ui.install');
+  opigno_simple_ui_change_quiz_question_bundles_names();
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function opigno_simple_ui_form_alter(&$form, $form_state, $form_id) {
+  switch ($form_id) {
+    case 'quiz_directions_node_form':
+      $form['add_directly']['#access'] = FALSE;
+      break;
+
+    case 'quiz_questions_form':
+      $form['question_list']['browser']['#collapsible'] = TRUE;
+      $form['question_list']['browser']['#collapsed'] = TRUE;
+      break;
+  }
+}
+
+/**
+ * Change the "View" tab title on course node pages.
+ *
+ * @param  stdClass $node
+ *
+ * @return string
+ */
+function opigno_simple_ui_course_view_tab_title($node) {
+  if ($node->type == OPIGNO_COURSE_BUNDLE || ($node->type == 'class')) {
+    return t('Home');
+  }
+  return t('View');
+}
+
+/**
+ * Change the "Edit" tab title on course node pages.
+ *
+ * @param  stdClass $node
+ *
+ * @return string
+ */
+function opigno_simple_ui_course_edit_tab_title($node) {
+  if ($node->type == OPIGNO_COURSE_BUNDLE || ($node->type == 'class')) {
+    return t('Settings');
+  }
+  return t('Edit');
+}
+
+/**
+ * Change the "Group" tab title on course node pages.
+ *
+ * @param  stdClass $node
+ *
+ * @return string
+ */
+function opigno_simple_ui_course_group_tab_title($node) {
+  return t('Users');
+}
+
+/**
+ * Alter the way tabs are rendered to add custom classes.
+ *
+ * @param  array $vars
+ *
+ * @return string
+ */
+function theme_opigno_simple_ui_local_task(&$vars) {
+  $class = 'node-tab';
+
+  switch ($vars['element']['#link']['path']) {
+    case 'node/%/view':
+      $class .= ' node-view-tab';
+      break;
+
+    case 'node/%/edit':
+      $class .= ' node-edit-tab';
+      break;
+
+    case 'node/%/tools':
+      $class .= ' node-tools-tab';
+      break;
+
+    case 'node/%/group':
+      $class .= ' node-group-tab';
+      break;
+  }
+
+  $vars['element']['#link']['localized_options']['attributes']['class'][] = $class;
+  return theme_menu_local_task($vars);
+}

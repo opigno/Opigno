@@ -11,7 +11,7 @@
  */
 ?>
 <div class="opigno-tool opigno-<?php print str_replace('_', '-', $machine_name); ?>-tool opigno-tool-block">
-  <div class="opigno-tool-icon">&nbsp;</div>
+  <div class="opigno-tool-icon"></div>
   <h4 class="opigno-tool-name">
     <?php if (!empty($path)): ?>
       <?php print l($name, $path, array('attributes' => array('class' => array('opigno-tool-link')))); ?>

@@ -32,6 +32,69 @@ function opigno_init() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function opigno_block_info() {
+  return array(
+    'opigno_tools_block' => array(
+      'info' => t("Opigno Course Tools"),
+    ),
+    'opigno_tool_actions_block' => array(
+      'info' => t("Opigno Course Tool Actions"),
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function opigno_block_view($delta) {
+  global $user;
+  $node = menu_get_object();
+  switch ($delta) {
+    case 'opigno_tool_actions_block':
+      if (!empty($node)) {
+        $links = array();
+        foreach (opigno_get_node_tools($node, $user) as $tool) {
+          if (!empty($tool['actions'])) {
+            foreach ($tool['actions'] as $action_id => $action) {
+              $defaults = array(
+                'access_arguments' => array('access content'),
+                'access_callback' => 'user_access',
+              );
+              $action += $defaults;
+
+              if (opigno_tool_action_access($action, $user)) {
+                $links[$action_id] = $action;
+              }
+            }
+          }
+        }
+      }
+      return array(
+        'subject' => t("Tool actions"),
+        'content' => empty($links) ? '' : theme('links', array('links' => $links)),
+      );
+
+    case 'opigno_tools_block':
+      if (!empty($node)) {
+        $elements = array();
+        foreach (opigno_get_node_tools($node, $user) as $tool) {
+          $elements[$delta] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => check_plain($tool['name']),
+          );
+        }
+      }
+      return array(
+        'subject' => t("Tool actions"),
+        'content' => empty($elements) ? '' : $elements,
+      );
+  }
+}
+
+/**
  * Implements hook_apps_servers_info()
  */
 function opigno_apps_servers_info() {
@@ -120,28 +183,33 @@ function opigno_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function opigno_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  global $user;
   $element = array();
 
   switch ($display['type']) {
     case 'opigno_tools_name':
       foreach ($items as $delta => $item) {
-        $info = opigno_get_tool($item['tool']);
-        $element[$delta] = array(
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#value' => check_plain($info['name']),
-        );
+        $info = opigno_get_tool($item['tool'], $entity, $user);
+        if (!empty($info)) {
+          $element[$delta] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => check_plain($info['name']),
+          );
+        }
       }
       break;
 
     case 'opigno_tools_tool':
       foreach ($items as $delta => $item) {
-        $info = opigno_get_tool($item['tool']);
-        $element[$delta] = array(
-          '#theme' => 'opigno_tool',
-          '#tool' => $info,
-          '#course' => $entity,
-        );
+        $info = opigno_get_tool($item['tool'], $entity, $user);
+        if (!empty($info)) {
+          $element[$delta] = array(
+            '#theme' => 'opigno_tool',
+            '#tool' => $info,
+            '#course' => $entity,
+          );
+        }
       }
       break;
   }
@@ -157,51 +225,100 @@ function opigno_preprocess_opigno_tool(&$vars) {
   $vars['machine_name'] = check_plain($vars['tool']['machine_name']);
   $vars['description'] = check_plain($vars['tool']['description']);
   $vars['path'] = check_plain($vars['tool']['path']);
-  // @todo use tokens ?
-  if (isset($vars['course']->nid)) {
-    $vars['path'] = str_replace(':nid', $vars['course']->nid, $vars['path']);
-    $vars['path'] = str_replace(':vid', $vars['course']->vid, $vars['path']);
-  }
+}
+
+/**
+ * Tokenize the path.
+ * @todo use tokens ??
+ *
+ * @param  string $path
+ * @param  stdClass $node
+ *
+ * @return string
+ */
+function opigno_tokenize_path($path, $node) {
+  return str_replace(':nid', $node->nid, str_replace(':vid', $node->vid, $path));
 }
 
 /**
  * Fetches the list of tools for the platform.
  *
+ * @param  stdClass $node = NULL
+ *
  * @return array
  */
-function opigno_get_tools() {
-  $tools = & drupal_static(__FUNCTION__);
+
+function opigno_get_tools($node = NULL) {
+  $tools = &drupal_static(__FUNCTION__);
   if (empty($tools)) {
-    $tools = module_invoke_all('opigno_tool');
+    $tools = module_invoke_all('opigno_tool', $node);
     foreach ($tools as $key => &$tool) {
       $tool['machine_name'] = $key;
     }
+    drupal_alter('opigno_tool', $tools, $node);
   }
   return $tools;
 }
 
 /**
  * Fetch information for a specific tool.
+ * Optionally, can be filtered by access rights.
  *
  * @param  string $name
+ * @param  stdClass $node = NULL
+ * @param  stdClass $account = NULL
  *
  * @return array|false
  */
-function opigno_get_tool($name) {
+function opigno_get_tool($name, $node = NULL, $account = NULL) {
   // Add defaults to prevent Notices.
   $defaults = array(
     'machine_name' => $name,
     'description' => '',
     'path' => '',
+    'actions' => array(),
+    'access_arguments' => array('access content'),
+    'access_callback' => 'user_access',
   );
 
-  $tools = opigno_get_tools();
+  $tools = opigno_get_tools($node);
 
   if (isset($tools[$name])) {
     $tool = $tools[$name] + $defaults;
+
+    // If an account was given, check user access.
+    if (isset($account)) {
+      if (!opigno_tool_access($tool, $account)) {
+        return FALSE;
+      }
+    }
     return $tool;
   }
   return FALSE;
+}
+
+/**
+ * Check user access for the tool.
+ *
+ * @param  array $tool
+ * @param  stdClass $account
+ *
+ * @return bool
+ */
+function opigno_tool_access($tool, $account) {
+  return call_user_func_array($tool['access_callback'], array_merge($tool['access_arguments'], array($account)));
+}
+
+/**
+ * Check user access for the tool action.
+ *
+ * @param  array $action
+ * @param  stdClass $account
+ *
+ * @return bool
+ */
+function opigno_tool_action_access($action, $account) {
+  return call_user_func_array($action['access_callback'], array_merge($action['access_arguments'], array($account)));
 }
 
 /**
@@ -219,13 +336,34 @@ function opigno_access_tools($node) {
   return FALSE;
 }
 
+
+/**
+ * Get tools for the node.
+ * Optionally filter by access permissions.
+ *
+ * @param  stdClass $node
+ * @param  stdClass $account = NULL
+ *
+ * @return array
+ */
+function opigno_get_node_tools($node, $account = NULL) {
+  $tools = array();
+  foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
+    $tool = opigno_get_tool($item['tool'], $node, $account);
+    if (!empty($tool)) {
+      $tools[$item['tool']] = $tool;
+    }
+  }
+  return $tools;
+}
+
 /**
  * Page callback for the tools page.
  */
 function opigno_tools_page($node) {
-  $tools = array();
-  foreach ($node->field_tools[LANGUAGE_NONE] as $item) {
-    $tools[] = theme('opigno_tool', array('tool' => opigno_get_tool($item['tool']), 'course' => $node));
+  global $user;
+  foreach (opigno_get_node_tools($node, $user) as $tool) {
+    $tools[] = theme('opigno_tool', array('tool' => $tool, 'course' => $node));
   }
   return theme('opigno_tools', array('tools' => $tools, 'course' => $node));
 }
@@ -303,20 +441,6 @@ function _opigno_install_custom_fields() {
     }
     variable_set('opigno_installed_fields', TRUE);
   }
-}
-
-
-/**
- * Implements hook_opigno_tool().
- */
-function opigno_opigno_tool() {
-  return array(
-    'wiki' => array(
-      'name' => t("Wiki"),
-      'path' => 'course/:nid/wikis',
-      'description' => t("Wikis allow teachers and students to collaborate and organize information.")
-    ),
-  );
 }
 
 function opigno_course_students_info($node) {
