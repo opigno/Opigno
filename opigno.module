@@ -506,6 +506,7 @@ function opigno_get_users_in_group($gid) {
     ->condition('u.status', 1, '=')
     ->fields('u', array('uid', 'name'))
     ->join('og_membership', 'ogm', "ogm.gid = :gid AND u.uid = ogm.etid AND ogm.entity_type = 'user'", array(':gid' => $gid));
+  $result = $query->execute();
   while ($nid = $result->fetchField()) {
     $nids[] = $nid;
   }
