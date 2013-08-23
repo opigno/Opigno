@@ -32,6 +32,20 @@ function opigno_init() {
 }
 
 /**
+ * Implements hook_hook_info().
+ */
+function hook_hook_info() {
+  return array(
+    'opigno_tool' => array(
+      'group' => 'opigno',
+    ),
+    'opigno_tool_alter' => array(
+      'group' => 'opigno',
+    ),
+  );
+}
+
+/**
  * Implements hook_block_info().
  */
 function opigno_block_info() {
