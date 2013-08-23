@@ -533,6 +533,12 @@ function opigno_get_users_in_group($gid) {
 }
 
 function opigno_form_alter(&$form, &$form_state, $form_id) {
+  // UX: Add a confirmation to the permissions form to ask the user whether to
+  // auto-enable the 'access opigno administration pages' permission along with
+  // 'access administration pages'.
+  if ($form_id == 'user_admin_permissions') {
+    $form['#attached']['js'][] = drupal_get_path('module', 'opigno') . '/js/opigno.admin.js';
+  }
 
   /*if (($form['#form_id']=="views_form_og_massadd_block_1"))
   {
@@ -735,7 +741,6 @@ function opigno_admin_overview_page() {
       WHERE menu_name = :menu_name AND ml.plid = :mlid AND hidden = 0", $admin, array('fetch' => PDO::FETCH_ASSOC));
     foreach ($result as $item) {
       _menu_link_translate($item);
-      dpm($item);
       if (!$item['access']) {
         continue;
       }
