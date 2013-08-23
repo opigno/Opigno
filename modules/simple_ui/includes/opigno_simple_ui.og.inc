@@ -82,9 +82,8 @@ function opigno_simple_ui_form_og_massadd_massadd_form_alter(&$form, $form_state
 
   $form['massadd'] = array(
     '#type' => 'multiselect',
-    '#title' => t('Select students to add to the course'),
+    '#title' => t('Select students to add to the group'),
     '#default_value' => NULL,
-    // '#multiple' => array("james" => 'james'),
     '#size' => 15,
     '#required' => TRUE,
   );
