@@ -21,6 +21,25 @@ function opigno_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 10,
     ),
+    'admin/opigno' => array(
+      'title' => t("Administration"),
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('access opigno administration pages'),
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function opigno_permission() {
+  return array(
+    'access opigno administration pages' => array(
+      'title' => t("Access the Opigno administration pages"),
+      'description' => t("This permission is necessary for some global tools, like exporting user lists."),
+    ),
   );
 }
 
