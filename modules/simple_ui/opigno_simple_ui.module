@@ -9,6 +9,19 @@
 include dirname(__FILE__) . '/includes/opigno_simple_ui.og.inc';
 
 /**
+ * Implements hook_menu().
+ */
+function opigno_simple_ui_menu() {
+  $menu = array();
+
+  if (module_exists('og_ui')) {
+    $menu = array_merge($menu, opigno_simple_ui_og_menu());
+  }
+
+  return $menu;
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function opigno_simple_ui_menu_alter(&$items) {
