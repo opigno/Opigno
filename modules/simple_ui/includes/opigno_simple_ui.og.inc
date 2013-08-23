@@ -40,7 +40,9 @@ function opigno_simple_ui_form_og_ui_edit_membership_alter(&$form, $form_state) 
     '#submit' => array('opigno_simple_ui_form_og_ui_edit_membership_remove_from_group_submit'),
   );
 
-  $form['#submit'][] = 'opigno_simple_ui_form_og_ui_edit_membership_submit';
+  // We need to set the state *before* changing the roles, because some Rules or some Opigno apps
+  // can change the status based on permissions automatically. And many react on role change.
+  $form['#submit'] = array_merge(array('opigno_simple_ui_form_og_ui_edit_membership_submit'), $form['#submit']);
 }
 
 /**
