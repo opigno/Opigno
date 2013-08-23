@@ -25,7 +25,6 @@ function opigno_menu() {
       'title' => "Opigno",
       'page callback' => 'opigno_admin_overview_page',
       'access arguments' => array('access opigno administration pages'),
-      'file path' => drupal_get_path('module', 'system'),
     ),
     'admin/opigno/students' => array(
       'title' => "Student management",
@@ -733,7 +732,8 @@ function opigno_og_role_revoke($type, $node_id, $user_id, $role_id) {
  */
 function opigno_admin_overview_page() {
   $blocks = array();
-  if ($admin = db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin/opigno'")->fetchAssoc()) {
+  $admin = db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin/opigno' AND module = 'system'")->fetchAssoc();
+  if ($admin) {
     $result = db_query("
       SELECT m.*, ml.*
       FROM {menu_links} ml
