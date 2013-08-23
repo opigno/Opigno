@@ -264,14 +264,17 @@ function opigno_tokenize_path($path, $node) {
 
 function opigno_get_tools($node = NULL) {
   $tools = &drupal_static(__FUNCTION__);
-  if (empty($tools)) {
-    $tools = module_invoke_all('opigno_tool', $node);
-    foreach ($tools as $key => &$tool) {
+  $group = isset($node->nid) ? $node->nid : 'global';
+
+  if (empty($tools[$group])) {
+    $tools[$group] = module_invoke_all('opigno_tool', $node);
+    foreach ($tools[$group] as $key => &$tool) {
       $tool['machine_name'] = $key;
     }
-    drupal_alter('opigno_tool', $tools, $node);
+    drupal_alter('opigno_tool', $tools[$group], $node);
   }
-  return $tools;
+  
+  return $tools[$group];
 }
 
 /**
