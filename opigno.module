@@ -660,18 +660,6 @@ function opigno_form_alter(&$form, &$form_state, $form_id) {
   return TRUE;
 }*/
 
-
-function coisa(&$form_state) {
-  //dpm("It did the function i wanted");
-  //dpm($form_state);
-  foreach ($form_state['massadd']['#value'] as $user) {
-    //dpm($user);
-    $values = array('entity' => $user);
-    og_group('node', $form_state['group_ids']['#value'][0], $values, TRUE);
-  }
-  return TRUE;
-}
-
 function opigno_og_role_grant($type, $node_id, $user_id, $role_id) {
   dpm($type);
   dpm($node_id);
