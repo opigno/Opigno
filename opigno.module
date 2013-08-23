@@ -22,7 +22,7 @@ function opigno_menu() {
       'weight' => 10,
     ),
     'admin/opigno' => array(
-      'title' => t("Administration"),
+      'title' => t("Opigno"),
       'page callback' => 'system_admin_menu_block_page',
       'access arguments' => array('access opigno administration pages'),
       'file' => 'system.admin.inc',
