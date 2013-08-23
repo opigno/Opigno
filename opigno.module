@@ -273,7 +273,7 @@ function opigno_get_tools($node = NULL) {
     }
     drupal_alter('opigno_tool', $tools[$group], $node);
   }
-  
+
   return $tools[$group];
 }
 
