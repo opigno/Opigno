@@ -17,6 +17,103 @@ function opigno_og_prereq_modules_installed($modules) {
 }
 
 /**
+ * Implements hook_og_permission().
+ */
+function opigno_og_prereq_og_permission() {
+  return array(
+    'skip pre-required group when added as a member' => array(
+      'title' => t("Skip the pretest when added as a member"),
+      'description' => t("Whenever a user with this permission is added, even if he didn't answer the pretest, his membership get's approved."),
+    ),
+  );
+}
+
+/**
+ * Implements hook_og_role_grant().
+ */
+function opigno_og_prereq_og_role_grant($entity_type, $gid, $uid, $rid) {
+  $account = user_load($uid, TRUE);
+
+  if ($entity_type == 'node') {
+    if (!og_user_access($entity_type, $gid, 'skip pre-required group when added as a member', $account)) {
+      $required_courses = opigno_og_prereq_fetch_required_courses(node_load($gid));
+
+      if (!empty($required_courses)) {
+        foreach ($required_courses as $required_course) {
+          // If the user already passed the pre-test, don't deactivate his membership.
+          if (!opigno_og_prereq_user_passed_course($uid, $required_course)) {
+            $query = new EntityFieldQuery();
+            $query->entityCondition('entity_type', 'og_membership', '=')
+              ->propertyCondition('gid', $gid, '=')
+              ->propertyCondition('entity_type', 'user', '=')
+              ->propertyCondition('etid', $uid, '=');
+            $result = $query->execute();
+
+            if (!empty($result['og_membership'])) {
+              $og_membership = og_membership_load(current($result['og_membership'])->id);
+              if ($og_membership->state == OG_STATE_ACTIVE) {
+                $og_membership->state = OG_STATE_PENDING;
+                og_membership_save($og_membership);
+                drupal_set_message(t("The membership for %user was temporarily set to <em>pending</em>. She must first fulfill the required courses to get full access to this group.", array('%user' => $account->name)), 'warning', FALSE);
+              }
+            }
+          }
+        }
+      }
+    }
+    else {
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'og_membership', '=')
+        ->propertyCondition('gid', $gid, '=')
+        ->propertyCondition('entity_type', 'user', '=')
+        ->propertyCondition('etid', $uid, '=');
+      $result = $query->execute();
+
+      if (!empty($result['og_membership'])) {
+        $og_membership = og_membership_load(current($result['og_membership'])->id);
+        if ($og_membership->state == OG_STATE_PENDING) {
+          $og_membership->state = OG_STATE_ACTIVE;
+          og_membership_save($og_membership);
+        }
+      }
+    }
+  }
+}
+
+function opigno_og_prereq_fetch_required_courses($node) {
+  $nodes = array();
+  if (!empty($node->course_required_course_ref[LANGUAGE_NONE])) {
+    foreach ($node->course_required_course_ref[LANGUAGE_NONE] as $item) {
+      $nodes[] = node_load($item['target_id']);
+    }
+  }
+  return $nodes;
+}
+
+function opigno_og_prereq_user_passed_course($uid, $course) {
+  if (!empty($course->course_required_quiz_ref[LANGUAGE_NONE])) {
+    foreach ($course->course_required_quiz_ref[LANGUAGE_NONE] as $item) {
+      $quiz = node_load($item['target_id']);
+
+      if (isset($quiz)) {
+        $score = @current(quiz_get_score_data(array($quiz->nid), $uid));
+        if (empty($score->percent_score) || $score->percent_score < $score->percent_pass) {
+          return FALSE;
+        }
+      }
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_og_role_revoke().
+ */
+function opigno_og_prereq_og_role_revoke($entity_type, $gid, $uid, $rid) {
+  opigno_og_prereq_og_role_grant($entity_type, $gid, $uid, $rid);
+}
+
+/**
  * Enable a rule depending on Opigno Quiz App.
  */
 function _opgino_og_prereq_install_opigno_quiz_app_rules() {
