@@ -7,6 +7,7 @@
  */
 
 include dirname(__FILE__) . '/includes/opigno_simple_ui.og.inc';
+include dirname(__FILE__) . '/includes/opigno_simple_ui.quiz.inc';
 
 /**
  * Implements hook_menu().
@@ -96,22 +97,6 @@ function opigno_simple_ui_opigno_tool_alter(&$tools, $node = NULL) {
 function opigno_simple_ui_modules_installed($modules) {
   module_load_include('inc', 'opigno_simple_ui', 'includes/opigno_simple_ui.install');
   opigno_simple_ui_change_quiz_question_bundles_names();
-}
-
-/**
- * Implements hook_form_alter().
- */
-function opigno_simple_ui_form_alter(&$form, $form_state, $form_id) {
-  switch ($form_id) {
-    case 'quiz_directions_node_form':
-      $form['add_directly']['#access'] = FALSE;
-      break;
-
-    case 'quiz_questions_form':
-      $form['question_list']['browser']['#collapsible'] = TRUE;
-      $form['question_list']['browser']['#collapsed'] = TRUE;
-      break;
-  }
 }
 
 /**
