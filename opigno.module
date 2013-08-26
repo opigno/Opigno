@@ -25,7 +25,6 @@ function opigno_menu() {
       'title' => "Opigno",
       'page callback' => 'opigno_admin_overview_page',
       'access arguments' => array('access opigno administration pages'),
-      'file path' => drupal_get_path('module', 'system'),
     ),
     'admin/opigno/students' => array(
       'title' => "Student management",
@@ -533,6 +532,12 @@ function opigno_get_users_in_group($gid) {
 }
 
 function opigno_form_alter(&$form, &$form_state, $form_id) {
+  // UX: Add a confirmation to the permissions form to ask the user whether to
+  // auto-enable the 'access opigno administration pages' permission along with
+  // 'access administration pages'.
+  if ($form_id == 'user_admin_permissions') {
+    $form['#attached']['js'][] = drupal_get_path('module', 'opigno') . '/js/opigno.admin.js';
+  }
 
   /*if (($form['#form_id']=="views_form_og_massadd_block_1"))
   {
@@ -727,7 +732,8 @@ function opigno_og_role_revoke($type, $node_id, $user_id, $role_id) {
  */
 function opigno_admin_overview_page() {
   $blocks = array();
-  if ($admin = db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin/opigno'")->fetchAssoc()) {
+  $admin = db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin/opigno' AND module = 'system'")->fetchAssoc();
+  if ($admin) {
     $result = db_query("
       SELECT m.*, ml.*
       FROM {menu_links} ml
@@ -735,7 +741,6 @@ function opigno_admin_overview_page() {
       WHERE menu_name = :menu_name AND ml.plid = :mlid AND hidden = 0", $admin, array('fetch' => PDO::FETCH_ASSOC));
     foreach ($result as $item) {
       _menu_link_translate($item);
-      dpm($item);
       if (!$item['access']) {
         continue;
       }
