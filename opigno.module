@@ -375,7 +375,8 @@ function opigno_tool_action_access($action, $account) {
 }
 
 /**
- * Custom access callback for the tools tab on course nodes.
+ * Custom access callback for the tools tab on course nodes, or the rendered
+ * opigno_tools field.
  *
  * @param  stdClass $node
  *
@@ -412,7 +413,6 @@ function opigno_access_tools($node) {
 
   return FALSE;
 }
-
 
 /**
  * Get tools for the node.
