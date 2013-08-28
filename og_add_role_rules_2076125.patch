@@ -1,0 +1,236 @@
+diff --git a/og.module b/og.module
+old mode 100644
+new mode 100755
+index da90f90..b8177d8
+--- a/og.module
++++ b/og.module
+@@ -826,6 +826,48 @@ function og_entity_insert($entity, $entity_type) {
+ }
+ 
+ /**
++ * Implements hook_og_role_grant().
++ */
++function og_og_role_grant($entity_type, $gid, $uid, $rid) {
++  if (module_exists('rules')) {
++    $query = new EntityFieldQuery();
++    $query->entityCondition('entity_type', 'og_membership', '=')
++      ->propertyCondition('gid', $gid, '=')
++      ->propertyCondition('entity_type', 'user', '=')
++      ->propertyCondition('etid', $uid, '=');
++    $result = $query->execute();
++
++    if (!empty($result['og_membership'])) {
++      $info = current($result['og_membership']);
++      $og_membership = og_membership_load($info->id);
++      $account = user_load($uid);
++      rules_invoke_event('og_user_role_granted', $og_membership, $account);
++    }
++  }
++}
++
++/**
++ * Implements hook_og_role_revoke().
++ */
++function og_og_role_revoke($entity_type, $gid, $uid, $rid) {
++  if (module_exists('rules')) {
++    $query = new EntityFieldQuery();
++    $query->entityCondition('entity_type', 'og_membership', '=')
++      ->propertyCondition('gid', $gid, '=')
++      ->propertyCondition('entity_type', 'user', '=')
++      ->propertyCondition('etid', $uid, '=');
++    $result = $query->execute();
++
++    if (!empty($result['og_membership'])) {
++      $info = current($result['og_membership']);
++      $og_membership = og_membership_load($info->id);
++      $account = user_load($uid);
++      rules_invoke_event('og_user_role_revoked', $og_membership, $account);
++    }
++  }
++}
++
++/**
+  * Implements hook_entity_update().
+  */
+ function og_entity_update($entity, $entity_type) {
+diff --git a/og.rules.inc b/og.rules.inc
+old mode 100644
+new mode 100755
+index ccfa6e3..afc30ed
+--- a/og.rules.inc
++++ b/og.rules.inc
+@@ -41,7 +41,15 @@ function og_rules_event_info() {
+     'og_user_delete' => $defaults + array(
+       'label' => t('User has been removed from group'),
+       'help' => t("A user has been removed from group and is no longer a group member."),
+-   ),
++    ),
++    'og_user_role_revoked' => $defaults + array(
++      'label' => t('User role has been revoked'),
++      'help' => t('A user has had a role removed within a group.'),
++    ),
++    'og_user_role_granted' => $defaults + array(
++      'label' => t('User wad granted a role'),
++      'help' => t('A user was granted a role within a group.'),
++    ),
+  );
+ }
+ 
+@@ -199,10 +207,74 @@ function og_rules_action_info() {
+     'access callback' => 'og_rules_integration_access',
+   );
+ 
++  $items['og_revoke_user_role'] = array(
++    'label' => t('Revoke a role from a user'),
++    'group' => t('Organic groups'),
++    'parameter' => array(
++      'role' => array(
++        'type' => 'integer',
++        'label' => t('Role'),
++        'description' => t('The role to remove'),
++        'options list' => 'og_rules_roles_options_list',
++      ),
++      'user' => array(
++        'type' => 'user',
++        'label' => t('User'),
++        'description' => t('The user to revoke the role from'),
++      ),
++      'group' => array(
++        'type' => array_keys(og_get_all_group_entity()),
++        'label' => t('Group'),
++        'wrapped' => TRUE,
++      ),
++    ),
++    'base' => 'opigno_rules_revoke_role_to_user',
++    'access callback' => 'og_rules_integration_access',
++  );
++
++  $items['og_give_og_role_to_user'] = array(
++    'label' => t('Give user a og role'),
++    'group' => t('Organic groups'),
++    'parameter' => array(
++      'role' => array(
++        'type' => 'integer',
++        'label' => t('Role'),
++        'description' => t('The role to add'),
++        'options list' => 'og_rules_roles_options_list',
++      ),
++      'user' => array(
++        'type' => 'user',
++        'label' => t('User'),
++        'description' => t('The user to grant the role to'),
++      ),
++      'group' => array(
++        'type' => array_keys(og_get_all_group_entity()),
++        'label' => t('Group'),
++        'wrapped' => TRUE,
++      ),
++    ),
++    'base' => 'og_rules_add_role_to_user',
++    'access callback' => 'og_rules_integration_access',
++  );
++
+   return $items;
+ }
+ 
+ /**
++ * Action: grant a role to a user.
++ */
++function og_rules_add_role_to_user($rid, $user, EntityDrupalWrapper $group) {
++  og_role_grant($group->type(), $group->getIdentifier(), $user->uid, $rid);
++}
++
++/**
++ * Action: revoke a role from a user.
++ */
++function og_rules_revoke_role_from_user($rid, $user, EntityDrupalWrapper $group) {
++  og_role_revoke($group->type(), $group->getIdentifier(), $user->uid, $rid);
++}
++
++/**
+  * Action: Get group members from a group content.
+  */
+ function og_rules_get_members($group_content) {
+@@ -404,10 +476,62 @@ function og_rules_condition_info() {
+     'base' => 'og_rules_entity_is_group_content',
+     'access callback' => 'og_rules_integration_access',
+   );
++  $items['og_user_has_role'] = array(
++    'label' => t('User has role'),
++    'group' => t('Organic groups'),
++    'parameter' => array(
++      'role' => array(
++        'type' => 'integer',
++        'label' => t('Role'),
++        'description' => t('The role to check for.'),
++        'options list' => 'og_rules_roles_options_list',
++        'restriction' => 'input',
++      ),
++      'group' => array(
++        'type' => array_keys(og_get_all_group_entity()),
++        'label' => t('Group'),
++        'description' => t('The group for which permission should be checked.'),
++        'wrapped' => TRUE,
++      ),
++      'account' => array(
++        'type' => 'user',
++        'label' => t('User'),
++      ),
++    ),
++    'base' => 'og_rules_user_has_roles',
++    'access callback' => 'og_rules_integration_access',
++  );
+   return $items;
+ }
+ 
+ /**
++ * List possible roles accross all groups.
++ *
++ * @return array
++ */
++function og_rules_roles_options_list() {
++  $groups = og_get_all_group_bundle();
++  $roles = array();
++  foreach ($groups as $entity_type => $entity_groups) {
++    foreach ($entity_groups as $bundle_machine_name => $bundle_name) {
++      $all_roles = og_roles($entity_type, $bundle_machine_name, 0, TRUE, FALSE);
++      foreach ($all_roles as $rid => $role) {
++        $roles["$bundle_name ($entity_type)"][$rid] = $role;
++      }
++    }
++  }
++  return $roles;
++}
++
++/**
++ * Condition: user has role.
++ */
++function og_rules_user_has_roles($rid, EntityDrupalWrapper $group, $account) {
++  $roles = og_get_user_roles($group->type(), $group->getIdentifier(), $account->uid, FALSE);
++  return in_array($rid, array_keys($roles));
++}
++
++/**
+  * Condition: User has group permisison.
+  */
+ function og_rules_user_has_permission($permission, EntityDrupalWrapper $group, $account) {
+@@ -428,6 +552,19 @@ function og_rules_user_has_permission_options_list() {
+ }
+ 
+ /**
++ * Condition user has role within group.
++ */
++function og_rules_user_has_role($has_role, $group, $account) {
++  $all_roles = og_get_user_roles('node', $group->nid, $account->uid, FALSE);
++  foreach ($all_roles as $role) {
++    if ($has_role == $role) {
++      return TRUE;
++    }
++  }
++  return FALSE;
++}
++
++/**
+  * Condition: Entity is in group.
+  */
+ function og_rules_condition_entity_in_group(EntityDrupalWrapper $entity, EntityDrupalWrapper $group) {

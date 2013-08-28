@@ -1,5 +1,5 @@
 <?php
-
+/*
 function opigno_rules_add_role_to_user($role, $user, EntityDrupalWrapper $group) {
 // Load the user we want to add to the group
   $all_roles = og_roles('node', $group->getBundle(), 0, TRUE, TRUE);
@@ -186,3 +186,4 @@ function opigno_rules_event_info() {
     ),
   );
 }
+//*/
