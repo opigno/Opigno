@@ -36,10 +36,20 @@ function opigno_menu() {
       'file' => 'system.admin.inc',
       'file path' => drupal_get_path('module', 'system'),
     ),
-    'admin/opigno/students' => array(
-      'title' => "Student management",
-      'description' => "Tools for managing the platform students",
+    'admin/opigno/system' => array(
+      'title' => "Administration",
+      'description' => "Manage Opigno settings and users",
       'position' => 'left',
+      'weight' => -5,
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('access administration pages'),
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+    ),
+    'admin/opigno/content' => array(
+      'title' => "Content",
+      'description' => "Manage Opigno courses, quizzes, etc",
+      'position' => 'right',
       'weight' => -10,
       'page callback' => 'system_admin_menu_block_page',
       'access arguments' => array('access administration pages'),
