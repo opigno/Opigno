@@ -19,7 +19,21 @@ function opigno_simple_ui_menu() {
     $menu = array_merge($menu, opigno_simple_ui_og_menu());
   }
 
+  $menu['admin/opigno/system/users'] = array(
+    'title' => "Manage users",
+    'description' => "Manage platform users",
+    'page callback' => 'opigno_simple_ui_redirect_to_users',
+    'access arguments' => array('administer users'),
+  );
+
   return $menu;
+}
+
+/**
+ * Redirect to user management.
+ */
+function opigno_simple_ui_redirect_to_users() {
+  drupal_goto('admin/people');
 }
 
 /**
@@ -78,6 +92,10 @@ function opigno_simple_ui_menu_alter(&$items) {
 function opigno_simple_ui_theme_registry_alter(&$theme_registry) {
   if (isset($theme_registry['menu_local_task'])) {
     $theme_registry['menu_local_task']['function'] = 'theme_opigno_simple_ui_local_task';
+  }
+
+  if (module_exists('quiz')) {
+    opigno_simple_ui_quiz_theme_registry_alter($theme_registry);
   }
 }
 
