@@ -458,7 +458,7 @@ function opigno_get_courses($only_published = FALSE) {
     ->condition('n.type', OPIGNO_COURSE_BUNDLE);
 
   if ($only_published) {
-    $query->condition('n.statue', NODE_PUBLISHED);
+    $query->condition('n.status', NODE_PUBLISHED);
   }
 
   $nids = array();
