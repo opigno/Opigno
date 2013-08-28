@@ -291,19 +291,6 @@ function opigno_preprocess_opigno_tool(&$vars) {
 }
 
 /**
- * Tokenize the path.
- * @todo use tokens ??
- *
- * @param  string $path
- * @param  stdClass $node
- *
- * @return string
- */
-function opigno_tokenize_path($path, $node) {
-  return str_replace(':nid', $node->nid, str_replace(':vid', $node->vid, $path));
-}
-
-/**
  * Fetches the list of tools for the platform.
  *
  * @param  stdClass $node = NULL
