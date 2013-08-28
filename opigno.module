@@ -393,10 +393,34 @@ function opigno_tool_action_access($action, $account) {
  * @return bool
  */
 function opigno_access_tools($node) {
+  global $user;
+
   if ($node->type === OPIGNO_COURSE_BUNDLE) {
+    if ($user->uid === '1') {
+      return TRUE;
+    }
+
     $tools = opigno_get_tools($node);
-    return !empty($tools);
+
+    // If there are some tools, we must do some more checking.
+    if (!empty($tools)) {
+      // Only allow tool access when the membership is in a certain state.
+      $allowed_states = variable_get('opigno_access_tools_only_when_state', array(OG_STATE_ACTIVE)); // @todo this is hardcoded for now
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'og_membership', '=')
+        ->propertyCondition('gid', $node->nid, '=')
+        ->propertyCondition('entity_type', 'user', '=')
+        ->propertyCondition('etid', $user->uid, '=');
+      $result = $query->execute();
+
+      if (!empty($result['og_membership'])) {
+        $info = current($result['og_membership']); // There's only one membership.
+        $og_membership = og_membership_load($info->id);
+        return in_array($og_membership->state, $allowed_states, TRUE);
+      }
+    }
   }
+
   return FALSE;
 }
 
