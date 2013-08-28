@@ -6,10 +6,41 @@
  */
 
 /**
+ * Implements hook_theme_registry_alter().
+ */
+function opigno_simple_ui_quiz_theme_registry_alter(&$registry) {
+  $registry['quiz_question_navigation_form']['function'] = 'theme_opigno_simple_ui_quiz_question_navigation_form';
+}
+
+/**
  * Implements hook_form_quiz_directions_node_form_alter().
  */
 function opigno_simple_ui_form_quiz_directions_node_form_alter(&$form, $form_state) {
   $form['add_directly']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_quiz_report_form_alter().
+ */
+function opigno_simple_ui_form_quiz_report_form_alter(&$form, $form_state) {
+  $no_report = TRUE;
+  foreach ($form as $key => $value) {
+    if (is_numeric($key)) {
+      if (!$form[$key]['#no_report']) {
+        $no_report = FALSE;
+      }
+    }
+  }
+
+  if ($no_report) {
+    $form['#attributes']['class'][] = 'quiz-results-form-nothing-to-report';
+    $form['success_message'] = array(
+      '#markup' => '<h3>' . t("You successfully completed this lesson.") . '</h3>',
+      '#attributes' => array(
+        'class' => array('quiz-results-nothig-to-report')
+      ),
+    );
+  }
 }
 
 /**
@@ -53,11 +84,25 @@ function opigno_simple_ui_form_quiz_node_form_alter(&$form, $form_state) {
 }
 
 /**
- * Validate callback for .
+ * Validate callback for hook_form_quiz_node_form_alter().
  */
 function opigno_simple_ui_form_quiz_node_form_alter_validate($form, &$form_state) {
   // If of type theory, deactivate Allow skipping questions".
   if (!empty($form_state['values']['quiz_type'][LANGUAGE_NONE][0]['value']) && $form_state['values']['quiz_type'][LANGUAGE_NONE][0]['value'] == 'theory') {
     $form_state['values']['allow_skipping'] = 0;
+  }
+}
+
+/**
+ * Theme Quiz navigation.
+ */
+function theme_opigno_simple_ui_quiz_question_navigation_form($vars) {
+  $form = $vars['form'];
+  if (!isset($form['#last'])) {
+    return drupal_render_children($form);
+  }
+  else {
+    $submit = drupal_render($form['submit']) . drupal_render($form['op']);
+    return drupal_render_children($form) . $submit;
   }
 }
