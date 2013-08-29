@@ -34,7 +34,8 @@ function opigno_rules_user_has_roles_options_list() {
 
 function opigno_rules_user_has_roles($role, $group, $account) {
   $all_roles = og_get_user_roles('node', $group->nid, $account->uid, TRUE);
-  foreach ($all_roles as $a_role) {
+
+  foreach ($all_roles as $a_role => $a_rolename) {
     if ($role == $a_role) {
       return TRUE;
     }
