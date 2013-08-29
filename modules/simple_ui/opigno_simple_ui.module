@@ -13,20 +13,29 @@ include dirname(__FILE__) . '/includes/opigno_simple_ui.quiz.inc';
  * Implements hook_menu().
  */
 function opigno_simple_ui_menu() {
-  $menu = array();
+  $items = array();
 
   if (module_exists('og_ui')) {
-    $menu = array_merge($menu, opigno_simple_ui_og_menu());
+    $items = array_merge($items, opigno_simple_ui_og_menu());
   }
 
-  $menu['admin/opigno/system/users'] = array(
+  $items['admin/opigno/system/users'] = array(
     'title' => "Manage users",
     'description' => "Manage platform users",
     'page callback' => 'opigno_simple_ui_redirect_to_users',
     'access arguments' => array('administer users'),
   );
 
-  return $menu;
+  if (module_exists('apps')) {
+    $items['admin/opigno/system/apps'] = array(
+      'title' => "Apps",
+      'description' => "Manage and install apps for your platform",
+      'page callback' => 'opigno_simple_ui_apps_page',
+      'access arguments' => array('administer apps'),
+    );
+  }
+
+  return $items;
 }
 
 /**
@@ -186,4 +195,13 @@ function theme_opigno_simple_ui_local_task(&$vars) {
 
   $vars['element']['#link']['localized_options']['attributes']['class'][] = $class;
   return theme_menu_local_task($vars);
+}
+
+/**
+ * Page callback for the apps page.
+ * Fetches the apps administration page from the apps module and returns it.
+ */
+function opigno_simple_ui_apps_page() {
+  module_load_include('inc', 'apps' ,'apps.pages');
+  return apps_install_page('opigno');
 }
