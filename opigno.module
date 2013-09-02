@@ -542,18 +542,41 @@ function opigno_course_students_info($node) {
   );
 }
 
-function opigno_get_users_in_group($gid) {
-  $query = db_select('users', 'u');
-  $query
-    ->condition('u.uid', 0, '<>')
-    ->condition('u.status', 1, '=')
-    ->fields('u', array('uid', 'name'))
-    ->join('og_membership', 'ogm', "ogm.gid = :gid AND u.uid = ogm.etid AND ogm.entity_type = 'user'", array(':gid' => $gid));
+/**
+ * Helper function to get all users from a course.
+ *
+ * @param  int $gid
+ * @param  int $state = OG_STATE_ACTIVE
+ *
+ * @return array
+ */
+function opigno_get_users_in_group($gid, $state = OG_STATE_ACTIVE) {
+  $users = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'og_membership')
+    ->propertyCondition('group_type', 'node', '=')
+    ->propertyCondition('gid', $gid, '=')
+    ->propertyCondition('entity_type', 'user', '=')
+    ->propertyCondition('state', $state, '=');
+
   $result = $query->execute();
-  while ($nid = $result->fetchField()) {
-    $nids[] = $nid;
+  if (!empty($result['og_membership'])) {
+    // Use a temporary array for sorting.
+    $temp = array();
+    foreach ($result['og_membership'] as $membership_info) {
+      $og_membership = og_membership_load($membership_info->id);
+      $account = user_load($og_membership->etid);
+      $temp[$account->name] = $account;
+    }
+
+    // Sort by name.
+    ksort($temp);
+
+    foreach ($temp as $account) {
+      $users[$account->uid] = $account;
+    }
   }
-  return $nids;
+  return $users;
 }
 
 function opigno_form_alter(&$form, &$form_state, $form_id) {
