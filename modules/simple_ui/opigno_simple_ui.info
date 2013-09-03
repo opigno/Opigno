@@ -3,5 +3,7 @@ description = Simplifies the UI to enhance the user experience
 core = 7.x
 package = Opigno
 dependencies[] = opigno
+dependencies[] = multiselect
+dependencies[] = apps
 ; We depend on image so we are sure the Apps installation page shows logos and screenshots.
 dependencies[] = image
