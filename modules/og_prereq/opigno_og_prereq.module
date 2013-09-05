@@ -37,7 +37,7 @@ function opigno_og_prereq_og_role_grant($entity_type, $gid, $uid, $rid) {
   if ($entity_type == 'node') {
     if (!og_user_access($entity_type, $gid, 'skip pre-required group when added as a member', $account)) {
       $required_courses = opigno_og_prereq_fetch_required_courses(node_load($gid));
-
+      
       if (!empty($required_courses)) {
         foreach ($required_courses as $required_course) {
           // If the user already passed the pre-test, don't deactivate his membership.
@@ -82,23 +82,27 @@ function opigno_og_prereq_og_role_grant($entity_type, $gid, $uid, $rid) {
 
 function opigno_og_prereq_fetch_required_courses($node) {
   $nodes = array();
-  if (!empty($node->course_required_course_ref[LANGUAGE_NONE])) {
-    foreach ($node->course_required_course_ref[LANGUAGE_NONE] as $item) {
-      $nodes[] = node_load($item['target_id']);
+  if (!empty($node->course_required_course_ref)) {
+    foreach ($node->course_required_course_ref as $lang => $items) {
+      foreach ($items as $item) {
+        $nodes[$item['target_id']] = node_load($item['target_id']);
+      }
     }
   }
   return $nodes;
 }
 
 function opigno_og_prereq_user_passed_course($uid, $course) {
-  if (!empty($course->course_required_quiz_ref[LANGUAGE_NONE])) {
-    foreach ($course->course_required_quiz_ref[LANGUAGE_NONE] as $item) {
-      $quiz = node_load($item['target_id']);
+  if (!empty($course->course_required_quiz_ref)) {
+    foreach ($course->course_required_quiz_ref as $lang => $items) {
+      foreach ($items as $item) {
+        $quiz = node_load($item['target_id']);
 
-      if (isset($quiz)) {
-        $score = @current(quiz_get_score_data(array($quiz->nid), $uid));
-        if (empty($score->percent_score) || $score->percent_score < $score->percent_pass) {
-          return FALSE;
+        if (isset($quiz)) {
+          $score = @current(quiz_get_score_data(array($quiz->nid), $uid));
+          if (empty($score->percent_score) || $score->percent_score < $score->percent_pass) {
+            return FALSE;
+          }
         }
       }
     }
@@ -152,62 +156,46 @@ function _opgino_og_prereq_install_opigno_quiz_app_rules() {
         "RESULT" : [  ]
       }
     }',
-    'rules_set_student_status_to_pending_if_requirements_are_not_met' => '{ "rules_set_student_status_to_pending_if_requirements_are_not_met" : {
-        "LABEL" : "Set student status to pending if requirements are not met",
-        "PLUGIN" : "reaction rule",
-        "TAGS" : [ "og", "opigno" ],
-        "REQUIRES" : [ "rules", "og" ],
-        "ON" : [ "og_user_insert" ],
-        "IF" : [
-          { "entity_is_of_type" : { "entity" : [ "og-membership:group" ], "type" : "node" } },
-          { "component_rules_course_has_required_courses_cond_ruleset" : { "course" : [ "og-membership:group" ], "has_required_courses" : 0 } },
-          { "NOT component_rules_course_required_courses_are_completed" : {
-              "course" : [ "og-membership:group" ],
-              "user" : [ "account" ],
-              "has_finished_courses" : 0
-            }
-          }
-        ],
-        "DO" : [
-          { "drupal_message" : { "message" : "You are not allowed to access the next course." } }
-        ]
-      }
-    }',
     'rules_activate_membership_when_required_course_is_passed' => '{ "rules_activate_membership_when_required_course_is_passed" : {
-        "LABEL" : "Activate membership when required course is passed",
-        "PLUGIN" : "reaction rule",
-        "TAGS" : [ "og", "opigno", "quiz" ],
-        "REQUIRES" : [ "rules", "rules_conditional", "og", "opigno_quiz_app" ],
-        "ON" : [ "opigno_quiz_app_rules_quiz_passed" ],
-        "DO" : [
-          { "component_rules_get_course_from_quiz" : {
-              "USING" : { "quiz" : [ "node" ] },
-              "PROVIDE" : { "course" : { "course" : "Course" } }
-            }
-          },
-          { "component_rules_get_courses_that_require_this_course" : {
-              "USING" : { "course" : [ "course" ] },
-              "PROVIDE" : { "requiring_courses" : { "requiring_courses" : "Requiring courses" } }
-            }
-          },
-          { "LOOP" : {
-              "USING" : { "list" : [ "requiring-courses" ] },
-              "ITEM" : { "list_item" : "Current list item" },
-              "DO" : [
-                { "CONDITIONAL" : [
-                    {
-                      "IF" : { "og_entity_in_group" : { "entity" : [ "user" ], "group" : [ "list-item" ] } },
-                      "DO" : [
-                        { "component_rules_activate_group_membership" : { "course" : [ "course" ], "user" : [ "user" ] } }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
+      "LABEL" : "Activate membership when required course is passed",
+      "PLUGIN" : "reaction rule",
+      "TAGS" : [ "og", "opigno", "quiz" ],
+      "REQUIRES" : [ "rules", "rules_conditional", "og", "opigno_quiz_app" ],
+      "ON" : [ "opigno_quiz_app_rules_quiz_passed" ],
+      "DO" : [
+        { "component_rules_get_course_from_quiz" : {
+            "USING" : { "quiz" : [ "node" ] },
+            "PROVIDE" : { "course" : { "course" : "Course" } }
           }
-        ]
-      }
-    }',
+        },
+        { "component_rules_get_courses_that_require_this_course" : {
+            "USING" : { "course" : [ "course" ] },
+            "PROVIDE" : { "requiring_courses" : { "requiring_courses" : "Requiring courses" } }
+          }
+        },
+        { "LOOP" : {
+            "USING" : { "list" : [ "requiring-courses" ] },
+            "ITEM" : { "list_item" : "Current list item" },
+            "DO" : [
+              { "CONDITIONAL" : [
+                  {
+                    "IF" : { "og_user_in_group" : {
+                        "account" : [ "user" ],
+                        "group" : [ "list-item" ],
+                        "states" : { "value" : { "2" : "2" } }
+                      }
+                    },
+                    "DO" : [
+                      { "component_rules_activate_group_membership" : { "course" : [ "list-item" ], "user" : [ "user" ] } }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }',
   );
 }
