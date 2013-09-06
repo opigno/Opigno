@@ -129,8 +129,27 @@ function opigno_simple_ui_form_og_massadd_massadd_form_alter(&$form, $form_state
     '#weight' => -30,
   );
 
-  $form['submit']['#weight'] = 0;
+  $form[''] = array(
+    '#type' => 'radios',
+    '#title' => t("State"),
+    '#options' => og_group_content_states(),
+    '#default_value' => OG_STATE_ACTIVE,
+    '#weight' => -30,
+  );
 
+  if (module_exists("opigno_user_expiration_app"))
+  {
+    $fields['user_expiration'] = array(
+      '#type' => 'date',
+      '#title' => 'User Expiration',
+      '#default_value' => opigno_user_expiration_app_get_default_date($node->nid),
+      '#description' => "The expiration date for the users",
+      '#required' => FALSE,
+    );
+    $form['#submit'][] = 'opigno_simple_ui_form_og_massadd_massadd_form_add_expiration';
+  }
+
+  $form['submit']['#weight'] = 0;
   // We validate our own way.
   unset($form['#validate']);
   $form['#submit'][] = 'opigno_simple_ui_form_og_massadd_massadd_form_add_roles';
@@ -180,6 +199,26 @@ function opigno_simple_ui_form_og_massadd_massadd_form_add_state($form, $form_st
 
     $og_membership = og_membership_load(current($result['og_membership'])->id);
     $og_membership->state = $form_state['values']['state'];
+    og_membership_save($og_membership);
+  }
+}
+
+/**
+ * Submit callback for hook_form_og_massadd_massadd_form_alter().
+ * Add state.
+ */
+function opigno_simple_ui_form_og_massadd_massadd_form_add_expiration($form, $form_state) {
+  foreach ($form_state['values']['_massadd'] as $uid) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'og_membership', '=')
+      ->propertyCondition('gid', current($form_state['values']['group_ids']), '=')
+      ->propertyCondition('entity_type', 'user', '=')
+      ->propertyCondition('etid', $uid, '=');
+    $result = $query->execute();
+
+    $og_membership = og_membership_load(current($result['og_membership'])->id);
+    $og_membership->opigno_user_membership_exp[LANGUAGE_NONE][0]['value'] = $form_state['values']['user_expiration'];
+    $og_membership->opigno_user_membership_exp[LANGUAGE_NONE][0]['value2'] = $form_state['values']['user_expiration'];
     og_membership_save($og_membership);
   }
 }
