@@ -283,6 +283,18 @@ function opigno_field_formatter_view($entity_type, $entity, $field, $instance, $
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function opigno_form_alter(&$form, &$form_state, $form_id) {
+  // UX: Add a confirmation to the permissions form to ask the user whether to
+  // auto-enable the 'access opigno administration pages' permission along with
+  // 'access administration pages'.
+  if ($form_id == 'user_admin_permissions') {
+    $form['#attached']['js'][] = drupal_get_path('module', 'opigno') . '/js/opigno.admin.js';
+  }
+}
+
+/**
  * Implements hook_preprocess_opigno_tool().
  */
 function opigno_preprocess_opigno_tool(&$vars) {
@@ -522,26 +534,6 @@ function _opigno_install_custom_fields() {
   }
 }
 
-function opigno_course_students_info($node) {
-  $node_id = $node->nid;
-  $group_members = opigno_get_users_in_group($node_id);
-  $students_number = 0;
-  foreach ($group_members AS $member) {
-    $user = user_load($member->uid);
-    $user_roles = og_get_user_roles('node', $node_id, $user->uid, FALSE);
-    foreach ($user_roles as $roleid => $rolename) {
-      if (($roleid == 5) && (sizeof($user_roles) == 1)) {
-        $students_number++;
-      }
-    }
-  }
-  return array(
-    'places' => $node->field_course_places[LANGUAGE_NONE][0]['value'],
-    'available_places' => $node->field_course_places[LANGUAGE_NONE][0]['value'] - $students_number,
-    'students' => $students_number
-  );
-}
-
 /**
  * Helper function to get all users from a course.
  *
@@ -577,202 +569,6 @@ function opigno_get_users_in_group($gid, $state = OG_STATE_ACTIVE) {
     }
   }
   return $users;
-}
-
-function opigno_form_alter(&$form, &$form_state, $form_id) {
-  // UX: Add a confirmation to the permissions form to ask the user whether to
-  // auto-enable the 'access opigno administration pages' permission along with
-  // 'access administration pages'.
-  if ($form_id == 'user_admin_permissions') {
-    $form['#attached']['js'][] = drupal_get_path('module', 'opigno') . '/js/opigno.admin.js';
-  }
-
-  /*if (($form['#form_id']=="views_form_og_massadd_block_1"))
-  {
-    $node=node_load($form_state['build_info']['args'][0]->args[0]);
-    if ($node->type=="course")
-    {
-    $info=opigno_course_students_info($node);
-    if ($info['available_places']<=0)
-    {
-      drupal_set_message(t('This course is full at the moment, ').t('it has at the moment ').($info['available_places']*-1).t(" more student(s) than quota"),'warning');
-    }
-    }
-  }
-
-  if (($form['#form_id']=="og_ui_add_users"))
-  {
-    $node=node_load($form['membership_fields']['#entity']->gid);
-    if ($node->type=="course")
-    {
-      $info=opigno_course_students_info($node);
-      if ($info['available_places']<=0)
-      {
-        drupal_set_message(t('This course is full at the moment, ').t('it has at the moment ').($info['available_places']*-1).t(" more student(s) than quota"),'warning');
-      }
-    }
-  }
-
-  if (($form['#form_id']=="og_massadd_massadd_form"))
-  {
-    $node=node_load($form['group_ids']['#value'][0]);
-    if ($node->type=="course")
-    {
-      $info=opigno_course_students_info($node);
-      if ($info['available_places']<=0)
-      {
-        drupal_set_message(t('This course is full at the moment, ').t('it has at the moment ').($info['available_places']*-1).t(" more student(s) than quota"),'warning');
-      }
-    }
-  }
-
-  //'status' 'warning' 'error'
-  if (isset($form_state['field']['og_membership_request']))
-  {
-    $node=node_load($form_state['og_membership']->gid);
-    $info=opigno_course_students_info($node);
-    if ($info['available_places']<=0)
-    {
-      unset($form['actions']['submit']);
-      unset($form['og_membership_request']);
-      drupal_set_title(t('This course is full at the moment'));
-    }
-  }*/
-
-  /*if (($form['#node_edit_form']==true)&&($form['nid']['#value']==null)&&($form['type']['#value']=='notifications'))
-  {
-    //$form['field_message']
-    $node=$nid = arg(0);
-    dpm($node);
-
-    dpm($form_state);
-
-    $default = !empty($form_state['values']['og_group_ref']) ? $form_state['values']['og_group_ref'] : 1;
-
-
-
-    $form['og_group_ref']['und']['0']['default']['#ajax'] = array(
-    'callback' => 'notifications_get_users_callback',
-    'wrapper' => 'checkboxes-div',
-    'method' => 'replace',
-    'effect' => 'fade',
-    );
-
-
-    $form['field_recipients']['#prefix']='<div id="checkboxes-div">';
-    $form['field_recipients']['#suffix']= '</div>';
-    //$form['field_recipients']['#type']="hidden";
-    dpm($form['field_recipients']);
-  }*/
-
-
-  /*if (($form['form_id']['#value'] == 'privatemsg_new') && (($form['#action'] == '/opignov2/messages/new'))) {
-    global $user;
-    $groups = og_get_groups_by_user($user, NULL);
-
-    $form['groups'] = array(
-      '#type' => 'select',
-      '#title' => t('Courses and Classes'),
-      '#options' => array(
-        'All' => t('All'),
-      ),
-      '#default_value' => 'All',
-      '#description' => t('Choose class or course to filter'),
-      '#weight' => -7,
-      'callback' => 'messaging_user_update_callback',
-      'wrapper' => 'recipient1-div',
-      'method' => 'replace',
-      'effect' => 'fade',
-    );
-
-    foreach ($groups['node'] as $groupid => $group_id) {
-      $node = node_load($group_id);
-      $form['groups']['#options'][$groupid] = $node->title;
-    }
-
-
-    unset($form['recipient']['#required']);
-    $form['recipient']['#type'] = 'hidden';
-    $form['recipient1'] = array(
-      '#type' => 'multiselect',
-      '#title' => t('Select receipients'),
-      '#default_value' => NULL,
-      '#size' => 10,
-      '#required' => TRUE,
-      '#weight' => -6,
-      '#prefix' => '<div id="recipient1-div">',
-      '#suffix' => '</div>',
-    );
-
-
-    global $user;
-    foreach ($user->roles as $role) {
-      if ($role == "administrateur") {
-        $users = entity_load('user');
-        foreach ($users as $user_) {
-          if (($user_->uid != 0) && ($user_->uid != $user->uid)) {
-            $form['recipient1']['#options'][$user_->uid] = $user_->name;
-          }
-        }
-      }
-      else {
-        $groups = og_get_groups_by_user($user, NULL);
-        if (is_array($groups)) {
-          foreach ($groups['node'] as $groupid => $group_id) {
-            $users = entity_load('user');
-            foreach ($users as $user_) {
-              if (($user_->uid != 0) && ($user_->uid != $user->uid)) {
-                if (og_is_member('node', $groupid, 'user', $user_)) {
-                  $nd = node_load($groupid);
-                  if ($form['recipient1']['#options'][$user_->uid]) {
-                    $form['recipient1']['#options'][$user_->uid] .= " (" . $nd->title . ")";
-                  }
-                  else {
-                    $form['recipient1']['#options'][$user_->uid] = $user_->name . " (" . $nd->title . ")";
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    $form['#validate'] = array('_notifications_privatemsg_validate', 'privatemsg_new_validate');
-    $form['body']['#required'] = TRUE;
-    $form['subject']['#required'] = TRUE;
-  }*/
-
-
-  //dpm($form);
-}
-
-/*function _notifications_privatemsg_validate($form, &$form_state) {
-  foreach ($form_state['input']['recipient1'] as $index => $user_id) {
-    $send_to = user_load($user_id);
-    $form_state['input']['recipient'] .= $send_to->name . ",";
-    $form_state['values']['recipient'] .= $send_to->name . ",";
-  }
-  return TRUE;
-}*/
-
-function opigno_og_role_grant($type, $node_id, $user_id, $role_id) {
-  dpm($type);
-  dpm($node_id);
-  dpm($user_id);
-  dpm($role_id);
-  if (($type == "node") && (module_exists('rules'))) {
-    rules_invoke_event('og_user_was_granted_role', $type, $node_id, $user_id, $role_id);
-  }
-}
-
-function opigno_og_role_revoke($type, $node_id, $user_id, $role_id) {
-  dpm($type);
-  dpm($node_id);
-  dpm($user_id);
-  dpm($role_id);
-  if (($type == "node") && (module_exists('rules')) && ($role_id != 7) && ($role_id != 8)) {
-    rules_invoke_event('og_user_was_revoked_role', $type, $node_id, $user_id, $role_id);
-  }
 }
 
 /**
@@ -817,4 +613,25 @@ function opigno_admin_overview_page() {
   else {
     return t('You do not have any administrative items.');
   }
+}
+
+// @deprecated
+function _opigno_course_students_info($node) {
+  $node_id = $node->nid;
+  $group_members = opigno_get_users_in_group($node_id);
+  $students_number = 0;
+  foreach ($group_members AS $member) {
+    $user = user_load($member->uid);
+    $user_roles = og_get_user_roles('node', $node_id, $user->uid, FALSE);
+    foreach ($user_roles as $roleid => $rolename) {
+      if (($roleid == 5) && (sizeof($user_roles) == 1)) {
+        $students_number++;
+      }
+    }
+  }
+  return array(
+    'places' => $node->field_course_places[LANGUAGE_NONE][0]['value'],
+    'available_places' => $node->field_course_places[LANGUAGE_NONE][0]['value'] - $students_number,
+    'students' => $students_number
+  );
 }
