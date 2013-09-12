@@ -39,6 +39,15 @@ function opigno_simple_ui_menu() {
 }
 
 /**
+ * Implements hook_views_api().
+ */
+function opigno_simple_ui_views_api() {
+  return array(
+    'api' => '3.0',
+  );
+}
+
+/**
  * Redirect to user management.
  */
 function opigno_simple_ui_redirect_to_users() {
