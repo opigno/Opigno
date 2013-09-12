@@ -93,9 +93,6 @@ function opigno_views_default_views() {
   /* Display: My courses */
   $handler = $view->new_display('page', 'My courses', 'page_my_courses');
   $handler->display->display_options['path'] = 'my-courses';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'My courses';
-  $handler->display->display_options['menu']['name'] = 'main-menu';
 
   /* Display: Entity Reference */
   $handler = $view->new_display('entityreference', 'Entity Reference', 'entityreference');
@@ -203,9 +200,6 @@ function opigno_views_default_views() {
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->display->display_options['path'] = 'course-catalgue';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Course catalgue';
-  $handler->display->display_options['menu']['name'] = 'main-menu';
   $translatables['opigno_course_catalgue'] = array(
     t('Master'),
     t('Course catalgue'),
