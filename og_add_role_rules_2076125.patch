@@ -70,7 +70,7 @@ index ccfa6e3..afc30ed
 +      'help' => t('A user has had a role removed within a group.'),
 +    ),
 +    'og_user_role_granted' => $defaults + array(
-+      'label' => t('User wad granted a role'),
++      'label' => t('User was granted a role'),
 +      'help' => t('A user was granted a role within a group.'),
 +    ),
   );
@@ -101,7 +101,7 @@ index ccfa6e3..afc30ed
 +        'wrapped' => TRUE,
 +      ),
 +    ),
-+    'base' => 'opigno_rules_revoke_role_to_user',
++    'base' => 'og_rules_revoke_role_from_user',
 +    'access callback' => 'og_rules_integration_access',
 +  );
 +

@@ -635,3 +635,22 @@ function _opigno_course_students_info($node) {
     'students' => $students_number
   );
 }
+
+
+/**
+ * Implements hook_og_role_grant().
+ */
+function opigno_og_role_grant($entity_type, $gid, $uid, $rid) {
+  if (module_exists('rules')) {
+    rules_invoke_event('og_user_was_granted_role', $entity_type, $gid, $uid, $rid);
+  }
+}
+
+/**
+ * Implements hook_og_role_revoke().
+ */
+function opigno_og_role_revoke($entity_type, $gid, $uid, $rid) {
+  if (module_exists('rules')) {
+    rules_invoke_event('og_user_was_revoked_role', $entity_type, $gid, $uid, $rid);
+  }
+}

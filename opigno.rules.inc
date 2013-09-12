@@ -1,7 +1,8 @@
 <?php
-/*
+
+//*
 function opigno_rules_add_role_to_user($role, $user, EntityDrupalWrapper $group) {
-// Load the user we want to add to the group
+  // Load the user we want to add to the group
   $all_roles = og_roles('node', $group->getBundle(), 0, TRUE, TRUE);
   foreach ($all_roles as $role_id => $a_role) {
     if ($role == $role_id) {
@@ -107,7 +108,7 @@ function opigno_rules_action_info() {
   return $items;
 }
 
-function opigno_rules_condition_info() {
+/*function opigno_rules_condition_info() {
   $items = array();
   $items['og_user_has_role'] = array(
     'label' => t('User has role'),
@@ -135,7 +136,7 @@ function opigno_rules_condition_info() {
   );
 
   return $items;
-}
+}*/
 
 function opigno_rules_event_info() {
   return array(
