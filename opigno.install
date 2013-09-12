@@ -16,6 +16,11 @@ function opigno_install() {
     ->condition('name', 'opigno')
     ->execute();
 
+  // Disable comments by default.
+  if (module_exists('comment')) {
+    variable_get('comment_' . OPIGNO_COURSE_BUNDLE, COMMENT_NODE_CLOSED);
+  }
+
   $type = node_type_load(OPIGNO_COURSE_BUNDLE);
   if (empty($type)) {
     $type = node_type_set_defaults(array(
@@ -32,10 +37,10 @@ function opigno_install() {
     node_add_body_field($type);
   }
 
-  require_once drupal_get_path('module', 'og') . '/og_ui/og_ui.module';
+  include_once drupal_get_path('module', 'og') . '/og_ui/og_ui.module';
   if (function_exists('og_ui_node_type_save')) {
-    variable_set('og_group_type_course', TRUE);
-    og_create_field(OG_GROUP_FIELD, 'node', OPIGNO_COURSE_BUNDLE);
+    variable_set('og_group_type_' . OPIGNO_COURSE_BUNDLE, TRUE);
+    og_ui_node_type_save(OPIGNO_COURSE_BUNDLE);
   }
 
   // Add the OG content access field.
