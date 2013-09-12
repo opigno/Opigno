@@ -305,6 +305,22 @@ function opigno_preprocess_opigno_tool(&$vars) {
 }
 
 /**
+ * Implements hook_views_api().
+ */
+function opigno_views_api() {
+  return array(
+    'api' => '3.0',
+  );
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function opigno_views_query_alter(&$view, &$query) {
+  dpm($query);
+}
+
+/**
  * Fetches the list of tools for the platform.
  *
  * @param  stdClass $node = NULL
