@@ -98,7 +98,7 @@ function opigno_views_default_views() {
   $handler->display->display_options['menu']['name'] = 'main-menu';
 
   /* Display: Entity Reference */
-  $handler = $view->new_display('entityreference', 'Entity Reference', 'entityreference_1');
+  $handler = $view->new_display('entityreference', 'Entity Reference', 'entityreference');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;

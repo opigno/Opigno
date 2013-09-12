@@ -317,7 +317,33 @@ function opigno_views_api() {
  * Implements hook_views_query_alter().
  */
 function opigno_views_query_alter(&$view, &$query) {
-  dpm($query);
+  global $user;
+  if (preg_match('/exclude_own_groups/', $query->options['query_comment'])) {
+    $nids = array();
+
+    // Load the "My courses" view.
+    $my_courses_view = views_get_view('opigno_my_courses');
+    $my_courses_view->set_display('entityreference');
+    $my_courses_view->set_arguments($user->uid);
+    $my_courses_view->pre_execute();
+    $my_courses_view->execute();
+
+    // Get the nids.
+    foreach ($my_courses_view->result as $node) {
+      $nids[] = $node->node_og_membership_nid;
+    }
+
+    foreach ($query->where as &$conditions) {
+      if (is_array($conditions)) {
+        foreach ($conditions['conditions'] as &$condition) {
+          if ($condition['field'] == 'node.nid') {
+            $condition['value'] = $nids;
+            $condition['operator'] = 'NOT IN';
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
