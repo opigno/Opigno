@@ -147,7 +147,7 @@ function opigno_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Course catalgue';
+  $handler->display->display_options['title'] = 'Course catalogue';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -199,7 +199,7 @@ function opigno_views_default_views() {
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'course-catalgue';
+  $handler->display->display_options['path'] = 'course-catalogue';
   $translatables['opigno_course_catalgue'] = array(
     t('Master'),
     t('Course catalgue'),
