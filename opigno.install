@@ -45,15 +45,7 @@ function opigno_install() {
 
   // Add the OG content access field.
   if (module_exists('og_access')) {
-    $instance = field_info_instance('node', OG_ACCESS_FIELD, OPIGNO_COURSE_BUNDLE);
-    if (empty($instance)) {
-      field_create_instance(array(
-        'field_name' => OG_ACCESS_FIELD,
-        'entity_type' => 'node',
-        'bundle' => OPIGNO_COURSE_BUNDLE,
-        'label' => "Course visibility",
-      ));
-    }
+    og_create_field(OG_ACCESS_FIELD, 'node', OPIGNO_COURSE_BUNDLE);
   }
 }
 
