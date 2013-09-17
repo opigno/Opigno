@@ -27,6 +27,14 @@ function opigno_simple_ui_menu() {
     'access arguments' => array('administer users'),
   );
 
+  $items['admin/opigno/appearance/settings'] = array(
+    'title' => "Manage display settings",
+    'description' => "Manage platform theme settings",
+    'page callback' => 'opigno_admin_redirect',
+    'page arguments' => array('admin/appearance/settings/' . variable_get('theme_default', 'platon')),
+    'access arguments' => array('administer themes'),
+  );
+
   if (module_exists('apps')) {
     $items['admin/opigno/system/apps'] = array(
       'title' => "Apps",
