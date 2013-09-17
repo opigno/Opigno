@@ -22,7 +22,8 @@ function opigno_simple_ui_menu() {
   $items['admin/opigno/system/users'] = array(
     'title' => "Manage users",
     'description' => "Manage platform users",
-    'page callback' => 'opigno_simple_ui_redirect_to_users',
+    'page callback' => 'opigno_admin_redirect',
+    'page arguments' => array('admin/people'),
     'access arguments' => array('administer users'),
   );
 
@@ -45,13 +46,6 @@ function opigno_simple_ui_views_api() {
   return array(
     'api' => '3.0',
   );
-}
-
-/**
- * Redirect to user management.
- */
-function opigno_simple_ui_redirect_to_users() {
-  drupal_goto('admin/people');
 }
 
 /**

@@ -657,6 +657,14 @@ function opigno_admin_overview_page() {
   }
 }
 
+/**
+ * Menu callback: provide a redirect functionality for creating shortcuts to system admin pages
+ * via the admin/opigno section.
+ */
+function opigno_admin_redirect($path) {
+  drupal_goto($path);
+}
+
 // @deprecated
 function _opigno_course_students_info($node) {
   $node_id = $node->nid;
