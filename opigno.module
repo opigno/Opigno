@@ -46,6 +46,16 @@ function opigno_menu() {
       'file' => 'system.admin.inc',
       'file path' => drupal_get_path('module', 'system'),
     ),
+    'admin/opigno/appearance' => array(
+      'title' => "Appearance",
+      'description' => "Manage Opigno theme settings and appearance",
+      'position' => 'right',
+      'weight' => -5,
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('access administration pages'),
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+    ),
     'admin/opigno/content' => array(
       'title' => "Content",
       'description' => "Manage Opigno courses, quizzes, etc",
@@ -663,6 +673,7 @@ function opigno_admin_overview_page() {
  */
 function opigno_admin_redirect($path) {
   drupal_goto($path);
+  return 'Redirecting...';
 }
 
 // @deprecated
