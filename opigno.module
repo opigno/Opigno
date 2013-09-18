@@ -175,7 +175,7 @@ function opigno_apps_servers_info() {
     'opigno' => array(
       'title' => 'Opigno',
       'description' => t("Apps for Opigno"),
-      'manifest' => 'http://www.opigno.org/apps/opigno_apps_manifest.json',
+      'manifest' => 'http://www.opigno.org/app/query/opigno',
     ),
   );
 }
