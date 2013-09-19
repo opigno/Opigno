@@ -363,7 +363,6 @@ function opigno_views_query_alter(&$view, &$query) {
  *
  * @return array
  */
-
 function opigno_get_tools($node = NULL) {
   $tools = &drupal_static(__FUNCTION__);
   $group = isset($node->nid) ? $node->nid : 'global';
@@ -665,15 +664,6 @@ function opigno_admin_overview_page() {
   else {
     return t('You do not have any administrative items.');
   }
-}
-
-/**
- * Menu callback: provide a redirect functionality for creating shortcuts to system admin pages
- * via the admin/opigno section.
- */
-function opigno_admin_redirect($path) {
-  drupal_goto($path);
-  return 'Redirecting...';
 }
 
 // @deprecated

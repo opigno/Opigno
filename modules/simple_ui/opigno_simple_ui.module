@@ -22,7 +22,7 @@ function opigno_simple_ui_menu() {
   $items['admin/opigno/system/users'] = array(
     'title' => "Manage users",
     'description' => "Manage platform users",
-    'page callback' => 'opigno_admin_redirect',
+    'page callback' => 'opigno_simple_ui_admin_redirect',
     'page arguments' => array('admin/people'),
     'access arguments' => array('administer users'),
   );
@@ -30,9 +30,17 @@ function opigno_simple_ui_menu() {
   $items['admin/opigno/appearance/settings'] = array(
     'title' => "Manage display settings",
     'description' => "Manage platform theme settings",
-    'page callback' => 'opigno_admin_redirect',
+    'page callback' => 'opigno_simple_ui_admin_redirect',
     'page arguments' => array('admin/appearance/settings/' . variable_get('theme_default', 'platon')),
     'access arguments' => array('administer themes'),
+  );
+
+  $items['admin/opigno/content/default-tools'] = array(
+    'title' => "Set default course tools",
+    'description' => "Manage the tools that are activated by default for new courses.",
+    'page callback' => 'opigno_simple_ui_admin_redirect',
+    'page arguments' => array('admin/structure/types/manage/course/fields/opigno_course_tools'),
+    'access arguments' => array('administer content types'),
   );
 
   if (module_exists('apps')) {
@@ -45,6 +53,15 @@ function opigno_simple_ui_menu() {
   }
 
   return $items;
+}
+
+/**
+ * Menu callback: provide a redirect functionality for creating shortcuts to system admin pages
+ * via the admin/opigno section.
+ */
+function opigno_simple_ui_admin_redirect($path) {
+  drupal_goto($path);
+  return 'Redirecting...';
 }
 
 /**
