@@ -155,6 +155,25 @@ function opigno_simple_ui_modules_installed($modules) {
 }
 
 /**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function opigno_simple_ui_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($root_path == 'admin/opigno/content/course-administration') {
+    $item = menu_get_item('node/add/' . OPIGNO_COURSE_BUNDLE);
+    if ($item['access']) {
+      $item['title'] = "Add a new course";
+      $item['options']['attributes']['class'][] = $item['localized_options']['attributes']['class'][] = 'add-course';
+      $item['options']['attributes']['class'][] = $item['localized_options']['attributes']['class'][] = 'opigno-simple-ui-add-course';
+      $item['options']['attributes']['class'][] = $item['localized_options']['attributes']['class'][] = 'opigno-simple-ui-course-administration-add-course-link';
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/**
  * Change the "View" tab title on course node pages.
  *
  * @param  stdClass $node
@@ -202,7 +221,7 @@ function opigno_simple_ui_course_group_tab_title($node) {
  */
 function theme_opigno_simple_ui_local_task(&$vars) {
   $class = 'node-tab';
-  
+
   switch ($vars['element']['#link']['path']) {
     case 'node/%/view':
       $class .= ' node-view-tab';
