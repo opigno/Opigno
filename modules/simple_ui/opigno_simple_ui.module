@@ -202,7 +202,7 @@ function opigno_simple_ui_course_group_tab_title($node) {
  */
 function theme_opigno_simple_ui_local_task(&$vars) {
   $class = 'node-tab';
-
+  
   switch ($vars['element']['#link']['path']) {
     case 'node/%/view':
       $class .= ' node-view-tab';
@@ -218,6 +218,10 @@ function theme_opigno_simple_ui_local_task(&$vars) {
 
     case 'node/%/group':
       $class .= ' node-group-tab';
+      break;
+
+    case 'node/%/certificate':
+      $class .= ' node-certificate-tab';
       break;
   }
 
