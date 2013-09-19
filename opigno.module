@@ -471,7 +471,7 @@ function opigno_access_tools($node) {
       if (!empty($result['og_membership'])) {
         $info = current($result['og_membership']); // There's only one membership.
         $og_membership = og_membership_load($info->id);
-        return in_array($og_membership->state, $allowed_states, TRUE);
+        return in_array((int) $og_membership->state, $allowed_states, TRUE);
       }
     }
   }
