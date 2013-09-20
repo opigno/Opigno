@@ -76,7 +76,7 @@ function opigno_simple_ui_form_quiz_questions_form_alter(&$form, $form_state) {
  */
 function opigno_simple_ui_form_quiz_node_form_alter(&$form, $form_state) {
   foreach ($form['resultoptions'] as $key => &$child) {
-    if ($child['#type'] == 'fieldset') {
+    if (!empty($child['#type']) && $child['#type'] == 'fieldset') {
       $child['#collapsed'] = TRUE;
     }
   }
