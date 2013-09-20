@@ -175,6 +175,16 @@ function opigno_simple_ui_menu_local_tasks_alter(&$data, $router_item, $root_pat
 }
 
 /**
+ * Implements hook_modules_enabled().
+ */
+function opigno_simple_ui_modules_enabled($modules) {
+  if (in_array($modules, 'quiz')) {
+    module_load_include('inc', 'opigno_simple_ui', 'includes/opigno_simple_ui.quiz');
+    opigno_simple_ui_update_quiz_labels();
+  }
+}
+
+/**
  * Change the "View" tab title on course node pages.
  *
  * @param  stdClass $node

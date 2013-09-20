@@ -106,3 +106,22 @@ function theme_opigno_simple_ui_quiz_question_navigation_form($vars) {
     return drupal_render_children($form) . $submit;
   }
 }
+
+/** 
+ * Update the quiz fields and settings and name them "Lesson".
+ */
+function opigno_simple_ui_update_quiz_labels() {
+  variable_set('quiz_name', t("Lesson"));
+
+  $instance = field_info_instance('node', 'quiz_weight', 'quiz');
+  if (!empty($instance)) {
+    $instance['label'] = "Lesson weight";
+    field_update_instance($instance);
+  }
+
+  $instance = field_info_instance('node', 'quiz_type', 'quiz');
+  if (!empty($instance)) {
+    $instance['label'] = "Lesson type";
+    field_update_instance($instance);
+  }
+}

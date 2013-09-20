@@ -11,4 +11,9 @@
 function opigno_simple_ui_install() {
   include dirname(__FILE__) . '/includes/opigno_simple_ui.install.inc';
   opigno_simple_ui_change_quiz_question_bundles_names();
+
+  if (module_exists('quiz')) {
+    include_once dir(__FILE__) . '/includes/opigno_simple_ui.quiz.inc';
+    opigno_simple_ui_update_quiz_labels();
+  }
 }
