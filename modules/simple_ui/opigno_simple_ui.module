@@ -142,6 +142,7 @@ function opigno_simple_ui_theme_registry_alter(&$theme_registry) {
 function opigno_simple_ui_opigno_tool_alter(&$tools, $node = NULL) {
   if (isset($tools['quiz'])) {
     $tools['quiz']['name'] = t("Lessons");
+    $tools['quiz']['weight'] = -20;
     $tools['quiz']['description'] =  t("Lessons allow teachers to assess students and provide slideshows with course content and/or questions.");
   }
 }

@@ -371,8 +371,12 @@ function opigno_get_tools($node = NULL) {
     $tools[$group] = module_invoke_all('opigno_tool', $node);
     foreach ($tools[$group] as $key => &$tool) {
       $tool['machine_name'] = $key;
+      if (!isset($tools['weight'])) {
+        $tool['weight'] = 0;
+      }
     }
     drupal_alter('opigno_tool', $tools[$group], $node);
+    usort($tools[$group], 'drupal_sort_weight');
   }
 
   return $tools[$group];
@@ -397,6 +401,7 @@ function opigno_get_tool($name, $node = NULL, $account = NULL) {
     'actions' => array(),
     'access_arguments' => array('access content'),
     'access_callback' => 'user_access',
+    'weight' => 0,
   );
 
   $tools = opigno_get_tools($node);
