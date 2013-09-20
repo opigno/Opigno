@@ -377,6 +377,13 @@ function opigno_get_tools($node = NULL) {
     }
     drupal_alter('opigno_tool', $tools[$group], $node);
     usort($tools[$group], 'drupal_sort_weight');
+
+    // Key them by machine name again, as the sort loses them.
+    $temp = array();
+    foreach ($tools[$group] as $tool) {
+      $temp[$tool['machine_name']] = $tool;
+    }
+    $tools[$group] = $temp;
   }
 
   return $tools[$group];
