@@ -18,7 +18,7 @@ function opigno_install() {
 
   // Disable comments by default.
   if (module_exists('comment')) {
-    variable_get('comment_' . OPIGNO_COURSE_BUNDLE, COMMENT_NODE_CLOSED);
+    variable_set('comment_' . OPIGNO_COURSE_BUNDLE, COMMENT_NODE_CLOSED);
   }
 
   $type = node_type_load(OPIGNO_COURSE_BUNDLE);
