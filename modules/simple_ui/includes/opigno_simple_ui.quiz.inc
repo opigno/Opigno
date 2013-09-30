@@ -13,6 +13,27 @@ function opigno_simple_ui_quiz_theme_registry_alter(&$registry) {
 }
 
 /**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function opigno_simple_ui_quiz_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($root_path == 'node/%/quizzes') {
+    if (!empty($data['actions']['output'])) {
+      foreach ($data['actions']['output'] as $key => $theme_array) {
+        if (!empty($theme_array['#link']['path'])) {
+          dpm($theme_array);
+          if ($theme_array['#link']['path'] == 'node/add/quiz') {
+            $data['actions']['output'][$key]['#link']['title'] = t("Add new lesson");
+          }
+          elseif ($theme_array['#link']['path'] == 'node/%/sort-quizzes') {
+            $data['actions']['output'][$key]['#link']['title'] = t("Sort lessons");
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_form_quiz_directions_node_form_alter().
  */
 function opigno_simple_ui_form_quiz_directions_node_form_alter(&$form, $form_state) {
@@ -107,7 +128,7 @@ function theme_opigno_simple_ui_quiz_question_navigation_form($vars) {
   }
 }
 
-/** 
+/**
  * Update the quiz fields and settings and name them "Lesson".
  */
 function opigno_simple_ui_update_quiz_labels() {
@@ -122,6 +143,12 @@ function opigno_simple_ui_update_quiz_labels() {
   $instance = field_info_instance('node', 'quiz_type', 'quiz');
   if (!empty($instance)) {
     $instance['label'] = "Lesson type";
+    field_update_instance($instance);
+  }
+
+  $instance = field_info_instance('node', 'course_required_quiz_ref', OPIGNO_COURSE_BUNDLE);
+  if (!empty($instance)) {
+    $instance['label'] = "Lesson required for the course validation";
     field_update_instance($instance);
   }
 }
