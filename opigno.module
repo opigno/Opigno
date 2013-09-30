@@ -380,8 +380,8 @@ function opigno_get_tools($node = NULL) {
 
     // Key them by machine name again, as the sort loses them.
     $temp = array();
-    foreach ($tools[$group] as $tool) {
-      $temp[$tool['machine_name']] = $tool;
+    foreach ($tools[$group] as $key => $ordered_tool) {
+      $temp[$ordered_tool['machine_name']] = $ordered_tool;
     }
     $tools[$group] = $temp;
   }
