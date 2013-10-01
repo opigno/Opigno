@@ -9,4 +9,4 @@ dependencies[] = og_ui
 dependencies[] = rules
 dependencies[] = rules_conditional
 
-files[] = tests/AbstractOpignoTestCase.inc
+files[] = tests/OpignoWebTestCase.php
