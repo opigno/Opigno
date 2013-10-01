@@ -5,9 +5,6 @@
  * Defines the base class for Opigno unit testing.
  * This base class contains re-usable logic that will make it easier and faster to
  * write Opigno-specific unit tests.
- * This class will also configure all modules to work correctly for Opigno.
- *
- * @todo - default settings should be done on install of features !
  */
 
 class OpignoWebTestCase extends DrupalWebTestCase {
