@@ -50,7 +50,24 @@ class OpignoWebTestCase extends DrupalWebTestCase {
         }
       }
     }
+
+    return $node;
   }
+
+  /**
+   * Create a role and set the permissions.
+   *
+   * @param  string $role_name
+   * @param  array $permissions = array()
+   *
+   * @return object
+   */
+  protected function createRole($role_name, $permissions = array()) {
+    $role = og_role_create($role_name, 'node', 0, OPIGNO_COURSE_BUNDLE);
+    og_role_grant_permissions($role->rid, $permissions);
+    return $role;
+  }
+
 
   /**
    * Fetch the role ID by name.
