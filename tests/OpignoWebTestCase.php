@@ -85,4 +85,25 @@ class OpignoWebTestCase extends DrupalWebTestCase {
               ->fetchField();
     return !empty($rid) ? $rid : 0;
   }
+
+  /**
+   * Helper function to enable a block.
+   */
+  protected function enableBlock($module, $delta, $region = 'sidebar_first', $pages_visible = array(), $pages_unvisible = array()) {
+    $block = array(
+      'module' => $module,
+      'delta' => $delta,
+      'theme' => variable_get('theme_default', 'bartik'),
+      'status' => 1,
+      'weight' => 0,
+      'region' => $region,
+      'visibility' => (int) empty($pages_visible),
+      'pages' => implode("\n", !empty($pages_visible) ? $pages_visible : $pages_unvisible),
+      'cache' => -1,
+    );
+
+    $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
+    $query->values($block);
+    $query->execute();
+  }
 }
