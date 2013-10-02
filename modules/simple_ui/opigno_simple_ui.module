@@ -99,6 +99,10 @@ function opigno_simple_ui_menu_alter(&$items) {
   $items['node/%/group/users']['access arguments'][2] = 1;
   $items['node/%/group/users']['type'] = MENU_DEFAULT_LOCAL_TASK;
 
+  // Make parent inherit this access control.
+  $items['node/%/group']['access callback']  = $items['node/%/group/users']['access callback'];
+  $items['node/%/group']['access arguments'] = $items['node/%/group/users']['access arguments'];
+
   // Add a new secondary tab "Add members".
   $items['node/%/group/add'] = $items['group/%/%/admin/people/add-user'];
   $items['node/%/group/add']['page arguments'][1] = 'node';
