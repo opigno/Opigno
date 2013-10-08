@@ -13,7 +13,7 @@ function opigno_og_prereq_install() {
   if (empty($field)) {
     field_create_field(array(
       'active' => 1,
-      'cardinality' => 1,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'deleted' => 0,
       'entity_types' => array(),
       'field_name' => 'course_required_course_ref',
