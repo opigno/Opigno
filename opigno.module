@@ -93,7 +93,7 @@ function opigno_init() {
 /**
  * Implements hook_hook_info().
  */
-function hook_hook_info() {
+function opigno_hook_info() {
   return array(
     'opigno_tool' => array(
       'group' => 'opigno',
@@ -102,6 +102,22 @@ function hook_hook_info() {
       'group' => 'opigno',
     ),
   );
+}
+
+/**
+ * Implements hook_og_context_negotiation_info
+ */
+function opigno_og_context_negotiation_info() {
+  $providers = array();
+
+  $providers['opigno_tool'] = array(
+    'name' => t('Opigno tool urls'),
+    'description' => t("Determine context by checking node/%/tool-page."),
+    'callback' => 'opigno_og_context_handler',
+    'menu path' => array('node/%'),
+  );
+
+  return $providers;
 }
 
 /**
@@ -352,6 +368,17 @@ function opigno_views_query_alter(&$view, &$query) {
           }
         }
       }
+    }
+  }
+}
+
+/**
+ * Determines the context from a url.
+ */
+function opigno_og_context_handler() {
+  if (preg_match('/^node\/[0-9]+\/./', current_path())) {
+    if (og_is_group('node', node_load(arg(1)))) {
+      return array('node' => array(arg(1)));
     }
   }
 }
