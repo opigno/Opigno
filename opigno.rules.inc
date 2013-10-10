@@ -46,6 +46,30 @@ function opigno_rules_user_has_roles($role, $group, $account) {
 
 function opigno_rules_action_info() {
   $items = array();
+  $items['opigno_load_og_membership'] = array(
+    'label' => t("Load OG Membership"),
+    'group' => t('Organic groups'),
+    'parameter' => array(
+      'user' => array(
+        'type' => 'user',
+        'label' => t('User'),
+        'description' => t('The user who get the role'),
+      ),
+      'group' => array(
+        'type' => array_keys(og_get_all_group_entity()),
+        'label' => t('Group'),
+        'wrapped' => TRUE,
+      ),
+    ),
+    'provides' => array(
+      'og_membership' => array(
+        'type' => 'og_membership',
+        'label' => t('OG Membership'),
+      ),
+    ),
+    'base' => 'opigno_load_og_membership',
+  );
+
   $items['og_revoke_og_role_to_user'] = array(
     'label' => t('Revoke user a og role'),
     'group' => t('Organic groups'),
@@ -189,3 +213,21 @@ function opigno_rules_event_info() {
   );
 }
 //*/
+
+function opigno_load_og_membership($user, EntityDrupalWrapper $group, $settings) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'og_membership', '=')
+    ->propertyCondition('gid', $group->getIdentifier(), '=')
+    ->propertyCondition('group_type', $group->type(), '=')
+    ->propertyCondition('entity_type', 'user', '=')
+    ->propertyCondition('etid', $user->uid, '=');
+  $result = $query->execute();
+
+  if (!empty($result['og_membership'])) {
+    $og_membership = og_membership_load(current($result['og_membership'])->id);
+  }
+  else {
+    $og_membership = NULL;
+  }
+  return array('og_membership' => $og_membership);
+}

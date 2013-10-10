@@ -14,7 +14,7 @@ function opigno_default_rules_configuration() {
       "LABEL" : "Activate group membership",
       "PLUGIN" : "rule",
       "TAGS" : [ "og", "opigno" ],
-      "REQUIRES" : [ "og" ],
+      "REQUIRES" : [ "og", "opigno", "rules" ],
       "USES VARIABLES" : {
         "course" : { "label" : "Course", "type" : "node" },
         "user" : { "label" : "User", "type" : "user" }
@@ -29,8 +29,12 @@ function opigno_default_rules_configuration() {
         }
       ],
       "DO" : [
-        { "og_unsubscribe_user" : { "user" : [ "user" ], "group" : [ "course" ] } },
-        { "og_subcribe_user" : { "user" : [ "user" ], "group" : [ "course" ] } }
+        { "opigno_load_og_membership" : {
+            "USING" : { "user" : [ "user" ], "group" : [ "course" ] },
+            "PROVIDE" : { "og_membership" : { "og_membership" : "OG Membership" } }
+          }
+        },
+        { "data_set" : { "data" : [ "og-membership:state" ], "value" : "1" } }
       ]
     }
   }');
