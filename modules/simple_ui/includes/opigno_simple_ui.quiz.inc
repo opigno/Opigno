@@ -20,7 +20,6 @@ function opigno_simple_ui_quiz_menu_local_tasks_alter(&$data, $router_item, $roo
     if (!empty($data['actions']['output'])) {
       foreach ($data['actions']['output'] as $key => $theme_array) {
         if (!empty($theme_array['#link']['path'])) {
-          dpm($theme_array);
           if ($theme_array['#link']['path'] == 'node/add/quiz') {
             $data['actions']['output'][$key]['#link']['title'] = t("Add new lesson");
           }
