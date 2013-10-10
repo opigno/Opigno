@@ -9,6 +9,11 @@
  * Implements hook_install().
  */
 function opigno_simple_ui_install() {
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'opigno_simple_ui')
+    ->execute();
+
   include dirname(__FILE__) . '/includes/opigno_simple_ui.install.inc';
   opigno_simple_ui_change_quiz_question_bundles_names();
 
