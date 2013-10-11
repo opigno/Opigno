@@ -166,7 +166,7 @@ function opigno_simple_ui_menu_local_tasks_alter(&$data, $router_item, $root_pat
   if ($root_path == 'admin/opigno/content/course-administration') {
     $item = menu_get_item('node/add/' . OPIGNO_COURSE_BUNDLE);
     if ($item['access']) {
-      $item['title'] = "Add a new course";
+      $item['title'] = t("Add a new course");
       $item['options']['attributes']['class'][] = $item['localized_options']['attributes']['class'][] = 'add-course';
       $item['options']['attributes']['class'][] = $item['localized_options']['attributes']['class'][] = 'opigno-simple-ui-add-course';
       $item['options']['attributes']['class'][] = $item['localized_options']['attributes']['class'][] = 'opigno-simple-ui-course-administration-add-course-link';
