@@ -74,6 +74,17 @@ function opigno_simple_ui_views_api() {
 }
 
 /**
+ * Implements of hook_views_default_views_alter().
+ */
+function opigno_simple_ui_views_default_views_alter(&$views) {
+  // Group the courses by class.
+  if (array_key_exists('opigno_quizzes', $views)) {
+    $display = $views['opigno_quizzes']->display['default'];
+    $display->display_options['title'] = t("Lessons");
+  }
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function opigno_simple_ui_menu_alter(&$items) {
@@ -125,6 +136,9 @@ function opigno_simple_ui_menu_alter(&$items) {
   // Make parent tab point to "Members" page.
   $items['node/%/group']['page callback'] = $items['node/%/group/users']['page callback'];
   $items['node/%/group']['page arguments'] = $items['node/%/group/users']['page arguments'];
+
+  // Correct sort quizzes page title.
+  $items['node/%node/sort-quizzes']['title'] = t("Sort lessons");
 }
 
 /**
