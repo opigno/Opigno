@@ -1,0 +1,25 @@
+name = Opigno Quiz helper
+description = Makes questions og audience
+core = 7.x
+package = Opigno
+
+dependencies[] = opigno
+dependencies[] = opigno_quiz_app
+dependencies[] = og
+dependencies[] = og_quiz
+dependencies[] = number
+dependencies[] = quiz
+dependencies[] = long_answer
+dependencies[] = matching
+dependencies[] = quiz_directions
+dependencies[] = multichoice
+dependencies[] = scale
+dependencies[] = short_answer
+dependencies[] = truefalse
+dependencies[] = quiz_ddlines
+dependencies[] = views
+dependencies[] = views_content
+dependencies[] = entityreference
+dependencies[] = rules
+dependencies[] = rules_conditional
+dependencies[] = quizfileupload

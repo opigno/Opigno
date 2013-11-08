@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Module install logic.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function opigno_quiz_helper_install() {
+  // Add the OG audience field.
+    include_once drupal_get_path('module', 'og') . '/og_ui/og_ui.module';
+    if (function_exists('og_ui_node_type_save')) {
+      $types = array('quiz_ddlines', 'long_answer', 'matching', 'multichoice', 'quiz_directions', 'scale', 'short_answer', 'truefalse','quizfileupload');
+      foreach ($types as $type) {
+        variable_set('og_group_content_type_' . $type, TRUE);
+        og_ui_node_type_save($type);
+
+        // Disable comments by default.
+        if (module_exists('comment')) {
+          variable_set('comment_' . $type, COMMENT_NODE_CLOSED);
+        }
+      }
+    }
+}
