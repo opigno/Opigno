@@ -47,7 +47,7 @@ function opigno_simple_ui_menu() {
     'title' => "Manage forums",
     'description' => "Manage the different forums and forum containers.",
     'page callback' => 'opigno_simple_ui_admin_redirect',
-    'page arguments' => array('admin/structure/taxonomy/forums'),
+    'page arguments' => array('admin/structure/forum'),
     'access arguments' => array('administer taxonomy'),
   );
 
