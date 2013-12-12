@@ -14,11 +14,11 @@ function opigno_simple_ui_install() {
     ->condition('name', 'opigno_simple_ui')
     ->execute();
 
-  include dirname(__FILE__) . '/includes/opigno_simple_ui.install.inc';
+  module_load_include('inc', 'opigno', 'modules/simple_ui/includes/opigno_simple_ui.install');
   opigno_simple_ui_change_quiz_question_bundles_names();
 
   if (module_exists('quiz')) {
-    include_once dir(__FILE__) . '/includes/opigno_simple_ui.quiz.inc';
+    module_load_include('inc', 'opigno', 'modules/simple_ui/includes/opigno_simple_ui.quiz');
     opigno_simple_ui_update_quiz_labels();
   }
 }

@@ -43,6 +43,14 @@ function opigno_simple_ui_menu() {
     'access arguments' => array('administer content types'),
   );
 
+  $items['admin/opigno/content/forums'] = array(
+    'title' => "Manage forums",
+    'description' => "Manage the different forums and forum containers.",
+    'page callback' => 'opigno_simple_ui_admin_redirect',
+    'page arguments' => array('admin/structure/forum'),
+    'access arguments' => array('administer taxonomy'),
+  );
+
   if (module_exists('apps')) {
     $items['admin/opigno/system/apps'] = array(
       'title' => "Apps",

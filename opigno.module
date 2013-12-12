@@ -363,8 +363,14 @@ function opigno_views_query_alter(&$view, &$query) {
       if (is_array($conditions)) {
         foreach ($conditions['conditions'] as &$condition) {
           if ($condition['field'] == 'node.nid') {
-            $condition['value'] = $nids;
-            $condition['operator'] = 'NOT IN';
+            if (!empty($nids)) {
+              $condition['value'] = $nids;
+              $condition['operator'] = 'NOT IN';
+            }
+            else {
+              $condition['value'] = 0;
+              $condition['operator'] = '<>';
+            }
           }
         }
       }
