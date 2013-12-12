@@ -97,46 +97,53 @@ function opigno_og_prereq_default_rules_configuration() {
     }
   }');
   $items['rules_get_courses_that_require_this_course'] = entity_import('rules_config', '{ "rules_get_courses_that_require_this_course" : {
-      "LABEL" : "Get courses that require this course",
-      "PLUGIN" : "action set",
-      "TAGS" : [ "og", "opigno" ],
-      "REQUIRES" : [ "rules" ],
-      "USES VARIABLES" : {
-        "course" : { "label" : "Course", "type" : "node" },
-        "requiring_courses" : {
-          "label" : "Requiring courses",
-          "type" : "list\u003Cnode\u003E",
-          "parameter" : false
+  "LABEL" : "Get courses that require this course",
+    "PLUGIN" : "action set",
+    "OWNER" : "rules",
+    "TAGS" : [ "og", "opigno" ],
+    "REQUIRES" : [ "rules" ],
+    "USES VARIABLES" : {
+    "course" : { "label" : "Course", "type" : "node" },
+      "requiring_courses" : {
+      "label" : "Requiring courses",
+        "type" : "list\u003Cnode\u003E",
+        "parameter" : false
+      }
+    },
+    "ACTION SET" : [
+      { "variable_add" : {
+        "USING" : { "type" : "list\u003Cnode\u003E" },
+          "PROVIDE" : { "variable_added" : { "node_list" : "Node list" } }
         }
       },
-      "ACTION SET" : [
-        { "entity_query" : {
-            "USING" : {
-              "type" : "node",
-              "property" : "course_required_course_ref",
-              "value" : [ "course:nid" ],
-              "limit" : "100"
-            },
-            "PROVIDE" : { "entity_fetched" : { "entities_fetched" : "Fetched entities" } }
-          }
-        },
-        { "LOOP" : {
-            "USING" : { "list" : [ "entities-fetched" ] },
-            "ITEM" : { "list_item" : "Current list item" },
-            "DO" : [
-              { "list_add" : {
-                  "list" : [ "requiring-courses" ],
-                  "item" : [ "list-item" ],
-                  "unique" : 1
-                }
-              }
-            ]
-          }
+      { "list_add" : { "list" : [ "node-list" ], "item" : [ "course" ] } },
+      { "entity_query" : {
+        "USING" : {
+          "type" : "node",
+            "property" : "course_required_course_ref",
+            "value" : [ "node-list" ],
+            "limit" : "100"
+          },
+          "PROVIDE" : { "entity_fetched" : { "entities_fetched" : "Fetched entities" } }
         }
-      ],
-      "PROVIDES VARIABLES" : [ "requiring_courses" ]
-    }
-  }');
+      },
+      { "LOOP" : {
+        "USING" : { "list" : [ "entities-fetched" ] },
+          "ITEM" : { "list_item" : "Current list item" },
+          "DO" : [
+            { "list_add" : {
+              "list" : [ "requiring-courses" ],
+                "item" : [ "list-item" ],
+                "unique" : 1
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "PROVIDES VARIABLES" : [ "requiring_courses" ]
+  }
+}');
   if (module_exists('opigno_quiz_app')) {
     foreach (_opgino_og_prereq_install_opigno_quiz_app_rules() as $key => $rule) {
       $items[$key] = entity_import('rules_config', $rule);
@@ -144,15 +151,3 @@ function opigno_og_prereq_default_rules_configuration() {
   }
   return $items;
 }
-
-
-
-
-
-
-
-
-
-
-
-
