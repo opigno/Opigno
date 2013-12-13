@@ -35,6 +35,19 @@ function opigno_simple_ui_menu() {
     'access arguments' => array('administer themes'),
   );
 
+  if (variable_get('theme_default', 'platon') === 'platon') {
+    $default_theme_settings = variable_get('theme_platon_settings', array());
+    if (!empty($default_theme_settings['platon_menu_source'])) {
+      $items['admin/opigno/appearance/menu'] = array(
+        'title' => "Manage menu",
+        'description' => "Manage the main menu items",
+        'page callback' => 'opigno_simple_ui_admin_redirect',
+        'page arguments' => array('admin/structure/menu/manage/' . $default_theme_settings['platon_menu_source']),
+        'access arguments' => array('administer menu'),
+      );
+    }
+  }
+
   $items['admin/opigno/content/default-tools'] = array(
     'title' => "Set default course tools",
     'description' => "Manage the tools that are activated by default for new courses.",
