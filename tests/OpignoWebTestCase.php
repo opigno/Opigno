@@ -14,6 +14,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    *
    * @param  string $title = NULL
    * @param  object $creator = NULL
+   * @param  int $private = NULL
    * @param  array $members = array()
    *          A 2-dimensional array, where the key is the user ID and the value an
    *          array of roles.
@@ -22,7 +23,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    *
    * @return object
    */
-  protected function createCourse($title = NULL, $creator = NULL, $members = array()) {
+  protected function createCourse($title = NULL, $creator = NULL, $private = NULL, $members = array()) {
     $settings = array(
       'type' => OPIGNO_COURSE_BUNDLE,
       'title' => $title ? $title : $this->randomName(8),
@@ -32,6 +33,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
         ),
       ),
     );
+    if (isset($private)) {
+      $settings['group_access'][LANGUAGE_NONE][0]['value'] = $private;
+    }
     $node = $this->drupalCreateNode($settings);
 
     $this->assertTrue(!empty($node->nid), 'Created a new course.');
