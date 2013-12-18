@@ -33,6 +33,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
         ),
       ),
     );
+    if (!empty($creator->uid)) {
+      $settings['uid'] = $creator->uid;
+    }
     if (isset($private)) {
       $settings['group_access'][LANGUAGE_NONE][0]['value'] = $private;
     }
