@@ -42,20 +42,31 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 
     if (!empty($members)) {
       foreach ($members as $uid => $roles) {
-        og_membership_create('node', $node->nid, 'user', $uid, 'og_user_node');
-        foreach ($roles as $role) {
-          $rid = $this->getRoleId($role);
-          if (!empty($rid)) {
-            og_role_grant('node', $node->nid, $uid, $rid);
-          }
-          else {
-            $this->fail("Could not find the role '$role'.");
-          }
-        }
+        $this->addMemberToCourse($node, $uid, $roles);
       }
     }
 
     return $node;
+  }
+
+  /**
+   * Add member to course.
+   *
+   * @param object $node
+   * @param int $uid
+   * @param array $roles
+   */
+  protected function addMemberToCourse($node, $uid, $roles = array('member')) {
+    og_membership_create('node', $node->nid, 'user', $uid, 'og_user_node');
+    foreach ($roles as $role) {
+      $rid = $this->getRoleId($role);
+      if (!empty($rid)) {
+        og_role_grant('node', $node->nid, $uid, $rid);
+      }
+      else {
+        $this->fail("Could not find the role '$role'.");
+      }
+    }
   }
 
   /**
@@ -68,6 +79,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   protected function createRole($role_name, $permissions = array()) {
     $role = og_role_create($role_name, 'node', 0, OPIGNO_COURSE_BUNDLE);
+    og_role_save($role);
     og_role_grant_permissions($role->rid, $permissions);
     return $role;
   }
