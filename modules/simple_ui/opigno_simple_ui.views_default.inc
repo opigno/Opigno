@@ -26,7 +26,7 @@ function opigno_simple_ui_views_default_views() {
   $handler->display->display_options['title'] = 'Course administration';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'access administration pages';
+  $handler->display->display_options['access']['perm'] = 'create course content';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
