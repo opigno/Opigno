@@ -16,5 +16,11 @@ function opigno_simple_ui_change_quiz_question_bundles_names() {
     $type->name = "Slide";
     $type->description = "Provide info for a scenario.";
     node_type_save($type);
+  
+    $instance = field_info_instance('node', 'body', 'quiz_directions');
+    if (!empty($instance)) {
+      $instance['label'] = "Content";
+      field_update_instance($instance);
+    }  
   }
 }
