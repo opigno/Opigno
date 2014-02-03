@@ -116,7 +116,12 @@ function opigno_og_context_negotiation_info() {
     'callback' => 'opigno_og_context_handler',
     'menu path' => array('node/%'),
   );
-
+  $providers['opigno_entity_reference'] = array(
+    'name' => t('Opigno entity reference urls'),
+    'description' => t("Determine context by checking entityreference/autocomplete/single/%/%/%."),
+    'callback' => 'opigno_og_context_handler',
+    'menu path' => array('entityreference/autocomplete/single/%/%/%'),
+  );
   return $providers;
 }
 
@@ -385,6 +390,11 @@ function opigno_og_context_handler() {
   if (preg_match('/^node\/[0-9]+\/./', current_path())) {
     if (og_is_group('node', node_load(arg(1)))) {
       return array('node' => array(arg(1)));
+    }
+  }
+  elseif (preg_match('/^entityreference\/autocomplete\/single/', current_path())) {
+    if (og_is_group('node', node_load(arg(6)))) {
+      return array('node' => array(arg(6)));
     }
   }
 }
