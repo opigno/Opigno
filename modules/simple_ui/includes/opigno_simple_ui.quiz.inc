@@ -35,8 +35,25 @@ function opigno_simple_ui_quiz_menu_local_tasks_alter(&$data, $router_item, $roo
 /**
  * Implements hook_form_quiz_directions_node_form_alter().
  */
-function opigno_simple_ui_form_quiz_directions_node_form_alter(&$form, $form_state) {
-  $form['add_directly']['#access'] = FALSE;
+function opigno_simple_ui_form_alter(&$form, $form_state) {
+  if ((isset($form['#node_edit_form']) && ($form['#node_edit_form']) == TRUE)) {
+    if (in_array($form['type']['#value'], array(
+      "long_answer",
+      "matching",
+      "multichoice",
+      "quiz_ddlines",
+      "quiz_directions",
+      "scale",
+      "short_answer",
+      "truefalse",
+      "quizfileupload"
+    ))
+    ) {
+      unset($form['add_directly']['#group']);
+      $form['add_directly']['#access'] = FALSE;
+      $form['add_directly']['#attributes']['style'][] = 'display:none;';
+    }
+  }
 }
 
 /**
