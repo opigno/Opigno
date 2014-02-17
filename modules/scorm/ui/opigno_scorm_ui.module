@@ -38,19 +38,12 @@ function opigno_scorm_ui_field_widget_info_alter(&$info) {
 }
 
 /**
- * Implements hook_field_is_empty().
- */
-function opigno_scorm_ui_field_is_empty($item, $field) {
-  return file_field_is_empty($item, $field);
-}
-
-/**
  * Implements hook_field_formatter_info().
  */
 function opigno_scorm_ui_field_formatter_info() {
   return array(
     'opigno_scorm_player' => array(
-      'label' => t('Display the SCORM player'),
+      'label' => t('SCORM player'),
       'field types' => array('opigno_scorm_package'),
     ),
   );
@@ -66,11 +59,64 @@ function opigno_scorm_ui_field_formatter_info_alter(&$info) {
 }
 
 /**
+ * Implements hook_field_is_empty().
+ */
+function opigno_scorm_ui_field_is_empty($item, $field) {
+  return file_field_is_empty($item, $field);
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function opigno_scorm_ui_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  dpm(func_get_args(), 'load');
+  file_field_load($entity_type, $entities, $field, $instances, $langcode, $items, $age);
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function opigno_scorm_ui_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  dpm($items, 'presave');
+  file_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_insert().
+ */
+function opigno_scorm_ui_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  dpm($items, 'insert');
+  file_field_insert($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_update().
+ */
+function opigno_scorm_ui_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  dpm($items, 'update');
+  file_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_delete().
+ */
+function opigno_scorm_ui_field_delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  file_field_delete($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_delete_revision().
+ */
+function opigno_scorm_ui_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  file_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
  * Implements hook_field_formatter_view().
  */
 function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  dpm(func_get_args());
+
   switch ($display['type']) {
     case 'opigno_scorm_player':
       foreach ($items as $delta => $item) {

@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Install logic.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function opigno_scorm_ui_field_schema($field) {
+  module_load_include('install', 'file');
+  return file_field_schema($field);
+}
