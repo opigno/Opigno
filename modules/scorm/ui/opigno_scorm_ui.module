@@ -5,3 +5,83 @@
  * Opigno SCORM UI.
  */
 
+/**
+ * Implements hook_field_info().
+ */
+function opigno_scorm_ui_field_info() {
+  return array(
+    'opigno_scorm_package' => array(
+      'label' => t('SCORM package'),
+      'description' => t("This field allows users to upload SCORM packages"),
+      'settings' => array(
+        'display_field' => 0,
+        'display_default' => 0,
+        'uri_scheme' => variable_get('file_default_scheme', 'public'),
+      ),
+      'instance_settings' => array(
+        'file_extensions' => 'zip',
+        'file_directory' => 'opigno_scorm',
+        'max_filesize' => '',
+        'description_field' => 0,
+      ),
+      'default_widget' => 'file_generic',
+      'default_formatter' => 'opigno_scorm_player',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function opigno_scorm_ui_field_widget_info_alter(&$info) {
+  $info['file_generic']['field types'] = array_merge($info['file_generic']['field types'], array('opigno_scorm_package'));
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function opigno_scorm_ui_field_is_empty($item, $field) {
+  return file_field_is_empty($item, $field);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function opigno_scorm_ui_field_formatter_info() {
+  return array(
+    'opigno_scorm_player' => array(
+      'label' => t('Display the SCORM player'),
+      'field types' => array('opigno_scorm_package'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function opigno_scorm_ui_field_formatter_info_alter(&$info) {
+  foreach(array('file_default', 'file_url_plain') as $formatter) {
+    $info[$formatter]['field types'][] = 'opigno_scorm_package';
+  }
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  dpm(func_get_args());
+  switch ($display['type']) {
+    case 'opigno_scorm_player':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => 'FILE',
+        );
+      }
+      break;
+  }
+
+  return $element;
+}

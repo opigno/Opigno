@@ -2,4 +2,5 @@ name = Opigno SCORM UI
 descrpition = User interface for the Opigno SCORM API
 core = 7.x
 package = Opigno
+dependencies[] = file
 dependencies[] = opigno_scorm
