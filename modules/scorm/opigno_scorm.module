@@ -5,3 +5,246 @@
  * Opigno SCORM API.
  */
 
+define('OPIGNO_SCORM_DIRECTORY', variable_get('opigno_scorm_directory', variable_get('file_default_scheme', 'public') . '://opigno_scorm_extracted'));
+
+/**
+ * Helper function to extract the SCORM package.
+ *
+ * Returns the id of the extracted SCORM package, or FALS if an error occurs.
+ *
+ * @param int $fid
+ *        The file ID that we'll extract.
+ *
+ * @return int|false
+ */
+function opigno_scorm_extract($fid) {
+  $file = file_load($fid);
+  $path = drupal_realpath($file->uri);
+  $zip = new ZipArchive();
+  $result = $zip->open($path);
+  if ($result === TRUE) {
+    $extract_dir = OPIGNO_SCORM_DIRECTORY . '/scorm_' . $fid;
+    $zip->extractTo($extract_dir);
+    $zip->close();
+
+    $manifest_file = $extract_dir . '/imsmanifest.xml';
+
+    if (file_exists($manifest_file)) {
+      $scorm = (object) array(
+        'fid' => $fid,
+        'extracted_dir' => $extract_dir,
+        'manifest_file' => $manifest_file,
+        'metadata' => '',
+      );
+
+      $manifest_data = opigno_scorm_extract_manifest_data($manifest_file);
+
+      opigno_scorm_scorm_save($scorm);
+    }
+  }
+  else {
+    $error = '';
+    switch ($result) {
+      case ZipArchive::ER_EXISTS:
+        $error = 'ER_EXISTS';
+        break;
+
+      case ZipArchive::ER_INCONS:
+        $error = 'ER_INCONS';
+        break;
+
+      case ZipArchive::ER_INVAL:
+        $error = 'ER_INVAL';
+        break;
+
+      case ZipArchive::ER_NOENT:
+        $error = 'ER_NOENT';
+        break;
+
+      case ZipArchive::ER_NOZIP:
+        $error = 'ER_NOZIP';
+        break;
+
+      case ZipArchive::ER_OPEN:
+        $error = 'ER_OPEN';
+        break;
+
+      case ZipArchive::ER_READ:
+        $error = 'ER_READ';
+        break;
+
+      case ZipArchive::ER_SEEK:
+        $error = 'ER_SEEK';
+        break;
+    }
+    dpm($error, 'ZipArchive');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Extract the manifest data.
+ *
+ * @param string $manifest_file
+ *
+ * @return array
+ */
+function opigno_scorm_extract_manifest_data($manifest_file) {
+  $data = array();
+
+  $manifest = simplexml_load_file($manifest_file);
+  dpm($manifest, 'XML');
+
+  if (!empty($manifest->metadata)) {
+    $data['metadata'] = opigno_scorm_extract_manifest_metadata($manifest);
+  }
+
+  if (!empty($manifest->organizations)) {
+    $data['scos'] = opigno_scorm_extract_manifest_scos($manifest);
+    $data['ressources'] = opigno_scorm_extract_manifest_ressources($manifest);
+
+    //$data['scos'] = opigno_scorm_combine_manifest_sco_and_ressources($data['scos'], $data['ressources']);
+  }
+  dpm($data, 'extracted data');
+  return $data;
+}
+
+/**
+ * Extract the manifest metadata.
+ *
+ * @param SimpleXMLElement $manifest
+ *
+ * @return array
+ */
+function opigno_scorm_extract_manifest_metadata(SimpleXMLElement $manifest) {
+  $meta = array();
+  foreach ((array) $manifest->metadata as $metadata_key => $metadata_data) {
+    $meta[$metadata_key] = $metadata_data;
+  }
+  return $meta;
+}
+
+/**
+ * Extract the manifest SCO items.
+ *
+ * @param SimpleXMLElement $manifest
+ *
+ * @return array
+ */
+function opigno_scorm_extract_manifest_scos(SimpleXMLElement $manifest) {
+  $items = array('items' => array());
+  if (!empty($manifest->organizations[0]['default'])) {
+    $items['default'] = (string) $manifest->organizations[0]['default'];
+  }
+
+  foreach ($manifest->organizations->organization as $organization) {
+    $items['items'] = array_merge(_opigno_scorm_extract_manifest_scos_items($organization, ''), $items['items']);
+  }
+  return $items;
+}
+
+/**
+ * Helper function to recursively extract the manifest SCO items.
+ *
+ * @param SimpleXMLElement $manifest
+ * @param string $organization
+ * @param string|int $parent_identifier = 0
+ *
+ * @return array
+ */
+function _opigno_scorm_extract_manifest_scos_items(SimpleXMLElement $manifest, $organization, $parent_identifier = 0) {
+  $items = array();
+  $title = !empty($manifest->title) ? (string) $manifest->title : 'No title';
+  $identifier = !empty($manifest['identifier']) ? (string) $manifest['identifier'] : '';
+  $launch = !empty($manifest['launch']) ? (string) $manifest['launch'] : '';
+  $ressource_identifier = !empty($manifest['identifierref']) ? (string) $manifest['identifierref'] : '';
+  $parameters = !empty($manifest['parameters']) ? (string) $manifest['parameters'] : '';
+  $type = !empty($manifest['type']) ? (string) $manifest['type'] : '';
+  $scorm_type = !empty($manifest['adlcp:scormType']) ? (string) $manifest['adlcp:scormType'] : '';
+
+  $items[] = array(
+    'manifest' => '', // @deprecated
+    'organization' => $organization,
+    'title' => $title,
+    'identifier' => $identifier,
+    'parent_identifier' => $parent_identifier,
+    'launch' => $launch,
+    'identifierref' => $ressource_identifier,
+    'parameters' => $parameters,
+    'type' => $type,
+    'scorm_type' => $scorm_type
+  );
+
+  // First level of the tree - at the organization level.
+  if (empty($organization)) {
+    $organization = $title;
+  }
+
+  if (!empty($manifest->item)) {
+    foreach ($manifest->item as $item) {
+      $items = array_merge(_opigno_scorm_extract_manifest_scos_items($item, $organization, $identifier), $items);
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Extract the manifest SCO ressources.
+ *
+ * @param SimpleXMLElement $manifest
+ *
+ * @return array
+ */
+function opigno_scorm_extract_manifest_ressources(SimpleXMLElement $manifest) {
+  $items = array();
+  if (!empty($manifest->resources)) {
+    $items['default'] = (string) $manifest->organizations[0]['default'];
+  }
+
+  foreach ($manifest->organizations->organization as $organization) {
+    $items['items'] = array_merge(_opigno_scorm_extract_manifest_scos_items($organization, ''), $items['items']);
+  }
+  return $items;
+}
+
+/**
+ * Helper function to save SCORM package information.
+ *
+ * @param object $scorm
+ *
+ * @return bool
+ */
+function opigno_scorm_scorm_save($scorm) {
+  if (!empty($scorm->id)) {
+    return db_update('opigno_scorm_packages')
+      ->fields((array) $scorm)
+      ->condition('id', $scorm->id)
+      ->execute();
+  }
+  else {
+    $id = db_insert('opigno_scorm_packages')
+      ->fields((array) $scorm)
+      ->execute();
+
+    $scorm->id = $id;
+
+    return !!$id;
+  }
+}
+
+/**
+ * Helper function to load SCORM package information.
+ *
+ * @param int $fid
+ *
+ * @return object|false
+ */
+function opigno_scorm_scorm_load($fid) {
+  return db_select('opigno_scorm_packages', 'o')
+    ->fields('o', array())
+    ->condition('fid', $fid)
+    ->execute()
+    ->fetchObject();
+}

@@ -69,7 +69,6 @@ function opigno_scorm_ui_field_is_empty($item, $field) {
  * Implements hook_field_load().
  */
 function opigno_scorm_ui_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
-  dpm(func_get_args(), 'load');
   file_field_load($entity_type, $entities, $field, $instances, $langcode, $items, $age);
 }
 
@@ -77,7 +76,6 @@ function opigno_scorm_ui_field_load($entity_type, $entities, $field, $instances,
  * Implements hook_field_presave().
  */
 function opigno_scorm_ui_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  dpm($items, 'presave');
   file_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
 }
 
@@ -85,16 +83,23 @@ function opigno_scorm_ui_field_presave($entity_type, $entity, $field, $instance,
  * Implements hook_field_insert().
  */
 function opigno_scorm_ui_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  dpm($items, 'insert');
   file_field_insert($entity_type, $entity, $field, $instance, $langcode, $items);
+  foreach ($items as $item) {
+    opigno_scorm_extract($item['fid']);
+  }
 }
 
 /**
  * Implements hook_field_update().
  */
 function opigno_scorm_ui_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  dpm($items, 'update');
   file_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
+  foreach ($items as $item) {
+    $scorm = opigno_scorm_scorm_load($item['fid']);
+    if (empty($scorm->id)) {
+      opigno_scorm_extract($item['fid']);
+    }
+  }
 }
 
 /**
