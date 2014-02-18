@@ -8,7 +8,7 @@
 define('OPIGNO_SCORM_DIRECTORY', variable_get('opigno_scorm_directory', variable_get('file_default_scheme', 'public') . '://opigno_scorm_extracted'));
 
 /**
- * Helper function to save SCORM package information.
+ * Save a SCORM package information.
  *
  * @param object $scorm
  *
@@ -33,7 +33,7 @@ function opigno_scorm_scorm_save($scorm) {
 }
 
 /**
- * Helper function to load SCORM package information.
+ * Load a SCORM package information.
  *
  * @param int $id
  *
@@ -48,7 +48,7 @@ function opigno_scorm_scorm_load($id) {
 }
 
 /**
- * Helper function to load SCORM package information by file ID.
+ * Load SCORM package information by file ID.
  *
  * @param int $fid
  *
@@ -63,7 +63,9 @@ function opigno_scorm_scorm_load_by_fid($fid) {
 }
 
 /**
- * Helper function to delete a SCORM package information.
+ * Delete a SCORM package information.
+ *
+ * @todo Delete all SCOs as well.
  *
  * @param object $scorm
  */
@@ -71,12 +73,10 @@ function opigno_scorm_scorm_delete($scorm) {
   db_delete('opigno_scorm_packages')
     ->condition('id', $scorm->id)
     ->execute();
-
-  // @todo Delete all SCOs as well.
 }
 
 /**
- * Helper function to save SCO information.
+ * Save a SCO information.
  *
  * @param object $sco
  *
@@ -101,7 +101,7 @@ function opigno_scorm_sco_save($sco) {
 }
 
 /**
- * Helper function to load SCO information.
+ * Load a SCO information.
  *
  * @param int $id
  *
@@ -116,7 +116,7 @@ function opigno_scorm_sco_load($id) {
 }
 
 /**
- * Helper function to load SCO information by SCORM id.
+ * Load a SCO information by SCORM id.
  *
  * @param int $scorm_id
  *
@@ -131,7 +131,9 @@ function opigno_scorm_sco_load_by_scorm_id($scorm_id) {
 }
 
 /**
- * Helper function to delete a SCO package information.
+ * Delete a SCO package information.
+ *
+ * @todo Delete all SCO attributes as well.
  *
  * @param object $sco
  */
@@ -139,6 +141,4 @@ function opigno_scorm_sco_delete($sco) {
   db_delete('opigno_scorm_package_scos')
     ->condition('id', $sco->id)
     ->execute();
-
-  // @todo Delete all SCOs as well.
 }

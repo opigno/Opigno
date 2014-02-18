@@ -3,6 +3,10 @@
 /**
  * @file
  * Manifest file extraction logic.
+ *
+ * Contains functions for parsing the manifest XML, treating the data recursively and
+ * preparing the data for storage. Only data that is relevant to a SCORM player is stored.
+ * For example, resource information is not stored.
  */
 
 // XML tag names
@@ -26,7 +30,11 @@ define('OPIGNO_SCORM_MANIFEST_HREF_ATTR',       'HREF');
 define('OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR',   'IDENTIFIER');
 
 /**
- * Helper function to extract the SCORM package.
+ * Extract the SCORM package from the file.
+ *
+ * Given a file ID (which should be a valid SCORM ZIP file), this function extracts
+ * the ZIP to OPIGNO_SCORM_DIRECTORY, finds the manifest file and parses it.
+ * Once parsed, it stores the manifest data.
  *
  * Returns the id of the extracted SCORM package, or FALSE if an error occurs.
  *
@@ -45,9 +53,11 @@ function opigno_scorm_extract($fid) {
     $zip->extractTo($extract_dir);
     $zip->close();
 
+    // This is a standard: the manifest file will always be here.
     $manifest_file = $extract_dir . '/imsmanifest.xml';
 
     if (file_exists($manifest_file)) {
+      // Prepare the Scorm DB entry.
       $scorm = (object) array(
         'fid' => $fid,
         'extracted_dir' => $extract_dir,
@@ -56,16 +66,22 @@ function opigno_scorm_extract($fid) {
         'metadata' => '',
       );
 
+      // Parse the manifest file and extract the data.
       $manifest_data = opigno_scorm_extract_manifest_data($manifest_file);
 
+      // Get the manifest ID, if it's given.
       if (!empty($manifest_data['manifest_id'])) {
         $scorm->manifest_id = $manifest_data['manifest_id'];
       }
+
+      // If the file contains (global) metadata, serialize it.
       if (!empty($manifest_data['metadata'])) {
         $scorm->metadata = serialize($manifest_data['metadata']);
       }
 
+      // Try saving the SCORM to the DB.
       if (opigno_scorm_scorm_save($scorm)) {
+        // Store each SCO.
         if (!empty($manifest_data['scos']['items'])) {
           foreach ($manifest_data['scos']['items'] as $i => $sco_item) {
             $sco = (object) array(
@@ -96,7 +112,7 @@ function opigno_scorm_extract($fid) {
     }
   }
   else {
-    $error = '';
+    $error = 'none';
     switch ($result) {
       case ZipArchive::ER_EXISTS:
         $error = 'ER_EXISTS';
@@ -130,7 +146,7 @@ function opigno_scorm_extract($fid) {
         $error = 'ER_SEEK';
         break;
     }
-    dpm($error, 'ZipArchive');
+    watchdog('opigno_scorm', "An error occured when unziping the SCORM package data. Error: !error", array('!error' => $error), WATCHDOG_ERROR);
   }
 
   return FALSE;
@@ -139,6 +155,9 @@ function opigno_scorm_extract($fid) {
 /**
  * Extract the manifest data.
  *
+ * Parse the manifest XML with XML2Array (located in includes/XML2Array.php)
+ * and extract data that is relevant to us.
+ *
  * @param string $manifest_file
  *
  * @return array
@@ -146,12 +165,17 @@ function opigno_scorm_extract($fid) {
 function opigno_scorm_extract_manifest_data($manifest_file) {
   $data = array();
 
+  // Get the XML as a string.
   $manifest_string = file_get_contents($manifest_file);
+
+  // Parse it as an array.
   $parser = new XML2Array();
   $manifest = $parser->parse($manifest_string);
-  $manifest = array_shift($manifest);
-  //dpm($manifest, 'XML');
 
+  // The parser returns an array of arrays - skip the first element.
+  $manifest = array_shift($manifest);
+
+  // Get the manifest ID, if any.
   if (!empty($manifest['attrs'][OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR])) {
     $data['manifest_id'] = $manifest['attrs'][OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR];
   }
@@ -159,17 +183,27 @@ function opigno_scorm_extract_manifest_data($manifest_file) {
     $data['manifest_id'] = '';
   }
 
+  // Extract the global metadata information.
   $data['metadata'] = opigno_scorm_extract_manifest_metadata($manifest);
+
+  // Extract the SCOs (course items). Gets the default SCO and a list of all SCOs.
   $data['scos'] = opigno_scorm_extract_manifest_scos($manifest);
+
+  // Extract the resources, so we can combine the SCOs and resources.
   $data['resources'] = opigno_scorm_extract_manifest_resources($manifest);
+
+  // Combine the resources and SCOs.
   $data['scos']['items'] = opigno_scorm_combine_manifest_sco_and_resources($data['scos']['items'], $data['resources']);
 
-  //dpm($data, 'extracted data');
   return $data;
 }
 
 /**
  * Extract the manifest metadata.
+ *
+ * Find the metadata of this manifest file and return it.
+ * We only treat global metadata - we don't parse metadata on SCOs or
+ * resources.
  *
  * @param array $manifest
  *
@@ -191,9 +225,13 @@ function opigno_scorm_extract_manifest_metadata($manifest) {
 /**
  * Extract the manifest SCO items.
  *
+ * @see _opigno_scorm_extract_manifest_scos_items().
+ *
  * @param array $manifest
  *
  * @return array
+ *        'items' => array of SCOs
+ *        'default' => default SCO identifier
  */
 function opigno_scorm_extract_manifest_scos($manifest) {
   $items = array('items' => array());
@@ -214,6 +252,10 @@ function opigno_scorm_extract_manifest_scos($manifest) {
 
 /**
  * Helper function to recursively extract the manifest SCO items.
+ *
+ * The data is extracted as a flat array - it contains to hierarchy. Because of this,
+ * the items are not extracted in logical order. However, each "level" is given a weight
+ * which allows us to know how to organize them.
  *
  * @param array $manifest
  * @param string|int $parent_identifier = 0
@@ -269,6 +311,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         $scorm_type = '';
       }
 
+      // Find the title, which is also a child node.
       foreach ($item['children'] as $child) {
         if ($child['name'] == OPIGNO_SCORM_MANIFEST_TITLE) {
           $title = $child['tagData'];
@@ -276,6 +319,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         }
       }
 
+      // Failsafe - we cannot have elements without a title.
       if (empty($title)) {
         $title = 'NO TITLE';
       }
@@ -294,10 +338,14 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         'weight' => $weight,
       );
 
+      // The first item is not an "item", but an "organization" node. This is the organization
+      // for the remainder of the tree. Get it, and pass it along, so we know to which organization
+      // the SCOs belong.
       if (empty($organization) && $item['name'] == OPIGNO_SCORM_MANIFEST_ORGANIZATION) {
         $organization = $identifier;
       }
 
+      // Recursively get child items, and merge them to get a flat list.
       $items = array_merge(_opigno_scorm_extract_manifest_scos_items($item['children'], $identifier, $organization), $items);
     }
     $weight++;
@@ -308,6 +356,10 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
 
 /**
  * Extract the manifest SCO resources.
+ *
+ * We only extract resource information that is relevant to us. We don't care about
+ * references files, dependencies, etc. Only about the href attribute, type and
+ * identifier.
  *
  * @param array $manifest
  *
@@ -361,7 +413,10 @@ function opigno_scorm_extract_manifest_resources($manifest) {
 }
 
 /**
- * Combine resources and SCO data. Update SCO data to include resource information (if necessary).
+ * Combine resources and SCO data.
+ *
+ * Update SCO data to include resource information (if necessary). Return the updated
+ * SCO list.
  *
  * @param array $scos
  * @param array $resources
@@ -370,17 +425,23 @@ function opigno_scorm_extract_manifest_resources($manifest) {
  */
 function opigno_scorm_combine_manifest_sco_and_resources($scos, $resources) {
   foreach ($scos as &$sco) {
+    // If the SCO has a resource identifier ("identifierref"),
+    // we need to combine them.
     if (!empty($sco['resource_identifier'])) {
+      // Check all resources, and break when the correct one is found.
       foreach ($resources as $resource) {
         if (!empty($resource['identifier']) && $resource['identifier'] == $sco['resource_identifier']) {
+          // If the SCO has no launch attribute, get the resource href.
           if (!empty($resource['href']) && empty($sco['launch'])) {
             $sco['launch'] = $resource['href'];
           }
 
+          // Set the SCO type, if available.
           if (!empty($resource['type']) && empty($sco['type'])) {
             $sco['type'] = $resource['type'];
           }
 
+          // Set the SCO scorm type, if available.
           if (!empty($resource['scorm_type']) && empty($sco['scorm_type'])) {
             $sco['scorm_type'] = $resource['scorm_type'];
           }
