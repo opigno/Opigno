@@ -28,7 +28,7 @@ define('OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR',   'IDENTIFIER');
 /**
  * Helper function to extract the SCORM package.
  *
- * Returns the id of the extracted SCORM package, or FALS if an error occurs.
+ * Returns the id of the extracted SCORM package, or FALSE if an error occurs.
  *
  * @param int $fid
  *        The file ID that we'll extract.
@@ -80,9 +80,15 @@ function opigno_scorm_extract($fid) {
               'weight' => empty($sco_item['weight']) ? $sco_item['weight'] : 0,
             );
 
-            opigno_scorm_sco_save($sco);
+            if (opigno_scorm_sco_save($sco)) {
+              // @todo Store SCO attributes.
+            }
+            else {
+              watchdog('opigno_scorm', "An error occured when saving an SCO.", array(), WATCHDOG_ERROR);
+            }
           }
         }
+        return TRUE;
       }
       else {
         watchdog('opigno_scorm', "An error occured when saving the SCORM package data.", array(), WATCHDOG_ERROR);
