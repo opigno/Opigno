@@ -5,7 +5,7 @@
  * Opigno SCORM API.
  */
 
-define('OPIGNO_SCORM_DIRECTORY', variable_get('opigno_scorm_directory', variable_get('file_default_scheme', 'public') . '://opigno_scorm_extracted'));
+define('OPIGNO_SCORM_DIRECTORY', variable_get('opigno_scorm_directory', 'public://opigno_scorm_extracted'));
 
 /**
  * Save a SCORM package information.
