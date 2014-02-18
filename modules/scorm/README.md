@@ -4,6 +4,8 @@ Opigno Scorm
 Opigno Scorm exposes an API for extracting and handling SCORM packages (ZIP files, also known as PIFs).
 It's important to realize the Opigno Scorm **does not offer any UI components as is**! The Opigno Scorm UI submodule exposes a custom field, a player, etc. Opigno Scorm, on the other hand, is mainly an API for extracting SCORM data (from the manifest XML file).
 
+Opigno SCORM is compatible with SCORM 2004 (also known as SCORM 1.3). Previous versions of SCORM could work, but might contain specificities that are incompatible.
+
 
 
 The way SCORM works
