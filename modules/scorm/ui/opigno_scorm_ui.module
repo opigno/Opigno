@@ -83,6 +83,7 @@ function opigno_scorm_ui_field_presave($entity_type, $entity, $field, $instance,
  * Implements hook_field_insert().
  */
 function opigno_scorm_ui_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  module_load_include('inc', 'opigno_scorm', 'includes/opigno_scorm.manifest');
   file_field_insert($entity_type, $entity, $field, $instance, $langcode, $items);
   foreach ($items as $item) {
     opigno_scorm_extract($item['fid']);
@@ -93,6 +94,7 @@ function opigno_scorm_ui_field_insert($entity_type, $entity, $field, $instance, 
  * Implements hook_field_update().
  */
 function opigno_scorm_ui_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  module_load_include('inc', 'opigno_scorm', 'includes/opigno_scorm.manifest');
   file_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
   foreach ($items as $item) {
     $scorm = opigno_scorm_scorm_load($item['fid']);
