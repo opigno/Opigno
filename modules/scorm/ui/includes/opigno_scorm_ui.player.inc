@@ -98,11 +98,29 @@ function opigno_scorm_ui_player_start_sco($tree) {
 function opigno_scorm_ui_player_integrate_sco($sco) {
   // @todo Use hooks for different SCO types.
 
+  // Does the SCO have a launch property ?
   if (!empty($sco->launch)) {
+    $query = array();
+
+    // Load the SCO data.
     $scorm = opigno_scorm_scorm_load($sco->scorm_id);
-    $sco_location = "{$scorm->extracted_dir}/{$sco->launch}";
+
+    // Remove the URL parameters from the launch URL.
+    list($launch, $parameters) = explode('?', $sco->launch);
+
+    // Get the SCO location on the filesystem
+    $sco_location = "{$scorm->extracted_dir}/$launch";
     $sco_path = file_create_url($sco_location);
-    drupal_goto($sco_path);
+
+    // Where there any parameters ? If so, prepare them for Drupal.
+    if (!empty($parameters)) {
+      foreach (explode('&', $parameters) as $param) {
+        list($key, $value) = explode('=', $param);
+        $query[$key] = !empty($value) ? $value : '';
+      }
+    }
+
+    drupal_goto($sco_path, array('query' => $query));
   }
   else {
     drupal_not_found();
