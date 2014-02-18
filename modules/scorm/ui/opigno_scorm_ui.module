@@ -126,7 +126,11 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 
   switch ($display['type']) {
     case 'opigno_scorm_player':
+      module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
       foreach ($items as $delta => $item) {
+        $scorm = opigno_scorm_scorm_load($item['fid']);
+        $tree = opigno_scorm_ui_player_scorm_tree($scorm);
+        
         $element[$delta] = array(
           '#type' => 'html_tag',
           '#tag' => 'p',
