@@ -1,6 +1,6 @@
 /**
  * @file
- * Defines the SCORM API object.
+ * Defines the SCORM 2004 API object.
  *
  * This is the Opigno SCORM UI implementation of the SCORM API
  * object, used for communicating with the Opigno LMS.
@@ -72,6 +72,6 @@
   }
 
   // Export.
-  window.API = window.API_1484_11 = new OpignoScormUI2004API();
+  window.API_1484_11 = new OpignoScormUI2004API();
 
 })(jQuery, Drupal, window);
