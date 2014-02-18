@@ -35,11 +35,26 @@ function opigno_scorm_scorm_save($scorm) {
 /**
  * Helper function to load SCORM package information.
  *
+ * @param int $id
+ *
+ * @return object|false
+ */
+function opigno_scorm_scorm_load($id) {
+  return db_select('opigno_scorm_packages', 'o')
+    ->fields('o', array())
+    ->condition('id', $id)
+    ->execute()
+    ->fetchObject();
+}
+
+/**
+ * Helper function to load SCORM package information by file ID.
+ *
  * @param int $fid
  *
  * @return object|false
  */
-function opigno_scorm_scorm_load($fid) {
+function opigno_scorm_scorm_load_by_fid($fid) {
   return db_select('opigno_scorm_packages', 'o')
     ->fields('o', array())
     ->condition('fid', $fid)

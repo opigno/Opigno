@@ -6,6 +6,41 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function opigno_scorm_ui_menu() {
+  return array(
+    'opigno-scorm/ui/player/sco/%opigno_scorm_sco' => array(
+      'page callback' => 'opigno_scorm_ui_player_integrate_sco',
+      'page arguments' => array(4),
+      'access callback' => TRUE, // @todo
+      'file' => 'includes/opigno_scorm_ui.player.inc',
+      'type' => MENU_CALLBACK,
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function opigno_scorm_ui_theme() {
+  return array(
+    'opigno_scorm_ui__player' => array(
+      'variables' => array('tree' => array(), 'start_sco' => NULL),
+      'template' => 'theme/opigno-scorm-ui--player',
+    ),
+    'opigno_scorm_ui__player_tree' => array(
+      'variables' => array('tree' => array()),
+      'template' => 'theme/opigno-scorm-ui--player-tree',
+    ),
+    'opigno_scorm_ui__player_tree_item' => array(
+      'variables' => array('sco' => NULL),
+      'template' => 'theme/opigno-scorm-ui--player-tree-item',
+    ),
+  );
+}
+
+/**
  * Implements hook_field_info().
  */
 function opigno_scorm_ui_field_info() {
@@ -97,7 +132,7 @@ function opigno_scorm_ui_field_update($entity_type, $entity, $field, $instance, 
   module_load_include('inc', 'opigno_scorm', 'includes/opigno_scorm.manifest');
   file_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
   foreach ($items as $item) {
-    $scorm = opigno_scorm_scorm_load($item['fid']);
+    $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
     if (empty($scorm->id)) {
       opigno_scorm_extract($item['fid']);
     }
@@ -126,15 +161,21 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 
   switch ($display['type']) {
     case 'opigno_scorm_player':
+      $path = drupal_get_path('module', 'opigno_scorm_ui');
+      drupal_add_css("$path/css/opigno_scorm_ui.player.css");
+      drupal_add_js("$path/js/opigno_scorm_ui.player.js");
+
       module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
+
       foreach ($items as $delta => $item) {
-        $scorm = opigno_scorm_scorm_load($item['fid']);
+        $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
         $tree = opigno_scorm_ui_player_scorm_tree($scorm);
-        
+        $start_sco = opigno_scorm_ui_player_start_sco($tree);
+
         $element[$delta] = array(
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#value' => 'FILE',
+          '#theme' => 'opigno_scorm_ui__player',
+          '#tree' => $tree,
+          '#start_sco' => $start_sco,
         );
       }
       break;

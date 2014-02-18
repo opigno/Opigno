@@ -36,13 +36,75 @@ function _opigno_scorm_ui_player_scorm_tree($scorm_id, $parent_identifier = 0) {
   while ($sco = $result->fetchObject()) {
     $children = _opigno_scorm_ui_player_scorm_tree($scorm_id, $sco->identifier);
 
-    $tree[] = array(
-      'title' => $sco->title,
-      'identifier' => $sco->identifier,
-      'id' => $sco->id,
-      'children' => $children,
-    );
+    $sco->children = $children;
+
+    $tree[] = $sco;
   }
 
   return $tree;
+}
+
+/**
+ * Helper function to flatten the SCORM tree.
+ *
+ * @param array $tree
+ *
+ * @return array
+ */
+function opigno_scorm_ui_player_scorm_flatten_tree($tree) {
+  $items = array();
+
+  if (!empty($tree)) {
+    foreach ($tree as $sco) {
+      $items[] = $sco;
+      if (!empty($sco->children)) {
+        $items = array_merge($items, opigno_scorm_ui_player_scorm_flatten_tree($sco->children));
+      }
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Determine the start SCO for the SCORM package.
+ *
+ * @todo Get last viewed SCO.
+ *
+ * @param array $tree
+ *
+ * @return object
+ */
+function opigno_scorm_ui_player_start_sco($tree) {
+  $flat_tree = opigno_scorm_ui_player_scorm_flatten_tree($tree);
+
+  foreach ($flat_tree as $sco) {
+    if (!empty($sco->launch)) {
+      return $sco;
+    }
+  }
+
+  // Failsafe.
+  return array_shift($flat_tree);
+}
+
+/**
+ * Integrate a SCO object and return it (wrapped if necessary).
+ *
+ * This page callback bypasses the Drupal page rendering and includes the SCO directly.
+ *
+ * @param object $sco
+ */
+function opigno_scorm_ui_player_integrate_sco($sco) {
+  // @todo Use hooks for different SCO types.
+
+  if ($sco->scorm_type == 'asset' && !empty($sco->launch)) {
+    $scorm = opigno_scorm_scorm_load($sco->scorm_id);
+    $sco_location = "{$scorm->extracted_dir}/{$sco->launch}";
+    $sco_path = file_create_url($sco_location);
+    drupal_goto($sco_path);
+  }
+  else {
+    drupal_not_found();
+  }
 }
