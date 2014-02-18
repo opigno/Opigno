@@ -84,7 +84,7 @@ function opigno_scorm_ui_player_start_sco($tree) {
     }
   }
 
-  // Failsafe.
+  // Failsafe. Just get the first element.
   return array_shift($flat_tree);
 }
 
