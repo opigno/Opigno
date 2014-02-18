@@ -150,7 +150,7 @@ function opigno_scorm_extract_manifest_data($manifest_file) {
   $parser = new XML2Array();
   $manifest = $parser->parse($manifest_string);
   $manifest = array_shift($manifest);
-  dpm($manifest, 'XML');
+  //dpm($manifest, 'XML');
 
   if (!empty($manifest['attrs'][OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR])) {
     $data['manifest_id'] = $manifest['attrs'][OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR];
@@ -164,23 +164,7 @@ function opigno_scorm_extract_manifest_data($manifest_file) {
   $data['resources'] = opigno_scorm_extract_manifest_resources($manifest);
   $data['scos']['items'] = opigno_scorm_combine_manifest_sco_and_resources($data['scos']['items'], $data['resources']);
 
-
-
-  dpm($data, 'extracted data');
-  return $data;
-
-
-
-  if (!empty($manifest->metadata)) {
-
-  }
-
-  if (!empty($manifest->organizations)) {
-    $data['ressources'] = opigno_scorm_extract_manifest_resources($manifest);
-
-    //$data['scos'] = opigno_scorm_combine_manifest_sco_and_ressources($data['scos'], $data['ressources']);
-  }
-  dpm($data, 'extracted data');
+  //dpm($data, 'extracted data');
   return $data;
 }
 
