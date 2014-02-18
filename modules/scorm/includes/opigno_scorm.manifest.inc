@@ -271,7 +271,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
 
       foreach ($item['children'] as $child) {
         if ($child['name'] == OPIGNO_SCORM_MANIFEST_TITLE) {
-          $title = $child['name']['tagData'];
+          $title = $child['tagData'];
           break;
         }
       }
@@ -384,7 +384,6 @@ function opigno_scorm_combine_manifest_sco_and_resources($scos, $resources) {
           if (!empty($resource['scorm_type']) && empty($sco['scorm_type'])) {
             $sco['scorm_type'] = $resource['scorm_type'];
           }
-          dpm($sco, $sco['resource_identifier']);
           break;
         }
       }
