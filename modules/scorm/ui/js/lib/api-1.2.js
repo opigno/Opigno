@@ -55,6 +55,7 @@
    */
   OpignoScormUI12API.prototype.LMSGetLastError = function() {
     console.log('LMSGetLastError');
+    return '0';
   }
 
   /**

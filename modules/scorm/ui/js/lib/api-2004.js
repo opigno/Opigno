@@ -55,6 +55,7 @@
    */
   OpignoScormUI2004API.prototype.GetLastError = function() {
     console.log('GetLastError');
+    return '0';
   }
 
   /**
