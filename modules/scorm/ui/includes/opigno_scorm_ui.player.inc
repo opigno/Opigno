@@ -98,7 +98,7 @@ function opigno_scorm_ui_player_start_sco($tree) {
 function opigno_scorm_ui_player_integrate_sco($sco) {
   // @todo Use hooks for different SCO types.
 
-  if ($sco->scorm_type == 'asset' && !empty($sco->launch)) {
+  if (!empty($sco->launch)) {
     $scorm = opigno_scorm_scorm_load($sco->scorm_id);
     $sco_location = "{$scorm->extracted_dir}/{$sco->launch}";
     $sco_path = file_create_url($sco_location);
