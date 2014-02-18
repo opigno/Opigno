@@ -23,11 +23,14 @@ function opigno_scorm_schema() {
           'not null' => TRUE,
         ),
         'extracted_dir' => array(
-          'descrpition' => 'The location where the SCORM was extracted.',
+          'descripition' => 'The location where the SCORM was extracted.',
           'type' => 'text',
         ),
         'manifest_file' => array(
           'description' => 'The location of the manifest file.',
+          'type' => 'text',
+        ),
+        'manifest_id' => array(
           'type' => 'text',
         ),
         'metadata' => array(
@@ -54,40 +57,36 @@ function opigno_scorm_schema() {
           'unsigned' => TRUE,
           'not null' => TRUE,
         ),
-        'manifest' => array(
-          'descrpition' => 'The SCO manifest.',
-          'type' => 'text',
-        ),
         'organization' => array(
-          'descrpition' => 'The SCO organization.',
+          'descripition' => 'The SCO organization.',
           'type' => 'text',
         ),
         'identifier' => array(
-          'descrpition' => 'The SCO item identifier.',
+          'descripition' => 'The SCO item identifier.',
           'type' => 'text',
         ),
         'parent_identifier' => array(
-          'descrpition' => 'The SCO item parent identifier. Equals 0 if at the root of the tree.',
+          'descripition' => 'The SCO item parent identifier. Equals 0 if at the root of the tree.',
           'type' => 'text',
         ),
         'launch' => array(
-          'descrpition' => 'The SCO item launch URL, if any.',
+          'descripition' => 'The SCO item launch URL, if any.',
           'type' => 'text',
         ),
         'type' => array(
-          'descrpition' => 'The SCO item internal type.',
+          'descripition' => 'The SCO item internal type.',
           'type' => 'text',
         ),
         'scorm_type' => array(
-          'descrpition' => 'The SCO item SCORM compliant type.',
+          'descripition' => 'The SCO item SCORM compliant type.',
           'type' => 'text',
         ),
         'title' => array(
-          'descrpition' => 'The SCO item title.',
+          'descripition' => 'The SCO item title.',
           'type' => 'text',
         ),
         'weight' => array(
-          'descrpition' => 'The SCO item weight. The heavier the weight, the later it will show up in a navigation tree.',
+          'descripition' => 'The SCO item weight. The heavier the weight, the later it will show up in a navigation tree.',
           'type' => 'int',
           'default' => 0,
         ),
