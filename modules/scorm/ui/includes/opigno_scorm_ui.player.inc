@@ -106,7 +106,13 @@ function opigno_scorm_ui_player_integrate_sco($sco) {
     $scorm = opigno_scorm_scorm_load($sco->scorm_id);
 
     // Remove the URL parameters from the launch URL.
-    list($launch, $parameters) = explode('?', $sco->launch);
+    $parts = explode('?', $sco->launch);
+    $launch = array_shift($parts);
+
+    if (!empty($parts)) {
+      // Failsafe - in case a launch URL has 2 or more '?'.
+      $parameters = implode('&', $parts);
+    }
 
     // Get the SCO location on the filesystem
     $sco_location = "{$scorm->extracted_dir}/$launch";
