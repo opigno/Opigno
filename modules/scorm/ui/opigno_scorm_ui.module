@@ -161,25 +161,40 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 
   switch ($display['type']) {
     case 'opigno_scorm_player':
-      $path = drupal_get_path('module', 'opigno_scorm_ui');
-      drupal_add_css("$path/css/opigno_scorm_ui.player.css");
-      drupal_add_js("$path/js/opigno_scorm_ui.player.js");
-
-      module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
-
       foreach ($items as $delta => $item) {
         $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
-        $tree = opigno_scorm_ui_player_scorm_tree($scorm);
-        $start_sco = opigno_scorm_ui_player_start_sco($tree);
-
         $element[$delta] = array(
-          '#theme' => 'opigno_scorm_ui__player',
-          '#tree' => $tree,
-          '#start_sco' => $start_sco,
+          '#markup' => opigno_scorm_ui_render_player($scorm),
         );
       }
       break;
   }
 
   return $element;
+}
+
+/**
+ * Render a SCORM player for the given SCORM object.
+ *
+ * @param object $scorm
+ *
+ * @return string
+ */
+function opigno_scorm_ui_render_player($scorm) {
+  module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
+
+  // Add assets.
+  $path = drupal_get_path('module', 'opigno_scorm_ui');
+  drupal_add_css("$path/css/opigno_scorm_ui.player.css");
+  drupal_add_js("$path/js/lib/player.js");
+  drupal_add_js("$path/js/lib/api.js");
+  drupal_add_js("$path/js/opigno_scorm_ui.player.js");
+
+  // Get the SCO tree.
+  $tree = opigno_scorm_ui_player_scorm_tree($scorm);
+
+  // Get the start SCO.
+  $start_sco = opigno_scorm_ui_player_start_sco($tree);
+
+  return theme('opigno_scorm_ui__player', array('tree' => $tree, 'start_sco' => $start_sco));
 }
