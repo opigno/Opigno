@@ -51,7 +51,7 @@ function opigno_scorm_schema() {
         'id' => array(
           'type' => 'serial',
         ),
-        'package_id' => array(
+        'scorm_id' => array(
           'description' => 'The SCORM package ID.',
           'type' => 'int',
           'unsigned' => TRUE,

@@ -222,7 +222,7 @@ function opigno_scorm_extract_manifest_scos($manifest) {
         $items['default'] = '';
       }
 
-      $items['items'] = _opigno_scorm_extract_manifest_scos_items($child['children']);
+      $items['items'] = array_merge(_opigno_scorm_extract_manifest_scos_items($child['children']), $items['items']);
     }
   }
   return $items;
@@ -239,6 +239,7 @@ function opigno_scorm_extract_manifest_scos($manifest) {
  */
 function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier = 0, $organization = '') {
   $items = array();
+  $weight = 0;
 
   foreach ($manifest as $item) {
     if (in_array($item['name'], array(OPIGNO_SCORM_MANIFEST_ORGANIZATION, OPIGNO_SCORM_MANIFEST_ITEM)) && !empty($item['children'])) {
@@ -305,7 +306,8 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         'resource_identifier' => $resource_identifier,
         'parameters' => $parameters,
         'type' => $type,
-        'scorm_type' => $scorm_type
+        'scorm_type' => $scorm_type,
+        'weight' => $weight,
       );
 
       if (empty($organization) && $item['name'] == OPIGNO_SCORM_MANIFEST_ORGANIZATION) {
@@ -314,6 +316,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
 
       $items = array_merge(_opigno_scorm_extract_manifest_scos_items($item['children'], $identifier, $organization), $items);
     }
+    $weight++;
   }
 
   return $items;
