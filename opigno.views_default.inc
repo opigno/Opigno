@@ -35,6 +35,7 @@ function opigno_views_default_views() {
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['disable_sql_rewrite'] = TRUE;
+  $handler->display->display_options['query']['options']['distinct'] = TRUE;
   $handler->display->display_options['query']['options']['pure_distinct'] = TRUE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
@@ -180,6 +181,7 @@ function opigno_views_default_views() {
     t('Course category'),
     t('Entity Reference'),
   );
+
 
 
   $export['opigno_my_courses'] = $view;
