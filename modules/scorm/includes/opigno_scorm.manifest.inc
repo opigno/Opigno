@@ -17,17 +17,22 @@ define('OPIGNO_SCORM_MANIFEST_RESOURCES',     'RESOURCES');
 define('OPIGNO_SCORM_MANIFEST_RESOURCE',      'RESOURCE');
 define('OPIGNO_SCORM_MANIFEST_TITLE',         'TITLE');
 define('OPIGNO_SCORM_MANIFEST_ITEM',          'ITEM');
+define('OPIGNO_SCORM_MANIFEST_SEQUENCING',    'IMSSS:SEQUENCING');
+define('OPIGNO_SCORM_MANIFEST_CTRL_MODE',     'IMSSS:CONTROLMODE');
 
 // XML attributes
-define('OPIGNO_SCORM_MANIFEST_DEFAULT_ATTR',    'DEFAULT');
-define('OPIGNO_SCORM_MANIFEST_ID_ATTR',         'IDENTIFIER');
-define('OPIGNO_SCORM_MANIFEST_REFID_ATTR',      'IDENTIFIERREF');
-define('OPIGNO_SCORM_MANIFEST_LAUNCH_ATTR',     'LAUNCH');
-define('OPIGNO_SCORM_MANIFEST_PARAM_ATTR',      'PARAMETERS');
-define('OPIGNO_SCORM_MANIFEST_TYPE_ATTR',       'TYPE');
-define('OPIGNO_SCORM_MANIFEST_SCORM_TYPE_ATTR', 'ADLCP:SCORMTYPE');
-define('OPIGNO_SCORM_MANIFEST_HREF_ATTR',       'HREF');
-define('OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR',   'IDENTIFIER');
+define('OPIGNO_SCORM_MANIFEST_DEFAULT_ATTR',     'DEFAULT');
+define('OPIGNO_SCORM_MANIFEST_ID_ATTR',          'IDENTIFIER');
+define('OPIGNO_SCORM_MANIFEST_REFID_ATTR',       'IDENTIFIERREF');
+define('OPIGNO_SCORM_MANIFEST_LAUNCH_ATTR',      'LAUNCH');
+define('OPIGNO_SCORM_MANIFEST_PARAM_ATTR',       'PARAMETERS');
+define('OPIGNO_SCORM_MANIFEST_TYPE_ATTR',        'TYPE');
+define('OPIGNO_SCORM_MANIFEST_SCORM_TYPE_ATTR',  'ADLCP:SCORMTYPE');
+define('OPIGNO_SCORM_MANIFEST_HREF_ATTR',        'HREF');
+define('OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR',    'IDENTIFIER');
+define('OPIGNO_SCORM_MANIFEST_CHOICE_ATTR',      'CHOICE');
+define('OPIGNO_SCORM_MANIFEST_FLOW_ATTR',        'FLOW');
+define('OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR', 'CHOICEEXIT');
 
 /**
  * Extract the SCORM package from the file.
@@ -94,6 +99,7 @@ function opigno_scorm_extract($fid) {
               'scorm_type' => $sco_item['scorm_type'],
               'title' => $sco_item['title'],
               'weight' => empty($sco_item['weight']) ? $sco_item['weight'] : 0,
+              'attributes' => $sco_item['attributes'],
             );
 
             if (opigno_scorm_sco_save($sco)) {
@@ -194,7 +200,7 @@ function opigno_scorm_extract_manifest_data($manifest_file) {
 
   // Combine the resources and SCOs.
   $data['scos']['items'] = opigno_scorm_combine_manifest_sco_and_resources($data['scos']['items'], $data['resources']);
-
+  dpm($data, 'extracted data');
   return $data;
 }
 
@@ -319,6 +325,14 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         }
       }
 
+      // Find any sequencing control modes, which are also child nodes.
+      $control_modes = array();
+      foreach ($item['children'] as $child) {
+        if ($child['name'] == OPIGNO_SCORM_MANIFEST_SEQUENCING) {
+          $control_modes = opigno_scorm_extract_item_sequencing_control_modes($child);
+        }
+      }
+
       // Failsafe - we cannot have elements without a title.
       if (empty($title)) {
         $title = 'NO TITLE';
@@ -336,6 +350,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         'type' => $type,
         'scorm_type' => $scorm_type,
         'weight' => $weight,
+        'attributes' => $control_modes
       );
 
       // The first item is not an "item", but an "organization" node. This is the organization
@@ -352,6 +367,50 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
   }
 
   return $items;
+}
+
+/**
+ * Extract the manifest SCO item sequencing control modes.
+ *
+ * This extracts sequencing control modes from an item. It does not extract the global
+ * manifest sequencing rules. Control modes describe how the user can navigate
+ * around the course (e.g.: display the tree or not, skip SCOs, etc).
+ *
+ * @param array $item_manifest
+ *
+ * @return array
+ */
+function opigno_scorm_extract_item_sequencing_control_modes($item_manifest) {
+  $defaults = array(
+    'control_mode_choice' => TRUE,
+    'control_mode_flow' => FALSE,
+    'control_mode_choice_exit' => TRUE,
+    'control_mode_forward_only' => FALSE,
+  );
+
+  $control_modes = array();
+
+  foreach ($item_manifest['children'] as $child) {
+    if ($child['name'] == OPIGNO_SCORM_MANIFEST_CTRL_MODE) {
+      // Note: boolean attributes are stored as a strings. PHP does not know
+      // how to cast 'false' to FALSE. Use string comparisons to bypass
+      // this limitation by PHP. See below.
+
+      if (!empty($child['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_ATTR])) {
+        $control_modes['control_mode_choice'] = strtolower($resource['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_ATTR]) === 'true';
+      }
+
+      if (!empty($child['attrs'][OPIGNO_SCORM_MANIFEST_FLOW_ATTR])) {
+        $control_modes['control_mode_flow'] = strtolower($resource['attrs'][OPIGNO_SCORM_MANIFEST_FLOW_ATTR]) === 'true';
+      }
+
+      if (!empty($child['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR])) {
+        $control_modes['control_mode_choice_exit'] = strtolower($resource['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR]) === 'true';
+      }
+    }
+  }
+
+  return $control_modes + $defaults;
 }
 
 /**
