@@ -35,7 +35,7 @@ function opigno_views_default_views() {
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['disable_sql_rewrite'] = TRUE;
-  $handler->display->display_options['query']['options']['distinct'] = TRUE;
+  $handler->display->display_options['query']['options']['pure_distinct'] = TRUE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '30';
@@ -133,6 +133,11 @@ function opigno_views_default_views() {
   );
   $handler->display->display_options['filters']['opigno_course_categories_tid']['type'] = 'select';
   $handler->display->display_options['filters']['opigno_course_categories_tid']['vocabulary'] = 'course_categories';
+  /* Filter criterion: OG membership: Entity_type */
+  $handler->display->display_options['filters']['entity_type']['id'] = 'entity_type';
+  $handler->display->display_options['filters']['entity_type']['table'] = 'og_membership';
+  $handler->display->display_options['filters']['entity_type']['field'] = 'entity_type';
+  $handler->display->display_options['filters']['entity_type']['value'] = 'user';
 
   /* Display: My courses */
   $handler = $view->new_display('page', 'My courses', 'page_my_courses');
@@ -175,6 +180,7 @@ function opigno_views_default_views() {
     t('Course category'),
     t('Entity Reference'),
   );
+
 
   $export['opigno_my_courses'] = $view;
 
