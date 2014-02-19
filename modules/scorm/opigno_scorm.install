@@ -115,6 +115,10 @@ function opigno_scorm_schema() {
         'value' => array(
           'type' => 'text',
         ),
+        'serialized' => array(
+          'type' => 'int',
+          'default' => 0,
+        ),
       ),
       'primary key' => array('id'),
       'indexes' => array('sco_id' => array('sco_id')),
