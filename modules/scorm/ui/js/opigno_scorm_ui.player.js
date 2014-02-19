@@ -23,21 +23,7 @@
               // Create a new OpignoScormUIPlayer().
               player = new OpignoScormUIPlayer(element);
 
-          // Register click events for each <li> in the navigation tree.
-          $element.find('li').click(function(e) {
-            e.stopPropagation();
-
-            var $this = $(this);
-
-            if ($this.data('sco-can-launch')) {
-              player.launch($this.data('sco-id'));
-            }
-            else {
-              // Trigger click on child item, if any.
-              // This will happen recursively until one item can be launched.
-              $this.find('li:eq(0)').click();
-            }
-          });
+          player.init();
 
           // Add a class to the player, so the CSS can style it differently if needed.
           $element.addClass('js-processed');

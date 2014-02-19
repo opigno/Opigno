@@ -28,12 +28,14 @@ function _opigno_scorm_ui_player_scorm_tree($scorm_id, $parent_identifier = 0) {
   $tree = array();
 
   $result = db_select('opigno_scorm_package_scos', 'sco')
-    ->fields('sco', array())
+    ->fields('sco', array('id'))
     ->condition('sco.scorm_id', $scorm_id)
     ->condition('sco.parent_identifier', $parent_identifier)
     ->execute();
 
-  while ($sco = $result->fetchObject()) {
+  while ($sco_id = $result->fetchField()) {
+    $sco = opigno_scorm_sco_load($sco_id);
+    
     $children = _opigno_scorm_ui_player_scorm_tree($scorm_id, $sco->identifier);
 
     $sco->children = $children;
@@ -131,4 +133,36 @@ function opigno_scorm_ui_player_integrate_sco($sco) {
   else {
     drupal_not_found();
   }
+}
+
+/**
+ * Parse the SCO attributes and return them in an HTML ready format.
+ *
+ * @param object $sco
+ *
+ * @return string
+ */
+function opigno_scorm_ui_player_sco_attributes($sco) {
+  $attributes = array();
+
+  // Some default "attributes".
+  $attributes["data-sco-id"] = $sco->id;
+  $attributes["data-sco-can-launch"] = (int) !empty($sco->launch);
+
+  if (!empty($sco->attributes)) {
+    foreach ($sco->attributes as $key => $value) {
+      if (is_bool($value)) {
+        $value = (int) $value;
+      }
+      elseif (is_array($value) || is_object($value)) {
+        $value = drupal_json_encode($value);
+      }
+      
+      $key = str_replace('_', '-', $key);
+
+      $attributes["data-sco-$key"] = $value;
+    }
+  }
+
+  return drupal_attributes($attributes);
 }
