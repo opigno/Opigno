@@ -92,9 +92,9 @@ function opigno_scorm_schema() {
         ),
       ),
       'primary key' => array('id'),
-      'indexes' => array('package_id' => array('package_id')),
+      'indexes' => array('scorm_id' => array('scorm_id')),
       'foreign keys' => array(
-        'opigno_scorm_packages' => array('package_id' => 'id'),
+        'opigno_scorm_packages' => array('scorm_id' => 'id'),
       ),
     ),
     'opigno_scorm_package_sco_attributes' => array(
