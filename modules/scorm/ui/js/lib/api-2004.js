@@ -17,66 +17,90 @@
 
   /**
    * Implements Initialize().
+   *
+   * @returns {String} 'true' or 'false'
+   *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Initialize = function() {
-    console.log('Initialize:', arguments);
-  }
-
-  /**
-   * Implements Finish().
-   */
-  OpignoScormUI2004API.prototype.Finish = function() {
-    console.log('Finish', arguments);
-  }
-
-  /**
-   * Implements GetValue().
-   */
-  OpignoScormUI2004API.prototype.GetValue = function() {
-    console.log('GetValue', arguments);
-  }
-
-  /**
-   * Implements SetValue().
-   */
-  OpignoScormUI2004API.prototype.SetValue = function() {
-    console.log('SetValue', arguments);
-  }
-
-  /**
-   * Implements Commit().
-   */
-  OpignoScormUI2004API.prototype.Commit = function() {
-    console.log('Commit', arguments);
+    console.log('Initialize');
+    return 'true';
   }
 
   /**
    * Implements Terminate().
+   *
+   * @returns {String} 'true' or 'false'
+   *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Terminate = function() {
-    console.log('Terminate', arguments);
+    console.log('Terminate');
+    return 'true';
+  }
+
+  /**
+   * Implements GetValue().
+   *
+   * @param {Object} cmiElement
+   *
+   * @returns {String}
+   */
+  OpignoScormUI2004API.prototype.GetValue = function(cmiElement) {
+    console.log('GetValue', cmiElement);
+  }
+
+  /**
+   * Implements SetValue().
+   *
+   * @param {Object} cmiElement
+   * @param {String} value
+   *
+   * @return {String}
+   */
+  OpignoScormUI2004API.prototype.SetValue = function(cmiElement, value) {
+    console.log('SetValue', cmiElement, value);
+  }
+
+  /**
+   * Implements Commit().
+   *
+   * @returns {String} 'true' or 'false'
+   *        The SCO expects boolean values to be returned as strings.
+   */
+  OpignoScormUI2004API.prototype.Commit = function() {
+    console.log('Commit');
+    return 'true';
   }
 
   /**
    * Implements GetLastError().
+   *
+   * @returns {String}
    */
   OpignoScormUI2004API.prototype.GetLastError = function() {
-    console.log('GetLastError', arguments);
+    console.log('GetLastError');
     return '0';
   }
 
   /**
    * Implements GetErrorString().
+   *
+   * @param {String} cmiErrorCode
+   *
+   * @return {String}
    */
-  OpignoScormUI2004API.prototype.GetErrorString = function() {
-    console.log('GetErrorString', arguments);
+  OpignoScormUI2004API.prototype.GetErrorString = function(cmiErrorCode) {
+    console.log('GetErrorString', cmiErrorCode);
   }
 
   /**
    * Implements GetDiagnostic().
+   *
+   * @param {String} cmiErrorCode
+   *
+   * @return {String}
    */
-  OpignoScormUI2004API.prototype.GetDiagnostic = function() {
-    console.log('GetDiagnostic', arguments);
+  OpignoScormUI2004API.prototype.GetDiagnostic = function(cmiErrorCode) {
+    console.log('GetDiagnostic', cmiErrorCode);
   }
 
   // Export.
