@@ -87,7 +87,7 @@ function opigno_scorm_sco_save($sco) {
   // a representation of a table relationship.
   // Cache them here and unset the property for the
   // DB query.
-  if (!empty($sco->attributes)) {
+  if (isset($sco->attributes)) {
     $attributes = $sco->attributes;
     unset($sco->attributes);
   }
