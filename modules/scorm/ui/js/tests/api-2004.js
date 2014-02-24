@@ -54,7 +54,9 @@
       module('API, initial state.');
       equal(api.GetLastError(), '0', 'REQ_3.1: The original error code is "0".');
 
+
       module('API::Initialize()');
+      api = new OpignoScormUI2004API();
       equal(api.Initialize(), 'false',             'REQ_3.2: Initializing the API without a parameter fails.');
       equal(api.GetLastError(), '201',             'REQ_3.2: Initializing the API without a parameter gives a 201 error.');
       equal(api.Initialize('any string'), 'false', 'REQ_3.2: Initializing the API with any string fails.');
