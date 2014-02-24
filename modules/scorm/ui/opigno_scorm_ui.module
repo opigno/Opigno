@@ -161,11 +161,20 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 
   switch ($display['type']) {
     case 'opigno_scorm_player':
+      $first = TRUE;
       foreach ($items as $delta => $item) {
-        $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
-        $element[$delta] = array(
-          '#markup' => opigno_scorm_ui_render_player($scorm),
-        );
+        if ($first) {
+          $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
+          $element[$delta] = array(
+            '#markup' => opigno_scorm_ui_render_player($scorm),
+          );
+          $first = FALSE;
+        }
+        else {
+          $element[$delta] = array(
+            '#markup' => t("As per <a href='!link' target='_blank'>SCORM.2004.3ED.ConfReq.v1.0</a>, only <em>only one SCO can be launched at a time.</em> To enforce this, only one SCORM package is loaded inside the player on this page at a time.", array('!link' => 'http://www.adlnet.gov/wp-content/uploads/2011/07/SCORM.2004.3ED.ConfReq.v1.0.pdf')),
+          );
+        }
       }
       break;
   }
