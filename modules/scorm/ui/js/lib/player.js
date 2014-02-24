@@ -97,13 +97,15 @@
         // If this is an aggregation, and the control mode "choice" is false,
         // disable child lis.
         if (!$li.data('sco-control-mode-choice')) {
-          $li.find('> ul').hide().find('li').addClass('disable-click');
+          // @todo
+          // $li.find('> ul').hide().find('li').addClass('disable-click');
         }
 
         // If this is an aggregation, and the control mode "flow" is false,
         // disable the flow navigation (forward-backward navigation).
         if (!$li.data('sco-control-mode-flow')) {
-          $li.find('> ul').hide().find('li').addClass('disable-click');
+          // @todo
+          // $li.find('> ul').hide().find('li').addClass('disable-click');
         }
       }
     });
