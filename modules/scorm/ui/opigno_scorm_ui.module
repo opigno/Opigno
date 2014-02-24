@@ -21,6 +21,19 @@ function opigno_scorm_ui_menu() {
 }
 
 /**
+ * Implements hook_library_alter().
+ */
+function opigno_scorm_ui_library_alter(&$libraries, $module) {
+  // Add available JavaScript tests and dependencies.
+  if ($module == 'qunit') {
+    $path = drupal_get_path('module', 'opigno_scorm_ui');
+    $libraries['qunit']['js'][$path . '/js/lib/api-2004.js'] = array();
+    $libraries['qunit']['js'][$path . '/js/tests/api-2004.js'] = array();
+    dpm($libraries);
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function opigno_scorm_ui_theme() {
