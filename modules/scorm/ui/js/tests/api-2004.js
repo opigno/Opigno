@@ -69,6 +69,22 @@
       api.Terminate('');
       equal(api.Initialize(''), 'false',           'REQ_4.4: Initializing the API after termination fails.');
       equal(api.GetLastError(), '104',             'REQ_4.4: Initializing the API after termination gives a 104 error.');
+
+
+      module('API::Terminate()');
+      api = new OpignoScormUI2004API();
+      equal(api.Terminate(''), 'false',            'REQ_5.4: Terminating the API before initializing fails.');
+      equal(api.GetLastError(), '112',             'REQ_5.4: Terminating the API before initializing gives a 112 error.');
+      // Initialize the communication.
+      api.Initialize('');
+      equal(api.Terminate(), 'false',              'REQ_3.2: Terminating the API without a parameter fails.');
+      equal(api.GetLastError(), '201',             'REQ_3.2: Terminating the API without a parameter gives a 201 error.');
+      equal(api.Terminate('any string'), 'false',  'REQ_3.2: Terminating the API with any string fails.');
+      equal(api.GetLastError(), '201',             'REQ_3.2: Terminating the API with any string gives a 201 error.');
+      equal(api.Terminate(''), 'true',             'REQ_5.1.1, REQ_5.2: Terminating the API with an empty string succeeds.');
+      equal(api.GetLastError(), '0',               'REQ_5.2: Terminating the API with an empty string gives no error.');
+      equal(api.Terminate(''), 'false',            'REQ_5.5: Terminating the API twice.');
+      equal(api.GetLastError(), '113',             'REQ_5.5: Terminating the API twice gives a 113 error.');
     }
   };
 

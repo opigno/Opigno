@@ -51,14 +51,14 @@
         this.isInitialized = true;
       }
     }
+    // If terminated, set the error to 104 and return 'false'.
+    else if (this.isTerminated) {
+      this.error = '104';
+      return 'false';
+    }
     // If already initialized, set the error to 103 and return 'false'.
     else if (this.isInitialized) {
       this.error = '103';
-      return 'false';
-    }
-    // If terminated, set the error to 104 and return 'false'.
-    if (this.isTerminated) {
-      this.error = '104';
       return 'false';
     }
 
@@ -110,8 +110,12 @@
         this.error = '111';
         return 'false';
       }
+      else {
+        this.isTerminated = true;
+      }
     }
 
+    this.error =  '0';
     return 'true';
   }
 
