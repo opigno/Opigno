@@ -108,6 +108,9 @@ function opigno_scorm_ui_player_integrate_sco($sco) {
     $scorm = opigno_scorm_scorm_load($sco->scorm_id);
 
     // Remove the URL parameters from the launch URL.
+    if (!empty($sco->attributes['parameters'])) {
+      $sco->launch .= $sco->attributes['parameters'];
+    }
     $parts = explode('?', $sco->launch);
     $launch = array_shift($parts);
 

@@ -275,6 +275,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
 
   foreach ($manifest as $item) {
     if (in_array($item['name'], array(OPIGNO_SCORM_MANIFEST_ORGANIZATION, OPIGNO_SCORM_MANIFEST_ITEM)) && !empty($item['children'])) {
+      $attributes = array();
       if (!empty($item['attrs'][OPIGNO_SCORM_MANIFEST_ID_ATTR])) {
         $identifier = $item['attrs'][OPIGNO_SCORM_MANIFEST_ID_ATTR];
       }
@@ -297,10 +298,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
       }
 
       if (!empty($item['attrs'][OPIGNO_SCORM_MANIFEST_PARAM_ATTR])) {
-        $parameters = $item['attrs'][OPIGNO_SCORM_MANIFEST_PARAM_ATTR];
-      }
-      else {
-        $parameters = '';
+        $attributes['parameters'] = $item['attrs'][OPIGNO_SCORM_MANIFEST_PARAM_ATTR];
       }
 
       if (!empty($item['attrs'][OPIGNO_SCORM_MANIFEST_TYPE_ATTR])) {
@@ -346,11 +344,10 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
         'parent_identifier' => $parent_identifier,
         'launch' => $launch,
         'resource_identifier' => $resource_identifier,
-        'parameters' => $parameters,
         'type' => $type,
         'scorm_type' => $scorm_type,
         'weight' => $weight,
-        'attributes' => $control_modes
+        'attributes' => $control_modes + $attributes,
       );
 
       // The first item is not an "item", but an "organization" node. This is the organization
