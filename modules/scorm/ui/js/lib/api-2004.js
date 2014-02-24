@@ -18,7 +18,35 @@
     this.error = '0';
     this.isInitialized = false;
     this.isTerminated = false;
+    this.data = {
+      cmi: {}
+    };
   };
+
+  /**
+   * @const Requested CMI value is currently not available.
+   */
+  OpignoScormUI2004API.VALUE_NOT_AVAILABLE = 'VALUE_NOT_AVAILABLE';
+
+  /**
+   * @const Requested CMI value is invalid.
+   */
+  OpignoScormUI2004API.CMI_NOT_VALID = 'CMI_NOT_VALID';
+
+  /**
+   * @const Requested CMI value is not yet implemented by Opigno.
+   */
+  OpignoScormUI2004API.CMI_NOT_IMPLEMENTED = 'CMI_NOT_IMPLEMENTED';
+
+  /**
+   * @const Requested CMI value is write-only.
+   */
+  OpignoScormUI2004API.VALUE_WRITE_ONLY = 'VALUE_WRITE_ONLY';
+
+  /**
+   * @const Requested CMI child value does not exist.
+   */
+  OpignoScormUI2004API.CHILD_DOES_NOT_EXIST = 'CHILD_DOES_NOT_EXIST';
 
   /**
    * Implements Initialize().
@@ -128,6 +156,80 @@
    */
   OpignoScormUI2004API.prototype.GetValue = function(cmiElement) {
     console.log('GetValue', cmiElement);
+
+    // Cannot get a value if not initialized.
+    // Set the error to 122 end return ''.
+    if (!this.isInitialized) {
+      this.error = '122';
+      return '';
+    }
+    // Cannot get a value if terminated.
+    // Set the error to 123 end return ''.
+    else if (this.isTerminated) {
+      this.error = '123';
+      return '';
+    }
+
+    // Must provide a cmiElement. If no valid identifier is provided,
+    // set the error to 301 and return ''.
+    if (cmiElement === undefined || cmiElement === null || cmiElement === '') {
+      this.error = '301';
+      return '';
+    }
+
+    // Find the CMI value.
+    try {
+      if (/^cmi\./.test(cmiElement)) {
+        var result = this._getCMIData(cmiElement);
+
+        // If the value is not available, set the error to 403
+        // and return ''.
+        if (result === OpignoScormUI2004API.VALUE_NOT_AVAILABLE) {
+          this.error = '403';
+          return '';
+        }
+        // If the value does not exist, set the error to 401
+        // and return ''.
+        else if (result === OpignoScormUI2004API.CMI_NOT_VALID) {
+          this.error = '401';
+          return '';
+        }
+        // If the value is supposed to be a child value, but the parent
+        // doesn't have it, set the error to 301 and return ''.
+        else if (result === OpignoScormUI2004API.CHILD_DOES_NOT_EXIST) {
+          this.error = '301';
+          return '';
+        }
+        // If the value is write-only, set the error to 405 and
+        // return ''.
+        else if (result === OpignoScormUI2004API.VALUE_WRITE_ONLY) {
+          this.error = '405';
+          return '';
+        }
+        // For currently unimplemented values, set the error to 402
+        // and return ''.
+        else if (result === OpignoScormUI2004API.CMI_NOT_IMPLEMENTED) {
+          this.error = '402';
+          return '';
+        }
+        // If the value was found, return it and set the error to '0'.
+        else {
+          this.error = '0';
+          return result;
+        }
+      }
+      // For unknown values, set the error to 401 and return ''.
+      else {
+        this.error = '401';
+        return '';
+      }
+    }
+    catch (e) {
+      // If anything fails, for whatever reason, set the error to 301 and
+      // return ''.
+      this.error = '301';
+      return '';
+    }
   }
 
   /**
@@ -200,6 +302,124 @@
     // and Opigno must always be considered "active", and can never "fail".
     // We return true in any case.
     return true;
+  }
+
+  /**
+   * Fetch the CMI data by recursively checking the CMI data tree.
+   *
+   * @param {String} cmiPath
+   *
+   * @returns {String}
+   */
+  OpignoScormUI2004API.prototype._getCMIData = function(cmiPath) {
+    // Special test values.
+    if (cmiPath === 'cmi.__test__') {
+      return 'value';
+    }
+    else if (cmiPath === 'cmi.__write_only__') {
+      return OpignoScormUI2004API.VALUE_WRITE_ONLY;
+    }
+    else if (cmiPath === 'cmi.__unimplemented__') {
+      return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
+    }
+    else if (cmiPath === 'cmi.__unknown__') {
+      return OpignoScormUI2004API.CMI_NOT_VALID;
+    }
+
+    // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
+    if (!this._validCMIDataPath(cmiPath)) {
+      return OpignoScormUI2004API.CMI_NOT_VALID;
+    }
+    // Check if the CMI path is write-only. If so, return VALUE_WRITE_ONLY.
+    else if (this._writeOnlyCMIDataPath(cmiPath)) {
+      return OpignoScormUI2004API.VALUE_WRITE_ONLY;
+    }
+    // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
+    else if (!this._implementedCMIDataPath(cmiPath)) {
+      return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
+    }
+
+    // Recursively walk the data tree and get the requested leaf.
+    var pathTree = cmiPath.explode('.'),
+    // Get the first path element, usually 'cmi'.
+        path = pathTree.shift(),
+        // Get the root element data.
+        data = this.data[path] !== undefined ? this.data[path] : null,
+        // Are there more parts ? If so, flag this as looking for children.
+        checkChildren = pathTree.length  > 1;
+
+    while (data && pathTree.length) {
+      path = pathTree.shift();
+      data = data[path] !== undefined ? data[path] : null;
+    }
+
+    if (data !== null) {
+      return data;
+    }
+    else {
+      // If we were looking for an element children, return CHILD_DOES_NOT_EXIST.
+      if (checkChildren) {
+        return OpignoScormUI2004API.CHILD_DOES_NOT_EXIST;
+      }
+      // Else, return VALUE_NOT_AVAILABLE.
+      else {
+        return OpignoScormUI2004API.VALUE_NOT_AVAILABLE;
+      }
+    }
+  }
+
+  /**
+   * Check if the given CMI path is valid and usable.
+   *
+   * @param {String} cmiPath
+   *
+   * @returns {Boolean}
+   */
+  OpignoScormUI2004API.prototype._validCMIDataPath = function(cmiPath) {
+    // @todo
+    return true;
+
+    var keys = [
+
+    ];
+
+    return keys.indexOf(cmiPath) !== -1;
+  }
+
+  /**
+   * Check if the given CMI path is write-only.
+   *
+   * @param {String} cmiPath
+   *
+   * @returns {Boolean}
+   */
+  OpignoScormUI2004API.prototype._writeOnlyCMIDataPath = function(cmiPath) {
+    // @todo
+    return false;
+
+    var keys = [
+
+    ];
+
+    return keys.indexOf(cmiPath) !== -1;
+  }
+
+  /**
+   * Check if the given CMI path is implemented by Opigno.
+   *
+   * @param {String} cmiPath
+   *
+   * @returns {Boolean}
+   */
+  OpignoScormUI2004API.prototype._implementedCMIDataPath = function(cmiPath) {
+    // @todo
+    return true;
+
+    var keys = [
+
+    ];
+
+    return keys.indexOf(cmiPath) !== -1;
   }
 
   // Export.

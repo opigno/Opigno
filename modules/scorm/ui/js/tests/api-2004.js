@@ -41,7 +41,7 @@
       ok(/^1\.0\./.test(API_1484_11.version), 'REQ_2.6.1, REQ_2.6.2: The API version is correctly formatted.');
       ok(API_1484_11.Initialize,              'REQ_4.1: The API implements the Initialize() method.');
       ok(API_1484_11.Terminate,               'REQ_5.1: The API implements the Terminate() method.');
-      ok(API_1484_11.GetValue,                'The API implements the GetValue() method.');
+      ok(API_1484_11.GetValue,                'REQ_6.1: The API implements the GetValue() method.');
       ok(API_1484_11.SetValue,                'The API implements the SetValue() method.');
       ok(API_1484_11.Commit,                  'The API implements the Commit() method.');
       ok(API_1484_11.GetLastError,            'The API implements the GetLastError() method.');
@@ -50,6 +50,7 @@
 
       // Get a new API implementation, so we can easily reset its internals.
       var api = new OpignoScormUI2004API();
+
 
       module('API, initial state.');
       equal(api.GetLastError(), '0', 'REQ_3.1: The original error code is "0".');
@@ -72,6 +73,7 @@
 
 
       module('API::Terminate()');
+      // @todo Missing specs for REQ_5.2.1m REQ_5.2.1.1 and REQ_5.3.
       api = new OpignoScormUI2004API();
       equal(api.Terminate(''), 'false',            'REQ_5.4: Terminating the API before initializing fails.');
       equal(api.GetLastError(), '112',             'REQ_5.4: Terminating the API before initializing gives a 112 error.');
@@ -85,6 +87,31 @@
       equal(api.GetLastError(), '0',               'REQ_5.2: Terminating the API with an empty string gives no error.');
       equal(api.Terminate(''), 'false',            'REQ_5.5: Terminating the API twice.');
       equal(api.GetLastError(), '113',             'REQ_5.5: Terminating the API twice gives a 113 error.');
+
+
+      module('API::GetValue()');
+      // @todo Missing specs for REQ_6.5 and REQ_6.7.
+      api = new OpignoScormUI2004API();
+      equal(api.GetValue(''), '',                  'REQ_6.8: Requesting a value before initializing fails.');
+      equal(api.GetLastError(), '122',             'REQ_6.8: Requesting a value before initializing gives a 122 error.');
+      // Initialize the communication.
+      api.Initialize('');
+      equal(api.GetValue('cmi.__test__'), 'value',     'REQ_6.2: Requesting a recognized value succeeds.');
+      equal(api.GetLastError(), '0',                   'REQ_6.2: Requesting a recognized value gives no error.');
+      equal(api.GetValue('cmi.__unknown__'), '',       'REQ_6.3: Requesting an unknown value fails.');
+      equal(api.GetLastError(), '401',                 'REQ_6.3: Requesting an unknown value gives a 401 error.');
+      equal(api.GetValue('cmi.__unimplemented__'), '', 'REQ_6.4: Requesting an unimplemented value fails.');
+      equal(api.GetLastError(), '402',                 'REQ_6.4: Requesting an unimplemented value gives a 402 error.');
+      equal(api.GetValue('cmi.__write_only__'), '',    'REQ_6.6: Requesting a write-only value fails.');
+      equal(api.GetLastError(), '405',                 'REQ_6.6: Requesting an write-only value gives a 405 error.');
+      equal(api.GetValue(''), '',                      'REQ_6.10: Requesting an empty string key fails.');
+      equal(api.GetLastError(), '301',                 'REQ_6.10: Requesting an empty string key gives a 301 error.');
+      equal(api.GetValue(), '',                        'REQ_6.10: Requesting a "null" key fails.');
+      equal(api.GetLastError(), '301',                 'REQ_6.10: Requesting a "null" key gives a 301 error.');
+      // Terminate the communication.
+      api.Terminate('');
+      equal(api.GetValue(''), '',                      'REQ_6.9: Requesting a value after termination fails.');
+      equal(api.GetLastError(), '123',                 'REQ_6.9: Requesting a value after termination gives a 123 error.');
     }
   };
 
