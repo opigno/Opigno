@@ -376,14 +376,24 @@
    * @returns {Boolean}
    */
   OpignoScormUI2004API.prototype._validCMIDataPath = function(cmiPath) {
-    // @todo
-    return true;
-
     var keys = [
-
+      'cmi.__test__.n.child', // Special test value.
+      'cmi._version'
     ];
 
-    return keys.indexOf(cmiPath) !== -1;
+    if (keys.indexOf(cmiPath) !== -1) {
+      return true;
+    }
+    else {
+      // Check special, array values. Replace all ".[0-9]." values with ".n."
+      // and check the keys array again.
+      if (/.[0-9]+./.test(cmiPath)) {
+        return keys.indexOf(cmiPath.replace(/.[0-9]+./g, '.n.')) !== -1
+      }
+      else {
+        return false;
+      }
+    }
   }
 
   /**
