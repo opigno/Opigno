@@ -36,17 +36,17 @@
     },
     test: function() {
       module('API detection and method implementations.');
-      ok(API_1484_11,                'REQ_2.5: A global API_1484_11 object exists.');
-      ok(API_1484_11.version,        'REQ_2.6: The API implements a version property.');
+      ok(API_1484_11,                         'REQ_2.5: A global API_1484_11 object exists.');
+      ok(API_1484_11.version,                 'REQ_2.6: The API implements a version property.');
       ok(/^1\.0\./.test(API_1484_11.version), 'REQ_2.6.1, REQ_2.6.2: The API version is correctly formatted.');
-      ok(API_1484_11.Initialize,     'REQ_4.1: The API implements the Initialize() method.');
-      ok(API_1484_11.Terminate,      'The API implements the Terminate() method.');
-      ok(API_1484_11.GetValue,       'The API implements the GetValue() method.');
-      ok(API_1484_11.SetValue,       'The API implements the SetValue() method.');
-      ok(API_1484_11.Commit,         'The API implements the Commit() method.');
-      ok(API_1484_11.GetLastError,   'The API implements the GetLastError() method.');
-      ok(API_1484_11.GetErrorString, 'The API implements the GetErrorString() method.');
-      ok(API_1484_11.GetDiagnostic,  'The API implements the GetDiagnostic() method.');
+      ok(API_1484_11.Initialize,              'REQ_4.1: The API implements the Initialize() method.');
+      ok(API_1484_11.Terminate,               'REQ_5.1: The API implements the Terminate() method.');
+      ok(API_1484_11.GetValue,                'The API implements the GetValue() method.');
+      ok(API_1484_11.SetValue,                'The API implements the SetValue() method.');
+      ok(API_1484_11.Commit,                  'The API implements the Commit() method.');
+      ok(API_1484_11.GetLastError,            'The API implements the GetLastError() method.');
+      ok(API_1484_11.GetErrorString,          'The API implements the GetErrorString() method.');
+      ok(API_1484_11.GetDiagnostic,           'The API implements the GetDiagnostic() method.');
 
       // Get a new API implementation, so we can easily reset its internals.
       var api = new OpignoScormUI2004API();
