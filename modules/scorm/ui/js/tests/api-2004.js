@@ -96,7 +96,7 @@
         equal(api.GetLastError(), '122',             'REQ_6.8: Requesting a value before initializing gives a 122 error.');
         // Initialize the communication.
         api.Initialize('');
-        equal(api.GetValue('cmi.__test__'), 'value',     'REQ_6.2: Requesting a recognized value succeeds.');
+        equal(api.GetValue('cmi.__value__'), 'value',     'REQ_6.2: Requesting a recognized value succeeds.');
         equal(api.GetLastError(), '0',                   'REQ_6.2: Requesting a recognized value gives no error.');
         equal(api.GetValue('cmi.__unknown__'), '',       'REQ_6.3: Requesting an unknown value fails.');
         equal(api.GetLastError(), '401',                 'REQ_6.3: Requesting an unknown value gives a 401 error.');
@@ -110,6 +110,14 @@
         equal(api.GetLastError(), '301',                 'REQ_6.10: Requesting a "null" key gives a 301 error.');
         equal(api.GetValue('cmi.__test__.1.child'), '',  'REQ_6.11: Requesting an inexistent child fails.');
         equal(api.GetLastError(), '301',                 'REQ_6.11: Requesting an inexistent child gives a 301 error.');
+        equal(api.GetValue('cmi.__test__._count'), '',   'REQ_6.12: Requesting the count property of an element that is not an array fails.');
+        equal(api.GetLastError(), '301',                 'REQ_6.12: Requesting the count property of an element that is not an array gives a 301 error.');
+        // Set some array value to test array properties.
+        api.SetValue('cmi.__test__.0.child', 'value');
+        equal(api.GetValue('cmi.__test__.0.child'), 'value', 'REQ_6.2: Requesting a recognized child value succeeds.');
+        equal(api.GetLastError(), '0',                       'REQ_6.2: Requesting a recognized child value gives no error.');
+        equal(api.GetValue('cmi.__test__._count'), 1,        'REQ_6.12: Requesting the count property of an element that is an array succeeds.');
+        equal(api.GetLastError(), '0',                       'REQ_6.12: Requesting the count property of an element that is an array gives no error.');
         // Terminate the communication.
         api.Terminate('');
         equal(api.GetValue(''), '',                      'REQ_6.9: Requesting a value after termination fails.');

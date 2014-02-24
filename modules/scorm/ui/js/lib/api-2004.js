@@ -179,7 +179,7 @@
 
     // Find the CMI value.
     try {
-      if (/^cmi\./.test(cmiElement)) {
+      if (/^cmi./.test(cmiElement)) {
         var result = this._getCMIData(cmiElement);
 
         // If the value is not available, set the error to 403
@@ -227,6 +227,7 @@
     catch (e) {
       // If anything fails, for whatever reason, set the error to 301 and
       // return ''.
+      console.log('ERRRR', e)
       this.error = '301';
       return '';
     }
@@ -242,6 +243,24 @@
    */
   OpignoScormUI2004API.prototype.SetValue = function(cmiElement, value) {
     console.log('SetValue', cmiElement, value);
+
+    // Find the CMI value.
+    try {
+      if (/^cmi./.test(cmiElement)) {
+        var result = this._setCMIData(cmiElement, value);
+      }
+      // For unknown values, set the error to 401 and return ''.
+      else {
+        this.error = '401';
+        return '';
+      }
+    }
+    catch (e) {
+      // If anything fails, for whatever reason, set the error to 301 and
+      // return ''.
+      this.error = '301';
+      return '';
+    }
   }
 
   /**
@@ -313,7 +332,7 @@
    */
   OpignoScormUI2004API.prototype._getCMIData = function(cmiPath) {
     // Special test values.
-    if (cmiPath === 'cmi.__test__') {
+    if (cmiPath === 'cmi.__value__') {
       return 'value';
     }
     else if (cmiPath === 'cmi.__write_only__') {
@@ -340,17 +359,34 @@
     }
 
     // Recursively walk the data tree and get the requested leaf.
-    var pathTree = cmiPath.explode('.'),
-    // Get the first path element, usually 'cmi'.
-        path = pathTree.shift(),
-        // Get the root element data.
-        data = this.data[path] !== undefined ? this.data[path] : null,
-        // Are there more parts ? If so, flag this as looking for children.
-        checkChildren = pathTree.length  > 1;
+    var pathTree = cmiPath.split('.'),
+      // Get the first path element, usually 'cmi'.
+      path = pathTree.shift(),
+      // Get the root element data.
+      data = this.data[path] !== undefined ? this.data[path] : null,
+      // Are there more parts ? If so, flag this as looking for children.
+      checkChildren = pathTree.length  > 1;
 
+    // Recursively walk the tree.
     while (data && pathTree.length) {
       path = pathTree.shift();
-      data = data[path] !== undefined ? data[path] : null;
+
+      // Special case: if we request the length of an array, check if the current
+      // data is an array. If so, get its length and break out of the loop.
+      // If not, throw an error.
+      if (path === '_count') {
+        if (data.length !== undefined) {
+          data = data.length;
+          break;
+        }
+        else {
+          console.log(data);
+          throw new EvalError("Can only get the '_count' property for array data. CMI path: " + cmiPath);
+        }
+      }
+      else {
+        data = data[path] !== undefined ? data[path] : null;
+      }
     }
 
     if (data !== null) {
@@ -369,6 +405,91 @@
   }
 
   /**
+   * Set the CMI data by recursively checking the CMI data tree.
+   * Create elements in the tree that do not exist yet.
+   *
+   * @param {String} cmiPath
+   * @param {String} value
+   *
+   * @returns {String}
+   */
+  OpignoScormUI2004API.prototype._setCMIData = function(cmiPath, value) {
+    // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
+    if (!this._validCMIDataPath(cmiPath)) {
+      return OpignoScormUI2004API.CMI_NOT_VALID;
+    }
+    // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
+    else if (!this._implementedCMIDataPath(cmiPath)) {
+      return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
+    }
+
+    // @todo DO not set _count or _children properties. Read-only
+
+    // Recursively walk the data tree and get the requested leaf.
+    var pathTree = cmiPath.split('.'),
+      // Get the first path element, usually 'cmi'.
+      path = pathTree.shift(),
+      // Get the last path element.
+      leaf = pathTree.length ? pathTree.pop() : false;
+
+    // If the root does not exist, initialize an empty object.
+    if (this.data[path] === undefined) {
+      this.data[path] = {};
+    }
+
+    // Get the root element data.
+    var data = this.data[path];
+
+    // If the leaf is not set, we don't need to walk any tree. Set the value immediately.
+    if (!leaf) {
+      data = value;
+    }
+    // Else, we walk the tree recursively creating all elements if needed.
+    else {
+      // Recursively walk the tree.
+      while (pathTree.length) {
+        console.log('PATH TREE', pathTree)
+        path = pathTree.shift();
+
+        // If the property does not exist yet, create it.
+        if (data[path] === undefined) {
+          console.log('CREATE IT')
+          // If the property is numerical, we're dealing with an array.
+          if (/^[0-9]+$/.test(path)) {
+            console.log('IS ARRAY')
+            // If the key is 0, and the parent is not an array, reset the parent to an array object.
+            // Push an empty element onto the array.
+            if (path === '0' && data.length === undefined) {
+              console.log('RESET', data, this.data)
+              data = [];
+              console.log('RESET AFTER', data, this.data)
+            }
+            // If the parent is an array object, but the given key is out of bounds, throw an error.
+            else if (false) {
+              throw new Error("Out of bounds. Cannot set '" + path + "' on " + cmiPath + ", as it contains only " + data.length + " elements.");
+            }
+            // Finally, if this is an array, and the key is valid, but there's no element yet,
+            // push an empty element onto the array.
+            else if (data[path] === undefined) {
+              //data.push({});
+            }
+          }
+          // Else, we're dealing with a hash.
+          else {
+            console.log('IS HASH')
+            data[path] = {};
+          }
+        }
+
+        data = data[path];
+      }
+
+      data[leaf] = value;
+      console.log('SET FINAL VALUE ON ', leaf, 'VALUE', value)
+    }
+  }
+
+  /**
    * Check if the given CMI path is valid and usable.
    *
    * @param {String} cmiPath
@@ -377,23 +498,14 @@
    */
   OpignoScormUI2004API.prototype._validCMIDataPath = function(cmiPath) {
     var keys = [
-      'cmi.__test__.n.child', // Special test value.
-      'cmi._version'
+      // Special test paths.
+      'cmi.__test__',
+      'cmi.__test__._count',
+      'cmi.__test__.n.child'
     ];
 
-    if (keys.indexOf(cmiPath) !== -1) {
-      return true;
-    }
-    else {
-      // Check special, array values. Replace all ".[0-9]." values with ".n."
-      // and check the keys array again.
-      if (/.[0-9]+./.test(cmiPath)) {
-        return keys.indexOf(cmiPath.replace(/.[0-9]+./g, '.n.')) !== -1
-      }
-      else {
-        return false;
-      }
-    }
+    // Replace all ".[0-9]." values with ".n.".
+    return keys.indexOf(cmiPath.replace(/.[0-9]+./g, '.n.')) !== -1;
   }
 
   /**
@@ -422,14 +534,29 @@
    * @returns {Boolean}
    */
   OpignoScormUI2004API.prototype._implementedCMIDataPath = function(cmiPath) {
-    // @todo
-    return true;
-
     var keys = [
+      // Special test paths.
+      'cmi.__test__',
+      'cmi.__test__._count',
+      'cmi.__test__.n.child',
 
+      // Real CMI paths.
+      'cmi._version',
+      // 'cmi.comments_from_learner._children',
+      'cmi.comments_from_learner._count',
+      // 'cmi.comments_from_learner.n.comment',
+      // 'cmi.comments_from_learner.n.location',
+      // 'cmi.comments_from_learner.n.timestamp',
+      'cmi.comments_from_lms._children',
+      'cmi.comments_from_lms._count',
+      // 'cmi.comments_from_lms.n.comment',
+      // 'cmi.comments_from_lms.n.location',
+      // 'cmi.comments_from_lms.n.timestamp',
+
+      '' // Dummy value to prevent trailing comma errors in this particular list.
     ];
 
-    return keys.indexOf(cmiPath) !== -1;
+    return keys.indexOf(cmiPath.replace(/.[0-9]+./g, '.n.')) !== -1;
   }
 
   // Export.
