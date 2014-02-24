@@ -27,7 +27,7 @@
    *        Expected to be an empty string. If not, will
    *        return a 201 error.
    *
-   * @returns {String} 'true', 'false' or '201'.
+   * @returns {String} 'true' or 'false'
    *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Initialize = function(value) {
@@ -36,14 +36,14 @@
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother initializing the package.
     if (value !== '') {
-      return '201';
+      this.error =  '201';
+      return 'false';
     }
 
     if (!this.isInitialized) {
-      // @todo Establish communication with Opigno.
       // If the communication fails, set the error to 102
       // and return 'false'.
-      if (false) {
+      if (!this._initCommunication()) {
         this.error = '102';
         return 'false';
       }
@@ -63,6 +63,7 @@
     }
 
     // Successfully initialized the package.
+    this.error = '0';
     return 'true';
   }
 
@@ -73,7 +74,7 @@
    *        Expected to be an empty string. If not, will
    *        return a 201 error.
    *
-   * @returns {String} 'true', 'false' or '201'
+   * @returns {String} 'true' or 'false'
    *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Terminate = function(value) {
@@ -82,7 +83,8 @@
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother terminating the package.
     if (value !== '') {
-      return '201';
+      this.error =  '201';
+      return 'false';
     }
 
     // Can only terminate if the session was initialized. Else, set error to
@@ -110,7 +112,7 @@
       }
     }
 
-    return value === '' ? 'true' : '201';
+    return 'true';
   }
 
   /**
@@ -183,7 +185,21 @@
     console.log('GetDiagnostic', cmiErrorCode);
   }
 
+  /**
+   * Initialize the communication between the SCORM package and Opigno.
+   *
+   * @return {Boolean}
+   */
+  OpignoScormUI2004API.prototype._initCommunication = function() {
+    // The SCORM 2004 edition does not provide any asynchronous logic, or the concept
+    // of promises. This means establishing the communication between the SCORM
+    // and Opigno must always be considered "active", and can never "fail".
+    // We return true in any case.
+    return true;
+  }
+
   // Export.
+  window.OpignoScormUI2004API = OpignoScormUI2004API;
   window.API_1484_11 = new OpignoScormUI2004API();
 
 })(jQuery, Drupal, window);
