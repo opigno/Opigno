@@ -380,6 +380,9 @@
    */
   OpignoScormUI2004API.prototype.GetErrorString = function(cmiErrorCode) {
     console.log('GetErrorString', cmiErrorCode);
+
+    // @todo
+    return '';
   }
 
   /**
@@ -391,6 +394,9 @@
    */
   OpignoScormUI2004API.prototype.GetDiagnostic = function(cmiErrorCode) {
     console.log('GetDiagnostic', cmiErrorCode);
+
+    // @todo
+    return '';
   }
 
   /**

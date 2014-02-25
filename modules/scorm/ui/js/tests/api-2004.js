@@ -44,12 +44,19 @@
         ok(window.API_1484_11.GetValue,                'REQ_6.1: The API implements the GetValue() method.');
         ok(window.API_1484_11.SetValue,                'REQ_7.1: The API implements the SetValue() method.');
         ok(window.API_1484_11.Commit,                  'REQ_8.1: The API implements the Commit() method.');
-        ok(window.API_1484_11.GetLastError,            'The API implements the GetLastError() method.');
-        ok(window.API_1484_11.GetErrorString,          'The API implements the GetErrorString() method.');
-        ok(window.API_1484_11.GetDiagnostic,           'The API implements the GetDiagnostic() method.');
+        ok(window.API_1484_11.GetLastError,            'REQ_9.1: The API implements the GetLastError() method.');
+        ok(window.API_1484_11.GetErrorString,          'REQ_10.1: The API implements the GetErrorString() method.');
+        ok(window.API_1484_11.GetDiagnostic,           'REQ_11.1: The API implements the GetDiagnostic() method.');
 
       // Get a new API implementation, so we can easily reset its internals.
       var api = new OpignoScormUI2004API();
+
+
+      /**
+       * IMPORTANT NOTE:
+       * REQ_9.x are all covered by the following specs, as GetLastError() is called many times
+       * throughout the test suite.
+       */
 
 
       module('API, initial state.');
