@@ -92,11 +92,11 @@
       module('API::GetValue()');
         // @todo Missing specs for REQ_6.5 and REQ_6.7.
         api = new OpignoScormUI2004API();
-        equal(api.GetValue(''), '',                  'REQ_6.8: Requesting a value before initializing fails.');
-        equal(api.GetLastError(), '122',             'REQ_6.8: Requesting a value before initializing gives a 122 error.');
+        equal(api.GetValue(''), '',                      'REQ_6.8: Requesting a value before initializing fails.');
+        equal(api.GetLastError(), '122',                 'REQ_6.8: Requesting a value before initializing gives a 122 error.');
         // Initialize the communication.
         api.Initialize('');
-        equal(api.GetValue('cmi.__value__'), 'value',     'REQ_6.2: Requesting a recognized value succeeds.');
+        equal(api.GetValue('cmi.__value__'), 'value',    'REQ_6.2: Requesting a recognized value succeeds.');
         equal(api.GetLastError(), '0',                   'REQ_6.2: Requesting a recognized value gives no error.');
         equal(api.GetValue('cmi.__unknown__'), '',       'REQ_6.3: Requesting an unknown value fails.');
         equal(api.GetLastError(), '401',                 'REQ_6.3: Requesting an unknown value gives a 401 error.');

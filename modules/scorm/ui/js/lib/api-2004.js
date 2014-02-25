@@ -446,23 +446,23 @@
     }
     // Else, we walk the tree recursively creating all elements if needed.
     else {
+      var prevPaths = [path];
       // Recursively walk the tree.
       while (pathTree.length) {
-        console.log('PATH TREE', pathTree)
         path = pathTree.shift();
 
         // If the property does not exist yet, create it.
         if (data[path] === undefined) {
-          console.log('CREATE IT')
           // If the property is numerical, we're dealing with an array.
           if (/^[0-9]+$/.test(path)) {
-            console.log('IS ARRAY')
             // If the key is 0, and the parent is not an array, reset the parent to an array object.
             // Push an empty element onto the array.
             if (path === '0' && data.length === undefined) {
-              console.log('RESET', data, this.data)
-              data = [];
-              console.log('RESET AFTER', data, this.data)
+              // Just reseting data to [] loses it's relationship with this.data. We have no choice
+              // but to use eval() here.
+              eval('this.data.' + prevPaths.join('.') + ' = [];');
+              eval('data = this.data.' + prevPaths.join('.') + ';');
+              data.push({});
             }
             // If the parent is an array object, but the given key is out of bounds, throw an error.
             else if (false) {
@@ -471,21 +471,20 @@
             // Finally, if this is an array, and the key is valid, but there's no element yet,
             // push an empty element onto the array.
             else if (data[path] === undefined) {
-              //data.push({});
+              data.push({});
             }
           }
           // Else, we're dealing with a hash.
           else {
-            console.log('IS HASH')
             data[path] = {};
           }
         }
 
         data = data[path];
+        prevPaths.push(path);
       }
 
       data[leaf] = value;
-      console.log('SET FINAL VALUE ON ', leaf, 'VALUE', value)
     }
   }
 
