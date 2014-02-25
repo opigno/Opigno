@@ -18,6 +18,11 @@
     this.error = '0';
     this.isInitialized = false;
     this.isTerminated = false;
+    this.eventCallbacks = {
+      initialize: [],
+      terminate: [],
+      commit: []
+    };
     this.data = {
       cmi: {
         _version: '1.0',
@@ -414,6 +419,40 @@
     // and Opigno must always be considered "active", and can never "fail".
     // We return true in any case.
     return true;
+  }
+
+  /**
+   * Bind an event listener to the API.
+   *
+   * @param {String} event
+   * @param {Function} callback
+   */
+  OpignoScormUI2004API.prototype.bind = function(event, callback) {
+    if (this.eventCallbacks[event] === undefined) {
+      throw { name: "ScormAPIUnknownEvent", message: "Can't bind/trigger event '" + event + "'" };
+    }
+    else {
+      this.eventCallbacks[event].push(callback);
+    }
+  }
+
+  /**
+   * Trigger the passed event. All parameters (except the event name) are passed
+   * to the registered callback.
+   *
+   * @param {String} event
+   */
+  OpignoScormUI2004API.prototype.trigger = function() {
+    var event = arguments.shift();
+
+    if (this.eventCallbacks[event] === undefined) {
+      throw { name: "ScormAPIUnknownEvent", message: "Can't bind/trigger event '" + event + "'" };
+    }
+    else {
+      for (var i = 0, len = this.eventCallbacks[event].length; i < len; i++) {
+        this.eventCallbacks[event][i].apply(this, arguments);
+      }
+    }
   }
 
   /**
