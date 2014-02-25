@@ -327,6 +327,21 @@
    */
   OpignoScormUI2004API.prototype.Commit = function(value) {
     console.log('Commit', value);
+
+    // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
+    // If it's not empty, don't bother terminating the package.
+    if (value !== '') {
+      this.error =  '201';
+      return 'false';
+    }
+
+    // Can only commit if the session was initialized. Else, set error to
+    // 142 and return 'false'.
+    if (!this.isInitialized) {
+      this.error = '142';
+      return 'false';
+    }
+
     return value === '' ? 'true' : 'false';
   }
 

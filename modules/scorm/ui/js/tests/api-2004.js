@@ -42,8 +42,8 @@
         ok(window.API_1484_11.Initialize,              'REQ_4.1: The API implements the Initialize() method.');
         ok(window.API_1484_11.Terminate,               'REQ_5.1: The API implements the Terminate() method.');
         ok(window.API_1484_11.GetValue,                'REQ_6.1: The API implements the GetValue() method.');
-        ok(window.API_1484_11.SetValue,                'The API implements the SetValue() method.');
-        ok(window.API_1484_11.Commit,                  'The API implements the Commit() method.');
+        ok(window.API_1484_11.SetValue,                'REQ_7.1: The API implements the SetValue() method.');
+        ok(window.API_1484_11.Commit,                  'REQ_8.1: The API implements the Commit() method.');
         ok(window.API_1484_11.GetLastError,            'The API implements the GetLastError() method.');
         ok(window.API_1484_11.GetErrorString,          'The API implements the GetErrorString() method.');
         ok(window.API_1484_11.GetDiagnostic,           'The API implements the GetDiagnostic() method.');
@@ -161,6 +161,17 @@
         api.Terminate('');
         equal(api.SetValue('cmi.__value__', 'value'), 'false',  'REQ_7.10: Setting a value after termination fails.');
         equal(api.GetLastError(), '133',                     'REQ_7.10: Setting a value after termination gives a 123 error.');
+
+      module('API::Commit()');
+        api = new OpignoScormUI2004API();
+        equal(api.Commit(''), 'false',            'REQ_5.4: Committing the API before initializing fails.');
+        equal(api.GetLastError(), '142',             'REQ_5.4: Committing the API before initializing gives a 142 error.');
+        // Initialize the communication.
+        api.Initialize('');
+        equal(api.Commit(), 'false',              'REQ_3.2: Committing the API without a parameter fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API without a parameter gives a 201 error.');
+        equal(api.Commit('any string'), 'false',  'REQ_3.2: Committing the API with any string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with any string gives a 201 error.');
     }
   };
 
