@@ -74,8 +74,6 @@
    *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Initialize = function(value) {
-    console.log('Initialize', value);
-
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother initializing the package.
     if (value !== '') {
@@ -123,8 +121,6 @@
    *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Terminate = function(value) {
-    console.log('Terminate', value);
-
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother terminating the package.
     if (value !== '') {
@@ -174,8 +170,6 @@
    * @returns {String}
    */
   OpignoScormUI2004API.prototype.GetValue = function(cmiElement) {
-    console.log('GetValue', cmiElement);
-
     // Cannot get a value if not initialized.
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
@@ -260,8 +254,6 @@
    * @return {String}
    */
   OpignoScormUI2004API.prototype.SetValue = function(cmiElement, value) {
-    console.log('SetValue', cmiElement, value);
-
     // Cannot get a value if not initialized.
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
@@ -340,8 +332,6 @@
    *        The SCO expects boolean values to be returned as strings.
    */
   OpignoScormUI2004API.prototype.Commit = function(value) {
-    console.log('Commit', value);
-
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother terminating the package.
     if (value !== '') {
@@ -385,7 +375,6 @@
    * @returns {String}
    */
   OpignoScormUI2004API.prototype.GetLastError = function() {
-    console.log('GetLastError');
     return this.error;
   }
 
@@ -397,8 +386,6 @@
    * @return {String}
    */
   OpignoScormUI2004API.prototype.GetErrorString = function(cmiErrorCode) {
-    console.log('GetErrorString', cmiErrorCode);
-
     // @todo
     return '';
   }
@@ -411,8 +398,6 @@
    * @return {String}
    */
   OpignoScormUI2004API.prototype.GetDiagnostic = function(cmiErrorCode) {
-    console.log('GetDiagnostic', cmiErrorCode);
-
     // @todo
     return '';
   }
@@ -522,7 +507,6 @@
           break;
         }
         else {
-          console.log(data);
           throw new EvalError("Can only get the '_count' property for array data. CMI path: " + cmiPath);
         }
       }
