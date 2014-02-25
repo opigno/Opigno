@@ -19,8 +19,12 @@
     this.isInitialized = false;
     this.isTerminated = false;
     this.data = {
-      cmi: {}
+      cmi: {
+        _version: '1.0',
+        comments_from_learner: []
+      }
     };
+    this.data.cmi.comments_from_learner._children = 'comment,location,timestamp';
   };
 
   /**
@@ -596,7 +600,16 @@
       'cmi.__unimplemented__',
       'cmi.__test__',
       'cmi.__test__._count',
-      'cmi.__test__.n.child'
+      'cmi.__test__.n.child',
+
+      // Real CMI paths.
+      'cmi._version',
+      'cmi.comments_from_learner',
+      'cmi.comments_from_learner._children',
+      'cmi.comments_from_learner._count',
+      'cmi.comments_from_learner.n.comment',
+      'cmi.comments_from_learner.n.location',
+      'cmi.comments_from_learner.n.timestamp'
     ];
 
     // Replace all ".[0-9]." values with ".n.".
@@ -660,11 +673,12 @@
 
       // Real CMI paths.
       'cmi._version',
-      // 'cmi.comments_from_learner._children',
+      'cmi.comments_from_learner',
+      'cmi.comments_from_learner._children',
       'cmi.comments_from_learner._count',
-      // 'cmi.comments_from_learner.n.comment',
-      // 'cmi.comments_from_learner.n.location',
-      // 'cmi.comments_from_learner.n.timestamp',
+      'cmi.comments_from_learner.n.comment',
+      'cmi.comments_from_learner.n.location',
+      'cmi.comments_from_learner.n.timestamp',
       'cmi.comments_from_lms._children',
       'cmi.comments_from_lms._count',
       // 'cmi.comments_from_lms.n.comment',

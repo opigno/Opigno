@@ -49,7 +49,7 @@
         ok(window.API_1484_11.GetDiagnostic,           'REQ_11.1: The API implements the GetDiagnostic() method.');
 
       // Get a new API implementation, so we can easily reset its internals.
-      var api = new OpignoScormUI2004API();
+      var api = new OpignoScormUI2004API(), value = '';
 
 
       /**
@@ -177,6 +177,7 @@
         equal(api.SetValue('cmi.__value__', 'value'), 'false',          'REQ_7.10: Setting a value after termination fails.');
         equal(api.GetLastError(), '133',                                'REQ_7.10: Setting a value after termination gives a 123 error.');
 
+
       module('API::Commit()');
         // @todo Missing specs for REQ_8.2.1, REQ_8.3.
         api = new OpignoScormUI2004API();
@@ -198,6 +199,44 @@
         api.Terminate('');
         equal(api.Commit(''), 'false',           'REQ_8.5: Committing the API after termination fails.');
         equal(api.GetLastError(), '143',         'REQ_8.5: Committing the API after termination gives a 143 error.');
+
+
+      module('RTE Data Model Conformance');
+        /*
+         @todo Missings specs for:
+         - REQ_57.0
+         - REQ_57.2.2
+         - REQ_57.3.x
+         - REQ_57.4.x
+         - REQ_57.5.x
+         - REQ_58.0
+         - ... many many more
+         */
+        api = new OpignoScormUI2004API();
+        api.Initialize('');
+
+        // REQ_55
+        equal(api.GetValue('cmi._version'), '1.0', 'REQ_55.1, REQ_55.2, REQ_55.3: Requesting cmi._version succeeds and returns "1.0".');
+
+        // REQ_57
+        equal(api.GetValue('cmi.comments_from_learner._children'), 'comment,location,timestamp',
+          'REQ_57.1, REQ_57.1.2, REQ_75.1.3: Requesting cmi.comments_from_learner._children succeeds and returns a list of properties.');
+
+        equal(api.SetValue('cmi.comments_from_learner._children', 'value'), 'false',
+          'REQ_57.1.1: cmi.comments_from_learner._children is read-only.');
+
+        equal(api.GetLastError(), '404',
+          'REQ_57.1.1: cmi.comments_from_learner._children is read-only.');
+
+        equal(api.GetValue('cmi.comments_from_learner._count'), 0,
+          'REQ_57.2, REQ_57.1.2, REQ_75.2.3: Requesting cmi.comments_from_learner._children succeeds and returns a list of properties.');
+
+        equal(api.SetValue('cmi.comments_from_learner._count', 'value'), 'false',
+          'REQ_57.2.1: cmi.comments_from_learner._count is read-only.');
+
+        equal(api.GetLastError(), '404',
+          'REQ_57.2.1: cmi.comments_from_learner._count is read-only.');
+
     }
   };
 
