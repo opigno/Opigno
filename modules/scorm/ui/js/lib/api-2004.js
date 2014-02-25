@@ -21,7 +21,8 @@
     this.eventCallbacks = {
       initialize: [],
       terminate: [],
-      commit: []
+      'pre-commit': [],
+      'post-commit': []
     };
     this.data = {
       cmi: {
@@ -104,6 +105,8 @@
       return 'false';
     }
 
+    this.trigger('initialize', value);
+
     // Successfully initialized the package.
     this.error = '0';
     return 'true';
@@ -156,6 +159,8 @@
         this.isTerminated = true;
       }
     }
+
+    this.trigger('terminate', value);
 
     this.error =  '0';
     return 'true';
@@ -356,6 +361,8 @@
       return 'false';
     }
 
+    this.trigger('pre-commit', value, this.data);
+
     try {
       // Persist the data.
     }
@@ -365,6 +372,8 @@
       this.error = '391';
       return 'false';
     }
+
+    this.trigger('post-commit', value, this.data);
 
     this.error =  '0';
     return 'true';
@@ -443,14 +452,15 @@
    * @param {String} event
    */
   OpignoScormUI2004API.prototype.trigger = function() {
-    var event = arguments.shift();
+    var args = Array.prototype.slice.call(arguments),
+      event = args.shift();
 
     if (this.eventCallbacks[event] === undefined) {
       throw { name: "ScormAPIUnknownEvent", message: "Can't bind/trigger event '" + event + "'" };
     }
     else {
       for (var i = 0, len = this.eventCallbacks[event].length; i < len; i++) {
-        this.eventCallbacks[event][i].apply(this, arguments);
+        this.eventCallbacks[event][i].apply(this, args);
       }
     }
   }

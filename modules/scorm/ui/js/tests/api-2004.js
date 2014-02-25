@@ -237,6 +237,42 @@
         equal(api.GetLastError(), '404',
           'REQ_57.2.1: cmi.comments_from_learner._count is read-only.');
 
+
+      module('Events');
+        api = new OpignoScormUI2004API();
+
+        var spy = {};
+        api.bind('initialize', function() {
+          spy.called = true;
+          spy.that = this;
+        });
+        api.Initialize('');
+        ok(spy.called, 'Spy got called for the "initialize" event.');
+        equal(spy.that, api, 'Spy called with correct context (API object).');
+
+        spy = {};
+        api.bind('pre-commit', function() {
+          spy.preCommitCalled = true;
+          spy.preCommitThat = this;
+        });
+        api.bind('post-commit', function() {
+          spy.postCommitCalled = true;
+          spy.postCommitThat = this;
+        });
+        api.Commit('');
+        ok(spy.preCommitCalled, 'Spy got called for the "pre-commit" event.');
+        equal(spy.preCommitThat, api, 'Spy called with correct context (API object).');
+        ok(spy.postCommitCalled, 'Spy got called for the "pre-commit" event.');
+        equal(spy.postCommitThat, api, 'Spy called with correct context (API object).');
+
+        spy = {};
+        api.bind('terminate', function() {
+          spy.called = true;
+          spy.that = this;
+        });
+        api.Terminate('');
+        ok(spy.called, 'Spy got called for the "terminate" event.');
+        equal(spy.that, api, 'Spy called with correct context (API object).');
     }
   };
 
