@@ -16,7 +16,7 @@
 
       // If any players were found...
       if ($players.length) {
-        // Register events for each player.
+        // Register each player.
         $players.each(function() {
           var element = this,
               $element = $(element),
@@ -24,6 +24,11 @@
               player = new OpignoScormUIPlayer(element);
 
           player.init();
+
+          // Bind event listeners for different API events.
+          API_1484_11.bind('commit', function(value, data) {
+
+          });
 
           // Add a class to the player, so the CSS can style it differently if needed.
           $element.addClass('js-processed');
