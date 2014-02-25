@@ -44,6 +44,11 @@
   OpignoScormUI2004API.VALUE_WRITE_ONLY = 'VALUE_WRITE_ONLY';
 
   /**
+   * @const Requested CMI value is read-only.
+   */
+  OpignoScormUI2004API.VALUE_READ_ONLY = 'VALUE_READ_ONLY';
+
+  /**
    * @const Requested CMI child value does not exist.
    */
   OpignoScormUI2004API.CHILD_DOES_NOT_EXIST = 'CHILD_DOES_NOT_EXIST';
@@ -179,7 +184,7 @@
 
     // Find the CMI value.
     try {
-      if (/^cmi./.test(cmiElement)) {
+      if (/^cmi\./.test(cmiElement)) {
         var result = this._getCMIData(cmiElement);
 
         // If the value is not available, set the error to 403
@@ -227,7 +232,6 @@
     catch (e) {
       // If anything fails, for whatever reason, set the error to 301 and
       // return ''.
-      console.log('ERRRR', e)
       this.error = '301';
       return '';
     }
@@ -244,23 +248,71 @@
   OpignoScormUI2004API.prototype.SetValue = function(cmiElement, value) {
     console.log('SetValue', cmiElement, value);
 
+    // Cannot get a value if not initialized.
+    // Set the error to 122 end return ''.
+    if (!this.isInitialized) {
+      this.error = '132';
+      return 'false';
+    }
+    // Cannot get a value if terminated.
+    // Set the error to 123 end return ''.
+    else if (this.isTerminated) {
+      this.error = '133';
+      return 'false';
+    }
+
+    // Must provide a cmiElement. If no valid identifier is provided,
+    // set the error to 301 and return ''.
+    if (cmiElement === undefined || cmiElement === null || cmiElement === '' || typeof cmiElement !== 'string') {
+      this.error = '351';
+      return 'false';
+    }
+
+    // The value must either be a String or a number. All other values have to be rejected.
+    // Return 'false' and set the error to 406.
+    if (typeof value !== 'string' && typeof value !== 'number') {
+      this.error = '406';
+      return 'false';
+    }
+
     // Find the CMI value.
     try {
-      if (/^cmi./.test(cmiElement)) {
+      if (/^cmi\./.test(cmiElement)) {
         var result = this._setCMIData(cmiElement, value);
+
+        // If the value does not exist, set the error to 401
+        // and return 'false'.
+        if (result === OpignoScormUI2004API.CMI_NOT_VALID) {
+          this.error = '401';
+          return 'false';
+        }
+        // For currently unimplemented values, set the error to 402
+        // and return 'false'.
+        else if (result === OpignoScormUI2004API.CMI_NOT_IMPLEMENTED) {
+          this.error = '402';
+          return 'false';
+        }
+        // For read-only values, set the error to 404 and return 'false'.
+        else if (result === OpignoScormUI2004API.VALUE_READ_ONLY) {
+          this.error = '404';
+          return 'false';
+        }
       }
       // For unknown values, set the error to 401 and return ''.
       else {
         this.error = '401';
-        return '';
+        return 'false';
       }
     }
     catch (e) {
       // If anything fails, for whatever reason, set the error to 301 and
       // return ''.
-      this.error = '301';
-      return '';
+      this.error = '351';
+      return 'false';
     }
+
+    this.error = '0';
+    return 'true';
   }
 
   /**
@@ -275,7 +327,7 @@
    */
   OpignoScormUI2004API.prototype.Commit = function(value) {
     console.log('Commit', value);
-    return value === '' ? 'true' : '201';
+    return value === '' ? 'true' : 'false';
   }
 
   /**
@@ -422,6 +474,10 @@
     else if (!this._implementedCMIDataPath(cmiPath)) {
       return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
     }
+    // Check if the CMI path is read-only. If so, return VALUE_READ_ONLY.
+    else if (this._readOnlyCMIDataPath(cmiPath)) {
+      return OpignoScormUI2004API.VALUE_READ_ONLY;
+    }
 
     // @todo DO not set _count or _children properties. Read-only
 
@@ -458,15 +514,15 @@
             // If the key is 0, and the parent is not an array, reset the parent to an array object.
             // Push an empty element onto the array.
             if (path === '0' && data.length === undefined) {
-              // Just reseting data to [] loses it's relationship with this.data. We have no choice
+              // Just resetting data to [] loses it's relationship with this.data. We have no choice
               // but to use eval() here.
               eval('this.data.' + prevPaths.join('.') + ' = [];');
               eval('data = this.data.' + prevPaths.join('.') + ';');
               data.push({});
             }
             // If the parent is an array object, but the given key is out of bounds, throw an error.
-            else if (false) {
-              throw new Error("Out of bounds. Cannot set '" + path + "' on " + cmiPath + ", as it contains only " + data.length + " elements.");
+            else if (data.length < path) {
+              throw { name: "CMIDataOutOfBounds", message: "Out of bounds. Cannot set [" + path + "] on " + cmiPath + ", as it contains only " + data.length + " elements." };
             }
             // Finally, if this is an array, and the key is valid, but there's no element yet,
             // push an empty element onto the array.
@@ -498,13 +554,16 @@
   OpignoScormUI2004API.prototype._validCMIDataPath = function(cmiPath) {
     var keys = [
       // Special test paths.
+      'cmi.__value__',
+      'cmi.__read_only__',
+      'cmi.__unimplemented__',
       'cmi.__test__',
       'cmi.__test__._count',
       'cmi.__test__.n.child'
     ];
 
     // Replace all ".[0-9]." values with ".n.".
-    return keys.indexOf(cmiPath.replace(/.[0-9]+./g, '.n.')) !== -1;
+    return keys.indexOf(cmiPath.replace(/\.[0-9]+\./g, '.n.')) !== -1;
   }
 
   /**
@@ -526,6 +585,27 @@
   }
 
   /**
+   * Check if the given CMI path is read-only.
+   *
+   * @param {String} cmiPath
+   *
+   * @returns {Boolean}
+   */
+  OpignoScormUI2004API.prototype._readOnlyCMIDataPath = function(cmiPath) {
+    // Array properties are always read-only.
+    if (/\._(count|children)/.test(cmiPath)) {
+      return true;
+    }
+
+    var keys = [
+      // Special test paths.
+      'cmi.__read_only__'
+    ];
+
+    return keys.indexOf(cmiPath) !== -1;
+  }
+
+  /**
    * Check if the given CMI path is implemented by Opigno.
    *
    * @param {String} cmiPath
@@ -535,6 +615,8 @@
   OpignoScormUI2004API.prototype._implementedCMIDataPath = function(cmiPath) {
     var keys = [
       // Special test paths.
+      'cmi.__value__',
+      'cmi.__read_only__',
       'cmi.__test__',
       'cmi.__test__._count',
       'cmi.__test__.n.child',
@@ -555,7 +637,7 @@
       '' // Dummy value to prevent trailing comma errors in this particular list.
     ];
 
-    return keys.indexOf(cmiPath.replace(/.[0-9]+./g, '.n.')) !== -1;
+    return keys.indexOf(cmiPath.replace(/\.[0-9]+\./g, '.n.')) !== -1;
   }
 
   // Export.

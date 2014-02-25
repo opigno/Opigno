@@ -38,7 +38,7 @@
       module('API detection and method implementations.');
         ok(window.API_1484_11,                         'REQ_2.5: A global API_1484_11 object exists.');
         ok(window.API_1484_11.version,                 'REQ_2.6: The API implements a version property.');
-        ok(/^1.0./.test(window.API_1484_11.version),   'REQ_2.6.1, REQ_2.6.2: The API version is correctly formatted.');
+        ok(/^1\.0\./.test(window.API_1484_11.version), 'REQ_2.6.1, REQ_2.6.2: The API version is correctly formatted.');
         ok(window.API_1484_11.Initialize,              'REQ_4.1: The API implements the Initialize() method.');
         ok(window.API_1484_11.Terminate,               'REQ_5.1: The API implements the Terminate() method.');
         ok(window.API_1484_11.GetValue,                'REQ_6.1: The API implements the GetValue() method.');
@@ -100,6 +100,8 @@
         equal(api.GetLastError(), '0',                   'REQ_6.2: Requesting a recognized value gives no error.');
         equal(api.GetValue('cmi.__unknown__'), '',       'REQ_6.3: Requesting an unknown value fails.');
         equal(api.GetLastError(), '401',                 'REQ_6.3: Requesting an unknown value gives a 401 error.');
+        equal(api.GetValue('__unknown__'), '',           'REQ_6.3: Requesting an unknown value fails.');
+        equal(api.GetLastError(), '401',                 'REQ_6.3: Requesting an unknown value gives a 401 error.');
         equal(api.GetValue('cmi.__unimplemented__'), '', 'REQ_6.4: Requesting an unimplemented value fails.');
         equal(api.GetLastError(), '402',                 'REQ_6.4: Requesting an unimplemented value gives a 402 error.');
         equal(api.GetValue('cmi.__write_only__'), '',    'REQ_6.6: Requesting a write-only value fails.');
@@ -120,8 +122,45 @@
         equal(api.GetLastError(), '0',                       'REQ_6.12: Requesting the count property of an element that is an array gives no error.');
         // Terminate the communication.
         api.Terminate('');
-        equal(api.GetValue(''), '',                      'REQ_6.9: Requesting a value after termination fails.');
-        equal(api.GetLastError(), '123',                 'REQ_6.9: Requesting a value after termination gives a 123 error.');
+        equal(api.GetValue(''), '',                          'REQ_6.9: Requesting a value after termination fails.');
+        equal(api.GetLastError(), '123',                     'REQ_6.9: Requesting a value after termination gives a 123 error.');
+
+
+      module('API::SetValue()');
+        // @todo Missing specs for REQ_7.7, REQ_7.8, REQ_7.11, REQ_7.12, REQ_7.15.
+        api = new OpignoScormUI2004API();
+        equal(api.SetValue('', ''), 'false',                     'REQ_7.9: Setting a value before initializing fails.');
+        equal(api.GetLastError(), '132',                         'REQ_7.8: Setting a value before initializing gives a 132 error.');
+        // Initialize the communication.
+        api.Initialize('');
+        equal(api.SetValue('cmi.__value__', 'value'), 'true',    'REQ_7.2: Setting a recognized value succeeds.');
+        equal(api.GetLastError(), '0',                           'REQ_7.2: Setting a recognized value gives no error.');
+        equal(api.SetValue('cmi.__unknown__', 'value'), 'false', 'REQ_7.3: Setting an unknown value fails.');
+        equal(api.GetLastError(), '401',                         'REQ_7.3: Setting an unknown value gives a 401 error.');
+        equal(api.SetValue('__unknown__', 'value'), 'false',       'REQ_7.3: Setting an unknown value fails.');
+        equal(api.GetLastError(), '401',                           'REQ_7.3: Setting an unknown value gives a 401 error.');
+        equal(api.SetValue('cmi.__unimplemented__', 'value'), 'false',       'REQ_7.4: Setting an unimplemented value fails.');
+        equal(api.GetLastError(), '402',                           'REQ_7.4: Setting an unimplemented value gives a 402 error.');
+        equal(api.SetValue('cmi.__read_only__', 'value'), 'false',       'REQ_7.5: Setting a read-only value fails.');
+        equal(api.GetLastError(), '404',                           'REQ_7.5: Setting a read-only value gives a 404 error.');
+        equal(api.SetValue('cmi.__test__._count', 2), 'false',   'REQ_7.5: Setting a read-only value fails.');
+        equal(api.GetLastError(), '404',                 'REQ_7.5: Setting a read-only value gives a 404 error.');
+        equal(api.SetValue('cmi.__value__', { key: 'value' }), 'false',   'REQ_7.6: Setting a non-string value fails.');
+        equal(api.GetLastError(), '406',                 'REQ_7.6: Setting a non-string value gives a 406 error.');
+        equal(api.SetValue('', 'value'), 'false',   'REQ_7.13: Providing an empty string path fails.');
+        equal(api.GetLastError(), '351',                 'REQ_7.13: Providing an empty string path gives a 351 error.');
+        equal(api.SetValue(null, 'value'), 'false',   'REQ_7.13: Providing an non-string path fails.');
+        equal(api.GetLastError(), '351',                 'REQ_7.13: Providing an non-string path gives a 351 error.');
+        equal(api.SetValue(89, 'value'), 'false',   'REQ_7.13: Providing an non-string path fails.');
+        equal(api.GetLastError(), '351',                 'REQ_7.13: Providing an non-string path gives a 351 error.');
+        equal(api.SetValue('cmi.__test__.0.child', 'value'), 'true',   'REQ_7.2: Setting a valid array value succeeds.');
+        equal(api.GetLastError(), '0',                 'REQ_7.2: Setting a valid array value gives no error.');
+        equal(api.SetValue('cmi.__test__.2.child', 'value'), 'false',   'REQ_7.14: Setting an array key that is out of bounds fails.');
+        equal(api.GetLastError(), '351',                 'REQ_7.14: Setting an array key that is out of bounds gives a 351 error.');
+        // Terminate the communication.
+        api.Terminate('');
+        equal(api.SetValue('cmi.__value__', 'value'), 'false',  'REQ_7.10: Setting a value after termination fails.');
+        equal(api.GetLastError(), '133',                     'REQ_7.10: Setting a value after termination gives a 123 error.');
     }
   };
 
