@@ -62,6 +62,10 @@
         equal(api.GetLastError(), '201',             'REQ_3.2: Initializing the API without a parameter gives a 201 error.');
         equal(api.Initialize('any string'), 'false', 'REQ_3.2: Initializing the API with any string fails.');
         equal(api.GetLastError(), '201',             'REQ_3.2: Initializing the API with any string gives a 201 error.');
+        equal(api.Initialize(654), 'false',          'REQ_3.2: Initializing the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Initializing the API with a parameter that is not a string gives a 201 error.');
+        equal(api.Initialize(null), 'false',         'REQ_3.2: Initializing the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Initializing the API with a parameter that is not a string gives a 201 error.');
         equal(api.Initialize(''), 'true',            'REQ_4.1.1, REQ_4.5: Initializing the API with an empty string succeeds.');
         equal(api.GetLastError(), '0',               'REQ_4.5: Initializing the API with an empty string gives no error.');
         equal(api.Initialize(''), 'false',           'REQ_4.3: Initializing the API twice fails.');
@@ -83,6 +87,10 @@
         equal(api.GetLastError(), '201',             'REQ_3.2: Terminating the API without a parameter gives a 201 error.');
         equal(api.Terminate('any string'), 'false',  'REQ_3.2: Terminating the API with any string fails.');
         equal(api.GetLastError(), '201',             'REQ_3.2: Terminating the API with any string gives a 201 error.');
+        equal(api.Terminate(654), 'false',           'REQ_3.2: Terminating the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Terminating the API with a parameter that is not a string gives a 201 error.');
+        equal(api.Terminate(null), 'false',          'REQ_3.2: Terminating the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Terminating the API with a parameter that is not a string gives a 201 error.');
         equal(api.Terminate(''), 'true',             'REQ_5.1.1, REQ_5.2: Terminating the API with an empty string succeeds.');
         equal(api.GetLastError(), '0',               'REQ_5.2: Terminating the API with an empty string gives no error.');
         equal(api.Terminate(''), 'false',            'REQ_5.5: Terminating the API twice.');
@@ -172,6 +180,10 @@
         equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API without a parameter gives a 201 error.');
         equal(api.Commit('any string'), 'false',  'REQ_3.2: Committing the API with any string fails.');
         equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with any string gives a 201 error.');
+        equal(api.Commit(123), 'false',  'REQ_3.2: Committing the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with a parameter that is not a string gives a 201 error.');
+        equal(api.Commit(null), 'false',  'REQ_3.2: Committing the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with a parameter that is not a string gives a 201 error.');
     }
   };
 
