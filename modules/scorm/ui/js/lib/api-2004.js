@@ -305,7 +305,7 @@
       }
     }
     catch (e) {
-      // If anything fails, for whatever reason, set the error to 301 and
+      // If anything fails, for whatever reason, set the error to 351 and
       // return ''.
       this.error = '351';
       return 'false';
@@ -341,8 +341,24 @@
       this.error = '142';
       return 'false';
     }
+    // If already terminated, set the error to 143 and return 'false'.
+    else if (this.isTerminated) {
+      this.error = '143';
+      return 'false';
+    }
 
-    return value === '' ? 'true' : 'false';
+    try {
+      // Persist the data.
+    }
+    catch (e) {
+      // If anything fails, for whatever reason, set the error to 391 and
+      // return ''.
+      this.error = '391';
+      return 'false';
+    }
+
+    this.error =  '0';
+    return 'true';
   }
 
   /**

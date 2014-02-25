@@ -171,19 +171,26 @@
         equal(api.GetLastError(), '133',                                'REQ_7.10: Setting a value after termination gives a 123 error.');
 
       module('API::Commit()');
+        // @todo Missing specs for REQ_8.2.1, REQ_8.3.
         api = new OpignoScormUI2004API();
-        equal(api.Commit(''), 'false',            'REQ_5.4: Committing the API before initializing fails.');
-        equal(api.GetLastError(), '142',             'REQ_5.4: Committing the API before initializing gives a 142 error.');
+        equal(api.Commit(''), 'false',           'REQ_8.4: Committing the API before initializing fails.');
+        equal(api.GetLastError(), '142',         'REQ_8.4: Committing the API before initializing gives a 142 error.');
         // Initialize the communication.
         api.Initialize('');
-        equal(api.Commit(), 'false',              'REQ_3.2: Committing the API without a parameter fails.');
-        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API without a parameter gives a 201 error.');
-        equal(api.Commit('any string'), 'false',  'REQ_3.2: Committing the API with any string fails.');
-        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with any string gives a 201 error.');
-        equal(api.Commit(123), 'false',  'REQ_3.2: Committing the API with a parameter that is not a string fails.');
-        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with a parameter that is not a string gives a 201 error.');
-        equal(api.Commit(null), 'false',  'REQ_3.2: Committing the API with a parameter that is not a string fails.');
-        equal(api.GetLastError(), '201',             'REQ_3.2: Committing the API with a parameter that is not a string gives a 201 error.');
+        equal(api.Commit(), 'false',             'REQ_3.2: Committing the API without a parameter fails.');
+        equal(api.GetLastError(), '201',         'REQ_3.2: Committing the API without a parameter gives a 201 error.');
+        equal(api.Commit('any string'), 'false', 'REQ_3.2: Committing the API with any string fails.');
+        equal(api.GetLastError(), '201',         'REQ_3.2: Committing the API with any string gives a 201 error.');
+        equal(api.Commit(123), 'false',          'REQ_3.2: Committing the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',         'REQ_3.2: Committing the API with a parameter that is not a string gives a 201 error.');
+        equal(api.Commit(null), 'false',         'REQ_3.2: Committing the API with a parameter that is not a string fails.');
+        equal(api.GetLastError(), '201',         'REQ_3.2: Committing the API with a parameter that is not a string gives a 201 error.');
+        equal(api.Commit(''), 'true',            'REQ_8.2: Committing the API after initializing succeeds.');
+        equal(api.GetLastError(), '0',           'REQ_8.2: Committing the API after initializing gives no error.');
+        // Terminate the communication.
+        api.Terminate('');
+        equal(api.Commit(''), 'false',           'REQ_8.5: Committing the API after termination fails.');
+        equal(api.GetLastError(), '143',         'REQ_8.5: Committing the API after termination gives a 143 error.');
     }
   };
 
