@@ -21,6 +21,7 @@
     this.eventCallbacks = {
       initialize: [],
       terminate: [],
+      commit: [],
       'pre-commit': [],
       'post-commit': []
     };
@@ -354,7 +355,7 @@
     this.trigger('pre-commit', value, this.data);
 
     try {
-      // Persist the data.
+      this.trigger('commit', value, this.data);
     }
     catch (e) {
       // If anything fails, for whatever reason, set the error to 391 and

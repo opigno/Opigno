@@ -255,6 +255,10 @@
           spy.preCommitCalled = true;
           spy.preCommitThat = this;
         });
+        api.bind('commit', function() {
+          spy.commitCalled = true;
+          spy.commitThat = this;
+        });
         api.bind('post-commit', function() {
           spy.postCommitCalled = true;
           spy.postCommitThat = this;
@@ -262,6 +266,8 @@
         api.Commit('');
         ok(spy.preCommitCalled, 'Spy got called for the "pre-commit" event.');
         equal(spy.preCommitThat, api, 'Spy called with correct context (API object).');
+        ok(spy.commitCalled, 'Spy got called for the "commit" event.');
+        equal(spy.commitThat, api, 'Spy called with correct context (API object).');
         ok(spy.postCommitCalled, 'Spy got called for the "pre-commit" event.');
         equal(spy.postCommitThat, api, 'Spy called with correct context (API object).');
 
