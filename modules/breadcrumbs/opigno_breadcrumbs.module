@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Breadcrumbs module definition.
+ */
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function opigno_breadcrumbs_preprocess_page(&$vars) {
+  $vars['breadcrumb'] = opigno_breadcrumbs();
+}
+
+/**
+ * Get the breadcrumb trail for the current page.
+ */
+function opigno_breadcrumbs() {
+  // Get the default breadcrumb.
+  $breadcrumb = drupal_get_breadcrumb();
+
+  // Fetch the group from URL context.
+  // If we are in group context, handle our own breadcrumbs.
+  $group = og_context('node');
+  if (!empty($group['gid'])) {
+    // Are we on the course page itself ? If so, skip this.
+    if (current_path() !== "node/{$group['gid']}") {
+      // We need some custom logic.
+      $new_breadcrumb = array(l(t('Home'), NULL));
+
+      // Add the course itself.
+      $group_title = opigno_breadcrumbs_get_group_title($group['gid']);
+      $new_breadcrumb[] = l($group_title, "node/{$group['gid']}");
+
+      // Ask other modules for breadcrumbs.
+      $module_breadcrumbs = module_invoke_all('opigno_breadcrumbs', $group['gid']);
+      if (!empty($module_breadcrumbs)) {
+        $new_breadcrumb = array_merge($new_breadcrumb, $module_breadcrumbs);
+      }
+
+      // Set the new trail.
+      $breadcrumb = $new_breadcrumb;
+    }
+  }
+
+  return theme_breadcrumb(array('breadcrumb' => $breadcrumb));
+}
+
+/**
+ * Helper function to get the group title.
+ *
+ * We use this instead of loading the entire node object from the DB.
+ *
+ * @param  int $nid
+ *
+ * @return string
+ */
+function opigno_breadcrumbs_get_group_title($nid) {
+  $query = db_select('node', 'n');
+  $query->leftJoin('node_revision', 'v', 'n.vid = v.vid');
+  return $query->fields('v', array('title'))
+    ->condition('n.nid', $nid)
+    ->execute()
+    ->fetchField();
+}

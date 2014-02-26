@@ -1,0 +1,6 @@
+name = Opigno Breadcrumbs
+description = API for providing useful and intuitive breadcrumbs when in a course context.
+core = 7.x
+package = Opigno
+dependencies[] = opigno
+dependencies[] = og_context
