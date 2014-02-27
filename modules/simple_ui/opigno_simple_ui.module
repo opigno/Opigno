@@ -110,6 +110,7 @@ function opigno_simple_ui_views_default_views_alter(&$views) {
  */
 function opigno_simple_ui_form_node_form_alter(&$form, $form_state) {
   if (in_array($form['type']['#value'], array_keys(_quiz_question_get_implementations()))) {
+    module_load_include('inc', 'opigno_simple_ui', 'includes/opigno_simple_ui.quiz');
     opigno_simple_ui_question_typesform_alter($form, $form_state);
   }
 }
@@ -229,7 +230,29 @@ function opigno_simple_ui_menu_local_tasks_alter(&$data, $router_item, $root_pat
  * Implements hook_modules_enabled().
  */
 function opigno_simple_ui_modules_enabled($modules) {
-  if (in_array('quiz',$modules)) {
+  $handle = FALSE;
+  // We cannot use _quiz_question_implementations(), as the modules
+  // are not enabled yet... Update this list if we find new question
+  // types.
+  foreach (array(
+    'quiz',
+    'matching',
+    'multichoice',
+    'quizfileupload',
+    'quiz_ddlines',
+    'quiz_directions',
+    'scale',
+    'short_answer',
+    'truefalse',
+    'long_answer',
+  ) as $module) {
+    if (in_array($module, $modules)) {
+      $handle = TRUE;
+      break;
+    }
+  }
+
+  if ($handle) {
     module_load_include('inc', 'opigno_simple_ui', 'includes/opigno_simple_ui.quiz');
     opigno_simple_ui_update_quiz_labels();
   }
