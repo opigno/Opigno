@@ -162,6 +162,12 @@ function opigno_simple_ui_update_quiz_labels() {
     field_update_instance($instance);
   }
 
+  $instance = field_info_instance('node', 'body', 'quiz');
+  if (!empty($instance)) {
+    $instance['label'] = "Introduction";
+    field_update_instance($instance);
+  }
+
   $instance = field_info_instance('node', 'course_required_quiz_ref', OPIGNO_COURSE_BUNDLE);
   if (!empty($instance)) {
     $instance['label'] = "Lesson required for the course validation";
