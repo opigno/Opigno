@@ -33,27 +33,17 @@ function opigno_simple_ui_quiz_menu_local_tasks_alter(&$data, $router_item, $roo
 }
 
 /**
- * Implements hook_form_quiz_directions_node_form_alter().
+ * Implements hook_form_form_alter() for all question types.
  */
-function opigno_simple_ui_form_alter(&$form, $form_state) {
-  if ((isset($form['#node_edit_form']) && ($form['#node_edit_form']) == TRUE)) {
-    if (in_array($form['type']['#value'], array(
-      "long_answer",
-      "matching",
-      "multichoice",
-      "quiz_ddlines",
-      "quiz_directions",
-      "scale",
-      "short_answer",
-      "truefalse",
-      "quizfileupload"
-    ))
-    ) {
-      unset($form['add_directly']['#group']);
-      $form['add_directly']['#access'] = FALSE;
-      $form['add_directly']['#attributes']['style'][] = 'display:none;';
-    }
-  }
+function opigno_simple_ui_question_typesform_alter(&$form, $form_state) {  
+  // Remove the "Add to Quiz" options. This is for very advanced users, and rarely
+  // used.
+  unset($form['add_directly']['#group']);
+  $form['add_directly']['#access'] = FALSE;
+  $form['add_directly']['#attributes']['style'][] = 'display:none;';
+
+  // Change the order of the fields. Put the title on top, always.
+  $form['title']['#weight'] = -30;
 }
 
 /**
@@ -166,6 +156,14 @@ function opigno_simple_ui_update_quiz_labels() {
   if (!empty($instance)) {
     $instance['label'] = "Introduction";
     field_update_instance($instance);
+  }
+
+  foreach (array_keys(_quiz_question_get_implementations()) as $type) {
+    $instance = field_read_instance('node', 'body', $type);
+    if (!empty($instance)) {
+      $instance['widget']['weight'] = -3;
+      field_update_instance($instance);
+    }
   }
 
   $instance = field_info_instance('node', 'course_required_quiz_ref', OPIGNO_COURSE_BUNDLE);

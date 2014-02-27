@@ -106,6 +106,15 @@ function opigno_simple_ui_views_default_views_alter(&$views) {
 }
 
 /**
+ * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ */
+function opigno_simple_ui_form_node_form_alter(&$form, $form_state) {
+  if (in_array($form['type']['#value'], array_keys(_quiz_question_get_implementations()))) {
+    opigno_simple_ui_question_typesform_alter($form, $form_state);
+  }
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function opigno_simple_ui_menu_alter(&$items) {
