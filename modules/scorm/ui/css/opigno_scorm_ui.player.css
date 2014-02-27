@@ -1,0 +1,59 @@
+/**
+ * @file
+ * SCORM player styles.
+ */
+
+/* Navigation tree */
+.scorm-ui-player-tree-wrapper {
+  float: left;
+  padding-right: 1em;
+  box-sizing: border-box;
+  width: 24%;
+  font-size: .8em;
+}
+
+.scorm-ui-player-tree-wrapper ul {
+  margin: 0;
+  padding: 0 0 0 1em;
+}
+
+.scorm-ui-player-tree-wrapper li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scorm-ui-player-tree-wrapper .scorm-ui-sco-title {
+  padding: .25em 0;
+}
+
+.js-processed .scorm-ui-player-tree-wrapper .scorm-ui-sco-title {
+  cursor: pointer;
+}
+
+.scorm-ui-player-tree-wrapper > ul {
+  padding-left: 0;
+}
+
+
+.scorm-ui-player-tree-wrapper .scorm-ui-sco-aggregation > .scorm-ui-sco-title {
+  font-weight: bold;
+}
+
+/* The first element of the Tree is the Course title (in 99% of all cases) */
+.scorm-ui-player-tree-wrapper > ul > li > .scorm-ui-player-tree-item-title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* IFrame */
+.scorm-ui-player-tree-wrapper + .scorm-ui-player-iframe-wrapper {
+  float: left;
+  width: 75%;
+}
+
+.scorm-ui-player-iframe-wrapper iframe {
+  width: 100%;
+  min-height: 800px;
+  border: 0;
+}

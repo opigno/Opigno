@@ -1,0 +1,219 @@
+<?php
+
+/**
+ * @file
+ * Opigno SCORM API.
+ */
+
+define('OPIGNO_SCORM_DIRECTORY', variable_get('opigno_scorm_directory', 'public://opigno_scorm_extracted'));
+
+/**
+ * Save a SCORM package information.
+ *
+ * @param object $scorm
+ *
+ * @return bool
+ */
+function opigno_scorm_scorm_save($scorm) {
+  if (!empty($scorm->id)) {
+    return db_update('opigno_scorm_packages')
+      ->fields((array) $scorm)
+      ->condition('id', $scorm->id)
+      ->execute();
+  }
+  else {
+    $id = db_insert('opigno_scorm_packages')
+      ->fields((array) $scorm)
+      ->execute();
+
+    $scorm->id = $id;
+
+    return !!$id;
+  }
+}
+
+/**
+ * Load a SCORM package information.
+ *
+ * @param int $id
+ *
+ * @return object|false
+ */
+function opigno_scorm_scorm_load($id) {
+  return db_select('opigno_scorm_packages', 'o')
+    ->fields('o', array())
+    ->condition('id', $id)
+    ->execute()
+    ->fetchObject();
+}
+
+/**
+ * Load SCORM package information by file ID.
+ *
+ * @param int $fid
+ *
+ * @return object|false
+ */
+function opigno_scorm_scorm_load_by_fid($fid) {
+  return db_select('opigno_scorm_packages', 'o')
+    ->fields('o', array())
+    ->condition('fid', $fid)
+    ->execute()
+    ->fetchObject();
+}
+
+/**
+ * Delete a SCORM package information.
+ *
+ * @todo Delete all SCOs as well.
+ *
+ * @param object $scorm
+ */
+function opigno_scorm_scorm_delete($scorm) {
+  db_delete('opigno_scorm_packages')
+    ->condition('id', $scorm->id)
+    ->execute();
+}
+
+/**
+ * Save a SCO information.
+ *
+ * @param object $sco
+ *
+ * @return bool
+ */
+function opigno_scorm_sco_save($sco) {
+  // The attributes is not a field in the database, but
+  // a representation of a table relationship.
+  // Cache them here and unset the property for the
+  // DB query.
+  if (isset($sco->attributes)) {
+    $attributes = $sco->attributes;
+    unset($sco->attributes);
+  }
+
+  if (!empty($sco->id)) {
+    $res = db_update('opigno_scorm_package_scos')
+      ->fields((array) $sco)
+      ->condition('id', $sco->id)
+      ->execute();
+  }
+  else {
+    $id = db_insert('opigno_scorm_package_scos')
+      ->fields((array) $sco)
+      ->execute();
+
+    $sco->id = $id;
+
+    $res = !!$id;
+  }
+
+  if ($res && !empty($attributes)) {
+    // Remove all old attributes, to prevent duplicates.
+    db_delete('opigno_scorm_package_sco_attributes')
+      ->condition('sco_id', $sco->id)
+      ->execute();
+
+    foreach ($attributes as $key => $value) {
+      $serialized = 0;
+      if (is_array($value) || is_object($value)) {
+        $value = serialize($value);
+        $serialized = 1;
+      }
+      elseif (is_bool($value)) {
+        $value = (int) $value;
+      }
+
+      db_insert('opigno_scorm_package_sco_attributes')
+        ->fields(array(
+          'sco_id' => $sco->id,
+          'attribute' => $key,
+          'value' => $value,
+          'serialized' => $serialized,
+        ))
+        ->execute();
+    }
+  }
+
+  return $res;
+}
+
+/**
+ * Load a SCO information.
+ *
+ * @param int $id
+ *
+ * @return object|false
+ */
+function opigno_scorm_sco_load($id) {
+  $sco = db_select('opigno_scorm_package_scos', 'o')
+    ->fields('o', array())
+    ->condition('id', $id)
+    ->execute()
+    ->fetchObject();
+
+  if ($sco) {
+    $sco->attributes = _opigno_scorm_sco_load_attributes($sco->id);
+  }
+
+  return $sco;
+}
+
+/**
+ * Load a SCO information by SCORM id.
+ *
+ * @param int $scorm_id
+ *
+ * @return object|false
+ */
+function opigno_scorm_sco_load_by_scorm_id($scorm_id) {
+  $sco = db_select('opigno_scorm_package_scos', 'o')
+    ->fields('o', array())
+    ->condition('scorm_id', $scorm_id)
+    ->execute()
+    ->fetchObject();
+
+  if ($sco) {
+    $sco->attributes = _opigno_scorm_sco_load_attributes($sco->id);
+  }
+
+  return $sco;
+}
+
+/**
+ * Helper function to load a SCO attributes.
+ *
+ * @param int $sco_id
+ *
+ * @return array
+ */
+function _opigno_scorm_sco_load_attributes($sco_id) {
+  $attributes = array();
+
+  $result = db_select('opigno_scorm_package_sco_attributes', 'o')
+    ->fields('o', array('attribute', 'value', 'serialized'))
+    ->condition('sco_id', $sco_id)
+    ->execute();
+
+  while ($row = $result->fetchObject()) {
+    $attributes[$row->attribute] = !empty($row->serialized) ? unserialize($row->value) : $row->value;
+  }
+
+  return $attributes;
+}
+
+/**
+ * Delete a SCO package information.
+ *
+ * @param object $sco
+ */
+function opigno_scorm_sco_delete($sco) {
+  db_delete('opigno_scorm_package_scos')
+    ->condition('id', $sco->id)
+    ->execute();
+
+  // Remove all old attributes, to prevent duplicates.
+  db_delete('opigno_scorm_package_sco_attributes')
+    ->condition('sco_id', $sco->id)
+    ->execute();
+}

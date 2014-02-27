@@ -1,0 +1,130 @@
+<?php
+
+/**
+ * @file
+ * Install logic.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function opigno_scorm_schema() {
+  return array(
+    'opigno_scorm_packages' => array(
+      'description' => 'Uploaded SCORM packages.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'serial',
+        ),
+        'fid' => array(
+          'description' => 'The managed file ID that references the SCORM package (ZIP file).',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'extracted_dir' => array(
+          'descripition' => 'The location where the SCORM was extracted.',
+          'type' => 'text',
+        ),
+        'manifest_file' => array(
+          'description' => 'The location of the manifest file.',
+          'type' => 'text',
+        ),
+        'manifest_id' => array(
+          'type' => 'text',
+        ),
+        'metadata' => array(
+          'description' => 'The serialized meta data of the manifest file.',
+          'type' => 'text',
+          'size' => 'medium',
+        ),
+      ),
+      'primary key' => array('id'),
+      'indexes' => array('fid' => array('fid')),
+      'foreign keys' => array(
+        'file_managed' => array('fid' => 'fid'),
+      ),
+    ),
+    'opigno_scorm_package_scos' => array(
+      'description' => 'Uploaded SCORM package SCO items.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'serial',
+        ),
+        'scorm_id' => array(
+          'description' => 'The SCORM package ID.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'organization' => array(
+          'descripition' => 'The SCO organization.',
+          'type' => 'text',
+        ),
+        'identifier' => array(
+          'descripition' => 'The SCO item identifier.',
+          'type' => 'text',
+        ),
+        'parent_identifier' => array(
+          'descripition' => 'The SCO item parent identifier. Equals 0 if at the root of the tree.',
+          'type' => 'text',
+        ),
+        'launch' => array(
+          'descripition' => 'The SCO item launch URL, if any.',
+          'type' => 'text',
+        ),
+        'type' => array(
+          'descripition' => 'The SCO item internal type.',
+          'type' => 'text',
+        ),
+        'scorm_type' => array(
+          'descripition' => 'The SCO item SCORM compliant type.',
+          'type' => 'text',
+        ),
+        'title' => array(
+          'descripition' => 'The SCO item title.',
+          'type' => 'text',
+        ),
+        'weight' => array(
+          'descripition' => 'The SCO item weight. The heavier the weight, the later it will show up in a navigation tree.',
+          'type' => 'int',
+          'default' => 0,
+        ),
+      ),
+      'primary key' => array('id'),
+      'indexes' => array('scorm_id' => array('scorm_id')),
+      'foreign keys' => array(
+        'opigno_scorm_packages' => array('scorm_id' => 'id'),
+      ),
+    ),
+    'opigno_scorm_package_sco_attributes' => array(
+      'description' => 'Uploaded SCORM package SCO item attributes.',
+      'fields' => array(
+        'id' => array(
+          'type' => 'serial',
+        ),
+        'sco_id' => array(
+          'description' => 'The SCORM item ID.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'attribute' => array(
+          'type' => 'text',
+        ),
+        'value' => array(
+          'type' => 'text',
+        ),
+        'serialized' => array(
+          'type' => 'int',
+          'default' => 0,
+        ),
+      ),
+      'primary key' => array('id'),
+      'indexes' => array('sco_id' => array('sco_id')),
+      'foreign keys' => array(
+        'opigno_scorm_package_scos' => array('sco_id' => 'id'),
+      ),
+    ),
+  );
+}

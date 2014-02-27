@@ -1,0 +1,222 @@
+<?php
+
+/**
+ * @file
+ * Opigno SCORM UI.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function opigno_scorm_ui_menu() {
+  return array(
+    'opigno-scorm/ui/player/sco/%opigno_scorm_sco' => array(
+      'page callback' => 'opigno_scorm_ui_player_integrate_sco',
+      'page arguments' => array(4),
+      'access callback' => TRUE, // @todo
+      'file' => 'includes/opigno_scorm_ui.player.inc',
+      'type' => MENU_CALLBACK,
+    ),
+  );
+}
+
+/**
+ * Implements hook_library_alter().
+ */
+function opigno_scorm_ui_library_alter(&$libraries, $module) {
+  // Add available JavaScript tests and dependencies.
+  if ($module == 'qunit') {
+    $path = drupal_get_path('module', 'opigno_scorm_ui');
+    $libraries['qunit']['js'][$path . '/js/lib/api-2004.js'] = array();
+    $libraries['qunit']['js'][$path . '/js/tests/api-2004.js'] = array();
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function opigno_scorm_ui_theme() {
+  return array(
+    'opigno_scorm_ui__player' => array(
+      'variables' => array('tree' => array(), 'start_sco' => NULL),
+      'template' => 'theme/opigno-scorm-ui--player',
+    ),
+    'opigno_scorm_ui__player_tree' => array(
+      'variables' => array('tree' => array()),
+      'template' => 'theme/opigno-scorm-ui--player-tree',
+    ),
+    'opigno_scorm_ui__player_tree_item' => array(
+      'variables' => array('sco' => NULL),
+      'template' => 'theme/opigno-scorm-ui--player-tree-item',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function opigno_scorm_ui_field_info() {
+  return array(
+    'opigno_scorm_package' => array(
+      'label' => t('SCORM package'),
+      'description' => t("This field allows users to upload SCORM packages"),
+      'settings' => array(
+        'display_field' => 0,
+        'display_default' => 0,
+        'uri_scheme' => variable_get('file_default_scheme', 'public'),
+      ),
+      'instance_settings' => array(
+        'file_extensions' => 'zip',
+        'file_directory' => 'opigno_scorm',
+        'max_filesize' => '',
+        'description_field' => 0,
+      ),
+      'default_widget' => 'file_generic',
+      'default_formatter' => 'opigno_scorm_player',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function opigno_scorm_ui_field_widget_info_alter(&$info) {
+  $info['file_generic']['field types'] = array_merge($info['file_generic']['field types'], array('opigno_scorm_package'));
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function opigno_scorm_ui_field_formatter_info() {
+  return array(
+    'opigno_scorm_player' => array(
+      'label' => t('SCORM player'),
+      'field types' => array('opigno_scorm_package'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function opigno_scorm_ui_field_formatter_info_alter(&$info) {
+  foreach(array('file_default', 'file_url_plain') as $formatter) {
+    $info[$formatter]['field types'][] = 'opigno_scorm_package';
+  }
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function opigno_scorm_ui_field_is_empty($item, $field) {
+  return file_field_is_empty($item, $field);
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function opigno_scorm_ui_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  file_field_load($entity_type, $entities, $field, $instances, $langcode, $items, $age);
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function opigno_scorm_ui_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  file_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_insert().
+ */
+function opigno_scorm_ui_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  module_load_include('inc', 'opigno_scorm', 'includes/opigno_scorm.manifest');
+  file_field_insert($entity_type, $entity, $field, $instance, $langcode, $items);
+  foreach ($items as $item) {
+    opigno_scorm_extract($item['fid']);
+  }
+}
+
+/**
+ * Implements hook_field_update().
+ */
+function opigno_scorm_ui_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  module_load_include('inc', 'opigno_scorm', 'includes/opigno_scorm.manifest');
+  file_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
+  foreach ($items as $item) {
+    $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
+    if (empty($scorm->id)) {
+      opigno_scorm_extract($item['fid']);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_delete().
+ */
+function opigno_scorm_ui_field_delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  file_field_delete($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_delete_revision().
+ */
+function opigno_scorm_ui_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  file_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'opigno_scorm_player':
+      $first = TRUE;
+      foreach ($items as $delta => $item) {
+        if ($first) {
+          $scorm = opigno_scorm_scorm_load_by_fid($item['fid']);
+          $element[$delta] = array(
+            '#markup' => opigno_scorm_ui_render_player($scorm),
+          );
+          $first = FALSE;
+        }
+        else {
+          $element[$delta] = array(
+            '#markup' => t("As per <a href='!link' target='_blank'>SCORM.2004.3ED.ConfReq.v1.0</a>, only <em>only one SCO can be launched at a time.</em> To enforce this, only one SCORM package is loaded inside the player on this page at a time.", array('!link' => 'http://www.adlnet.gov/wp-content/uploads/2011/07/SCORM.2004.3ED.ConfReq.v1.0.pdf')),
+          );
+        }
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Render a SCORM player for the given SCORM object.
+ *
+ * @param object $scorm
+ *
+ * @return string
+ */
+function opigno_scorm_ui_render_player($scorm) {
+  module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
+
+  // Add assets.
+  $path = drupal_get_path('module', 'opigno_scorm_ui');
+  drupal_add_css("$path/css/opigno_scorm_ui.player.css");
+  drupal_add_js("$path/js/lib/player.js");
+  drupal_add_js("$path/js/lib/api-2004.js");
+  drupal_add_js("$path/js/lib/api-1.2.js");
+  drupal_add_js("$path/js/opigno_scorm_ui.player.js");
+
+  // Get the SCO tree.
+  $tree = opigno_scorm_ui_player_scorm_tree($scorm);
+
+  // Get the start SCO.
+  $start_sco = opigno_scorm_ui_player_start_sco($tree);
+
+  return theme('opigno_scorm_ui__player', array('tree' => $tree, 'start_sco' => $start_sco));
+}
