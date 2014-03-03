@@ -51,6 +51,7 @@ function opigno_simple_ui_question_typesform_alter(&$form, $form_state) {
  */
 function opigno_simple_ui_form_quiz_report_form_alter(&$form, $form_state) {
   $no_report = TRUE;
+  drupal_set_title(t("Lesson completed."));
   foreach ($form as $key => $value) {
     if (is_numeric($key)) {
       if (!$form[$key]['#no_report']) {
@@ -60,13 +61,8 @@ function opigno_simple_ui_form_quiz_report_form_alter(&$form, $form_state) {
   }
 
   if ($no_report) {
-    $form['#attributes']['class'][] = 'quiz-results-form-nothing-to-report';
-    $form['success_message'] = array(
-      '#markup' => '<h3>' . t("You successfully completed this lesson.") . '</h3>',
-      '#attributes' => array(
-        'class' => array('quiz-results-nothig-to-report')
-      ),
-    );
+    $form = array('#markup' => t("There are no results to display."));
+    drupal_set_message(t("You successfully completed this lesson."));
   }
 }
 
