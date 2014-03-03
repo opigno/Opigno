@@ -10,17 +10,24 @@
  */
 function opigno_quiz_helper_install() {
   // Add the OG audience field.
-    include_once drupal_get_path('module', 'og') . '/og_ui/og_ui.module';
-    if (function_exists('og_ui_node_type_save')) {
-      $types = array('quiz_ddlines', 'long_answer', 'matching', 'multichoice', 'quiz_directions', 'scale', 'short_answer', 'truefalse','quizfileupload');
-      foreach ($types as $type) {
-        variable_set('og_group_content_type_' . $type, TRUE);
-        og_ui_node_type_save($type);
+  include_once drupal_get_path('module', 'og') . '/og_ui/og_ui.module';
+  if (function_exists('og_ui_node_type_save')) {
+    $types = array('quiz_ddlines', 'long_answer', 'matching', 'multichoice', 'quiz_directions', 'scale', 'short_answer', 'truefalse','quizfileupload');
+    foreach ($types as $type) {
+      variable_set('og_group_content_type_' . $type, TRUE);
+      og_ui_node_type_save($type);
 
-        // Disable comments by default.
-        if (module_exists('comment')) {
-          variable_set('comment_' . $type, COMMENT_NODE_CLOSED);
-        }
+      // Disable comments by default.
+      if (module_exists('comment')) {
+        variable_set('comment_' . $type, COMMENT_NODE_CLOSED);
+      }
+      
+      // Make the body field be displayed fully on teaser.
+      $instance = field_info_instance('node', 'body', $type);
+      if (!empty($instance)) {
+        $instance['display']['teaser']['type'] = 'text_default';
+        field_update_instance($instance);
       }
     }
+  }
 }
