@@ -164,7 +164,7 @@ function opigno_simple_ui_update_quiz_labels() {
       'body' => -5,
       'og_group_ref' => 1,
     ),
-    'multichoice' => array( // @todo
+    'multichoice' => array(
       'body' => -5,
       'og_group_ref' => 1,
     ),
@@ -189,13 +189,19 @@ function opigno_simple_ui_update_quiz_labels() {
   ) as $type => $fields) {
     foreach ($fields as $field => $weight) {
       $instance = field_read_instance('node', $field, $type);
-      dpm($instance);
       if (!empty($instance)) {
         $instance['widget']['weight'] = $weight;
         field_update_instance($instance);
       }
     }
   }
+
+  $settings = variable_get('field_bundle_settings_node__multichoice', NULL);
+  if ($settings) {
+    $settings['extra_fields']['form']['title']['weight'] = -10;
+    variable_set('field_bundle_settings_node__multichoice', $settings);
+  }
+  
   /*
   array('long-answer', 'quizfileupload', 'quiz-directions');
   foreach (array_keys(_quiz_question_get_implementations()) as $type) {
