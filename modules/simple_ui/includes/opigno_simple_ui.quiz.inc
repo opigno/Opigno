@@ -155,13 +155,16 @@ function opigno_simple_ui_update_quiz_labels() {
     field_update_instance($instance);
   }
 
+  /*
+  array('long-answer', 'quizfileupload', 'quiz-directions');
   foreach (array_keys(_quiz_question_get_implementations()) as $type) {
     $instance = field_read_instance('node', 'body', $type);
     if (!empty($instance)) {
-      $instance['widget']['weight'] = -3;
+      $instance['widget']['weight'] = -6;
       field_update_instance($instance);
     }
   }
+  */
 
   $instance = field_info_instance('node', 'course_required_quiz_ref', OPIGNO_COURSE_BUNDLE);
   if (!empty($instance)) {
