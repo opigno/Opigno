@@ -8,6 +8,62 @@
 define('OPIGNO_SCORM_DIRECTORY', variable_get('opigno_scorm_directory', 'public://opigno_scorm_extracted'));
 
 /**
+ * Implements hook_menu().
+ */
+function opigno_scorm_menu() {
+  return array(
+    'opigno/scorm/%opigno_scorm_scorm/cmi/%/sco/%/%' => array(
+      'page callback' => 'opigno_scorm_ajax_cmi',
+      'page arguments' => array(4, 6, 7),
+      'access callback' => 'opigno_scorm_access',
+      'access arguments' => array(2),
+      'file' => 'opigno_scorm.ajax.inc',
+      'type' => MENU_CALLBACK,
+    ),
+  );
+}
+
+/**
+ * Access callback: verify access to the SCORM object.
+ *
+ * Invokes hook_opigno_scorm_access() to verify access. If any module
+ * GRANTS access, returns true, even if some other module DENIES access.
+ *
+ * @param object $scorm
+ *
+ * @return bool
+ */
+function opigno_scorm_access($scorm) {
+  $access = NULL;
+  foreach (module_implements('opigno_scorm_access') as $module) {
+    $result = module_invoke($module, 'opigno_scorm_access', $scorm);
+    // Does the module have something to say about this SCORM package ?
+    // If it is NULL, skip. If it is set, check it.
+    if (isset($result)) {
+      // Access granted, end here.
+      if ($result) {
+        return TRUE;
+      }
+      else {
+        // Access denied, but someone might still grant access.
+        // Continue.
+        $access = $result;
+      }
+    }
+  }
+
+  // If no-one had anything to say about granting access, return 'access content'.
+  // Else, return the access result.
+  if (isset($access)) {
+    return $access;
+  }
+  else {
+    return user_access('access content');
+  }
+
+}
+
+/**
  * Save a SCORM package information.
  *
  * @param object $scorm
@@ -216,4 +272,81 @@ function opigno_scorm_sco_delete($sco) {
   db_delete('opigno_scorm_package_sco_attributes')
     ->condition('sco_id', $sco->id)
     ->execute();
+}
+
+/**
+ * Get a CMI data value for the given SCO.
+ *
+ * @param int $uid
+ * @param int $sco_id
+ * @param string $cmi_key
+ *
+ * @return mixed|null
+ */
+function opigno_scorm_cmi_get($uid, $sco_id, $cmi_key) {
+  $data = NULL;
+  $result = db_select('opigno_scorm_sco_cmi_data', 'o')
+              ->fields('o', array('value', 'serialized'))
+              ->condition('o.uid', $uid)
+              ->condition('o.sco_id', $sco_id)
+              ->condition('o.cmi_key', $cmi_key)
+              ->execute()
+              ->fetchObject();
+
+  if (isset($result->value)) {
+    $data = !empty($result->serialized) ? unserialize($result->value) : $result->value;
+  }
+
+  // Allow modules to alter the data (or even set it if it doesn't exist).
+  drupal_alter('opigno_scorm_cmi_get', $data, array('uid' => $uid, 'sco_id' => $sco_id, 'cmi_key' => $cmi_key));
+
+  return $data;
+}
+
+/**
+ * Set a CMI data value for the given SCO.
+ *
+ * @param int $uid
+ * @param int $sco_id
+ * @param string $cmi_key
+ * @param string $value
+ *
+ * @return bool
+ */
+function opigno_scorm_cmi_set($uid, $sco_id, $cmi_key, $value) {
+  // Allow modules to alter the value. If the $value is set to NULL, it is assumed
+  // a module takes over the persisting of the data and the insertion query
+  // will be skipped.
+  drupal_alter('opigno_scorm_cmi_set', $value, array('uid' => $uid, 'sco_id' => $sco_id, 'cmi_key' => $cmi_key));
+
+  if (isset($value)) {
+    $serialized = 0;
+    if (is_array($value) || is_object($value)) {
+      $value = serialize($value);
+      $serialized = 1;
+    }
+    elseif (is_bool($value)) {
+      $value = (int) $value;
+    }
+
+    $result = db_merge('opigno_scorm_sco_cmi_data')
+      ->key(array(
+        'uid' => $uid,
+        'sco_id' => $sco_id,
+        'cmi_key' => $cmi_key,
+      ))
+      ->fields(array(
+        'uid' => $uid,
+        'sco_id' => $sco_id,
+        'cmi_key' => $cmi_key,
+        'value' => $value,
+        'serialized' => $serialized,
+      ))
+      ->execute();
+
+    return !!$result;
+  }
+  else {
+    return TRUE;
+  }
 }
