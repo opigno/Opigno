@@ -145,6 +145,7 @@ function opigno_simple_ui_update_quiz_labels() {
   $instance = field_info_instance('node', 'quiz_type', 'quiz');
   if (!empty($instance)) {
     $instance['label'] = "Lesson type";
+    $instance['description'] = "Sets the type of this lesson. Can be <em>theory</em> (not shown in results by default), <em>quiz</em> (always shown in results) and <em>mix</em>.";
     field_update_instance($instance);
   }
 
