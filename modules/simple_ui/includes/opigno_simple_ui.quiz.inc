@@ -155,6 +155,47 @@ function opigno_simple_ui_update_quiz_labels() {
     field_update_instance($instance);
   }
 
+  foreach (array(
+    'long_answer' => array(
+      'body' => -1,
+      'og_group_ref' => 1,
+    ),
+    'matching' => array(
+      'body' => -5,
+      'og_group_ref' => 1,
+    ),
+    'multichoice' => array( // @todo
+      'body' => -5,
+      'og_group_ref' => 1,
+    ),
+    'quizfileupload' => array(
+      'body' => -4,
+    ),
+    'quiz_ddlines' => array(
+      'body' => -4,
+    ),
+    'quiz_directions' => array(
+      'body' => -4,
+    ),
+    'scale' => array(
+      'body' => -4,
+    ),
+    'short_answer' => array(
+      'body' => -5,
+    ),
+    'truefalse' => array(
+      'body' => -5,
+    ),
+  ) as $type => $fields) {
+    foreach ($fields as $field => $weight) {
+      $instance = field_read_instance('node', $field, $type);
+      dpm($instance);
+      if (!empty($instance)) {
+        $instance['widget']['weight'] = $weight;
+        field_update_instance($instance);
+      }
+    }
+  }
   /*
   array('long-answer', 'quizfileupload', 'quiz-directions');
   foreach (array_keys(_quiz_question_get_implementations()) as $type) {
