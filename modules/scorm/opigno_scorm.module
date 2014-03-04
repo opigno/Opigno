@@ -298,11 +298,12 @@ function opigno_scorm_cmi_get($uid, $sco_id, $cmi_key) {
   }
 
   // Allow modules to alter the data (or even set it if it doesn't exist).
-  drupal_alter('opigno_scorm_cmi_get', $data, $cmi_key, array(
+  $context = array(
     'uid' => $uid, 
     'sco_id' => $sco_id,
     'original_value' => $data,
-  ));
+  );
+  drupal_alter('opigno_scorm_cmi_get', $data, $cmi_key, $context);
 
   return $data;
 }
@@ -321,11 +322,12 @@ function opigno_scorm_cmi_set($uid, $sco_id, $cmi_key, $value) {
   // Allow modules to alter the value. If the $value is set to NULL, it is assumed
   // a module takes over the persisting of the data and the insertion query
   // will be skipped.
-  drupal_alter('opigno_scorm_cmi_set', $value, $cmi_key, array(
+  $context = array(
     'uid' => $uid, 
     'sco_id' => $sco_id,
-    'original_value' => $value,
-  ));
+    'original_value' => $data,
+  );
+  drupal_alter('opigno_scorm_cmi_set', $value, $cmi_key, $context);
 
   if (isset($value)) {
     $serialized = 0;
