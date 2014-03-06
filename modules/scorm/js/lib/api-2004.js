@@ -29,7 +29,11 @@
       terminate: [],
       commit: [],
       'pre-commit': [],
-      'post-commit': []
+      'post-commit': [],
+      'pre-getvalue': [],
+      'post-getvalue': [],
+      'pre-setvalue': [],
+      'post-setvalue': []
     };
 
     // Set default data values.
@@ -206,6 +210,8 @@
       return '';
     }
 
+    this.trigger('pre-getvalue', cmiElement);
+
     // Find the CMI value.
     try {
       if (/^cmi\./.test(cmiElement)) {
@@ -245,6 +251,7 @@
         else {
           this.error = '0';
           console.log('GetValueFound', cmiElement, result);
+          this.trigger('post-getvalue', cmiElement, result);
           return result;
         }
       }
@@ -299,6 +306,8 @@
       return 'false';
     }
 
+    this.trigger('pre-setvalue', cmiElement, value);
+
     // Find the CMI value.
     try {
       if (/^cmi\./.test(cmiElement)) {
@@ -339,6 +348,8 @@
       this.error = '351';
       return 'false';
     }
+
+    this.trigger('post-setvalue', cmiElement, value);
 
     this.error = '0';
     return 'true';

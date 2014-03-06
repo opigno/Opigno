@@ -80,6 +80,50 @@
         equal(spy.that, api, 'Spy called with correct context (API object).');
 
         spy = {};
+        api.bind('pre-getvalue', function(cmiPath) {
+          spy.preGetValueCalled = true;
+          spy.preGetValueThat = this;
+          spy.preGetValueCMIPath = cmiPath;
+        });
+        api.bind('post-getvalue', function(cmiPath, value) {
+          spy.postGetValueCalled = true;
+          spy.postGetValueThat = this;
+          spy.postGetValueCMIPath = cmiPath;
+          spy.postGetValueValue = value;
+        });
+        api.GetValue('cmi._version');
+        ok(spy.preGetValueCalled, 'Spy got called for the "pre-getvalue" event.');
+        equal(spy.preGetValueThat, api, 'Spy called with correct context (API object).');
+        equal(spy.preGetValueCMIPath, 'cmi._version', 'Spy got called for the "pre-getvalue" event with the correct cmi path.');
+        ok(spy.postGetValueCalled, 'Spy got called for the "post-getvalue" event.');
+        equal(spy.postGetValueThat, api, 'Spy called with correct context (API object).');
+        equal(spy.postGetValueCMIPath, 'cmi._version', 'Spy got called for the "post-getvalue" event with the correct cmi path.');
+        equal(spy.postGetValueValue, api.data.cmi._version, 'Spy got called for the "post-getvalue" event with the correct value.');
+
+        spy = {};
+        api.bind('pre-setvalue', function(cmiPath, value) {
+          spy.preSetValueCalled = true;
+          spy.preSetValueThat = this;
+          spy.preSetValueCMIPath = cmiPath;
+          spy.preSetValueValue = value;
+        });
+        api.bind('post-setvalue', function(cmiPath, value) {
+          spy.postSetValueCalled = true;
+          spy.postSetValueThat = this;
+          spy.postSetValueCMIPath = cmiPath;
+          spy.postSetValueValue = value;
+        });
+        api.SetValue('cmi.__value__', 'value');
+        ok(spy.preSetValueCalled, 'Spy got called for the "pre-setvalue" event.');
+        equal(spy.preSetValueThat, api, 'Spy called with correct context (API object).');
+        equal(spy.preSetValueCMIPath, 'cmi.__value__', 'Spy got called for the "pre-setvalue" event with the correct cmi path.');
+        equal(spy.preSetValueValue, 'value', 'Spy got called for the "pre-setvalue" event with the correct value.');
+        ok(spy.postSetValueCalled, 'Spy got called for the "post-setvalue" event.');
+        equal(spy.postSetValueThat, api, 'Spy called with correct context (API object).');
+        equal(spy.postSetValueCMIPath, 'cmi.__value__', 'Spy got called for the "post-setvalue" event with the correct cmi path.');
+        equal(spy.postSetValueValue, 'value', 'Spy got called for the "post-setvalue" event with the correct value.');
+
+        spy = {};
         api.bind('pre-commit', function() {
           spy.preCommitCalled = true;
           spy.preCommitThat = this;
