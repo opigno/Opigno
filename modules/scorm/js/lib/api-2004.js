@@ -13,7 +13,7 @@
    *
    * @constructor
    */
-  var OpignoScormUI2004API = function() {
+  var OpignoScorm2004API = function() {
     this.version = '1.0.0';
     this.error = '0';
     this.isInitialized = false;
@@ -37,32 +37,32 @@
   /**
    * @const Requested CMI value is currently not available.
    */
-  OpignoScormUI2004API.VALUE_NOT_AVAILABLE = 'VALUE_NOT_AVAILABLE';
+  OpignoScorm2004API.VALUE_NOT_AVAILABLE = 'VALUE_NOT_AVAILABLE';
 
   /**
    * @const Requested CMI value is invalid.
    */
-  OpignoScormUI2004API.CMI_NOT_VALID = 'CMI_NOT_VALID';
+  OpignoScorm2004API.CMI_NOT_VALID = 'CMI_NOT_VALID';
 
   /**
    * @const Requested CMI value is not yet implemented by Opigno.
    */
-  OpignoScormUI2004API.CMI_NOT_IMPLEMENTED = 'CMI_NOT_IMPLEMENTED';
+  OpignoScorm2004API.CMI_NOT_IMPLEMENTED = 'CMI_NOT_IMPLEMENTED';
 
   /**
    * @const Requested CMI value is write-only.
    */
-  OpignoScormUI2004API.VALUE_WRITE_ONLY = 'VALUE_WRITE_ONLY';
+  OpignoScorm2004API.VALUE_WRITE_ONLY = 'VALUE_WRITE_ONLY';
 
   /**
    * @const Requested CMI value is read-only.
    */
-  OpignoScormUI2004API.VALUE_READ_ONLY = 'VALUE_READ_ONLY';
+  OpignoScorm2004API.VALUE_READ_ONLY = 'VALUE_READ_ONLY';
 
   /**
    * @const Requested CMI child value does not exist.
    */
-  OpignoScormUI2004API.CHILD_DOES_NOT_EXIST = 'CHILD_DOES_NOT_EXIST';
+  OpignoScorm2004API.CHILD_DOES_NOT_EXIST = 'CHILD_DOES_NOT_EXIST';
 
   /**
    * Implements Initialize().
@@ -74,7 +74,7 @@
    * @returns {String} 'true' or 'false'
    *        The SCO expects boolean values to be returned as strings.
    */
-  OpignoScormUI2004API.prototype.Initialize = function(value) {
+  OpignoScorm2004API.prototype.Initialize = function(value) {
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother initializing the package.
     if (value !== '') {
@@ -121,7 +121,7 @@
    * @returns {String} 'true' or 'false'
    *        The SCO expects boolean values to be returned as strings.
    */
-  OpignoScormUI2004API.prototype.Terminate = function(value) {
+  OpignoScorm2004API.prototype.Terminate = function(value) {
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother terminating the package.
     if (value !== '') {
@@ -170,7 +170,7 @@
    *
    * @returns {String}
    */
-  OpignoScormUI2004API.prototype.GetValue = function(cmiElement) {
+  OpignoScorm2004API.prototype.GetValue = function(cmiElement) {
     // Cannot get a value if not initialized.
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
@@ -198,31 +198,31 @@
 
         // If the value is not available, set the error to 403
         // and return ''.
-        if (result === OpignoScormUI2004API.VALUE_NOT_AVAILABLE) {
+        if (result === OpignoScorm2004API.VALUE_NOT_AVAILABLE) {
           this.error = '403';
           return '';
         }
         // If the value does not exist, set the error to 401
         // and return ''.
-        else if (result === OpignoScormUI2004API.CMI_NOT_VALID) {
+        else if (result === OpignoScorm2004API.CMI_NOT_VALID) {
           this.error = '401';
           return '';
         }
         // If the value is supposed to be a child value, but the parent
         // doesn't have it, set the error to 301 and return ''.
-        else if (result === OpignoScormUI2004API.CHILD_DOES_NOT_EXIST) {
+        else if (result === OpignoScorm2004API.CHILD_DOES_NOT_EXIST) {
           this.error = '301';
           return '';
         }
         // If the value is write-only, set the error to 405 and
         // return ''.
-        else if (result === OpignoScormUI2004API.VALUE_WRITE_ONLY) {
+        else if (result === OpignoScorm2004API.VALUE_WRITE_ONLY) {
           this.error = '405';
           return '';
         }
         // For currently unimplemented values, set the error to 402
         // and return ''.
-        else if (result === OpignoScormUI2004API.CMI_NOT_IMPLEMENTED) {
+        else if (result === OpignoScorm2004API.CMI_NOT_IMPLEMENTED) {
           this.error = '402';
           return '';
         }
@@ -254,7 +254,7 @@
    *
    * @return {String}
    */
-  OpignoScormUI2004API.prototype.SetValue = function(cmiElement, value) {
+  OpignoScorm2004API.prototype.SetValue = function(cmiElement, value) {
     // Cannot get a value if not initialized.
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
@@ -289,18 +289,18 @@
 
         // If the value does not exist, set the error to 401
         // and return 'false'.
-        if (result === OpignoScormUI2004API.CMI_NOT_VALID) {
+        if (result === OpignoScorm2004API.CMI_NOT_VALID) {
           this.error = '401';
           return 'false';
         }
         // For currently unimplemented values, set the error to 402
         // and return 'false'.
-        else if (result === OpignoScormUI2004API.CMI_NOT_IMPLEMENTED) {
+        else if (result === OpignoScorm2004API.CMI_NOT_IMPLEMENTED) {
           this.error = '402';
           return 'false';
         }
         // For read-only values, set the error to 404 and return 'false'.
-        else if (result === OpignoScormUI2004API.VALUE_READ_ONLY) {
+        else if (result === OpignoScorm2004API.VALUE_READ_ONLY) {
           this.error = '404';
           return 'false';
         }
@@ -332,7 +332,7 @@
    * @returns {String} 'true' or 'false'
    *        The SCO expects boolean values to be returned as strings.
    */
-  OpignoScormUI2004API.prototype.Commit = function(value) {
+  OpignoScorm2004API.prototype.Commit = function(value) {
     // The value MUST be an empty string (per SCORM.2004.3ED.ConfReq.v1.0).
     // If it's not empty, don't bother terminating the package.
     if (value !== '') {
@@ -375,7 +375,7 @@
    *
    * @returns {String}
    */
-  OpignoScormUI2004API.prototype.GetLastError = function() {
+  OpignoScorm2004API.prototype.GetLastError = function() {
     return this.error;
   }
 
@@ -386,7 +386,7 @@
    *
    * @return {String}
    */
-  OpignoScormUI2004API.prototype.GetErrorString = function(cmiErrorCode) {
+  OpignoScorm2004API.prototype.GetErrorString = function(cmiErrorCode) {
     // @todo
     return '';
   }
@@ -398,7 +398,7 @@
    *
    * @return {String}
    */
-  OpignoScormUI2004API.prototype.GetDiagnostic = function(cmiErrorCode) {
+  OpignoScorm2004API.prototype.GetDiagnostic = function(cmiErrorCode) {
     // @todo
     return '';
   }
@@ -408,7 +408,7 @@
    *
    * @return {Boolean}
    */
-  OpignoScormUI2004API.prototype._initCommunication = function() {
+  OpignoScorm2004API.prototype._initCommunication = function() {
     // The SCORM 2004 edition does not provide any asynchronous logic, or the concept
     // of promises. This means establishing the communication between the SCORM
     // and Opigno must always be considered "active", and can never "fail".
@@ -422,7 +422,7 @@
    * @param {String} event
    * @param {Function} callback
    */
-  OpignoScormUI2004API.prototype.bind = function(event, callback) {
+  OpignoScorm2004API.prototype.bind = function(event, callback) {
     if (this.eventCallbacks[event] === undefined) {
       throw { name: "ScormAPIUnknownEvent", message: "Can't bind/trigger event '" + event + "'" };
     }
@@ -437,7 +437,7 @@
    *
    * @param {String} event
    */
-  OpignoScormUI2004API.prototype.trigger = function() {
+  OpignoScorm2004API.prototype.trigger = function() {
     var args = Array.prototype.slice.call(arguments),
       event = args.shift();
 
@@ -458,32 +458,32 @@
    *
    * @returns {String}
    */
-  OpignoScormUI2004API.prototype._getCMIData = function(cmiPath) {
+  OpignoScorm2004API.prototype._getCMIData = function(cmiPath) {
     // Special test values.
     if (cmiPath === 'cmi.__value__') {
       return 'value';
     }
     else if (cmiPath === 'cmi.__write_only__') {
-      return OpignoScormUI2004API.VALUE_WRITE_ONLY;
+      return OpignoScorm2004API.VALUE_WRITE_ONLY;
     }
     else if (cmiPath === 'cmi.__unimplemented__') {
-      return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
+      return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
     }
     else if (cmiPath === 'cmi.__unknown__') {
-      return OpignoScormUI2004API.CMI_NOT_VALID;
+      return OpignoScorm2004API.CMI_NOT_VALID;
     }
 
     // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
     if (!this._validCMIDataPath(cmiPath)) {
-      return OpignoScormUI2004API.CMI_NOT_VALID;
+      return OpignoScorm2004API.CMI_NOT_VALID;
     }
     // Check if the CMI path is write-only. If so, return VALUE_WRITE_ONLY.
     else if (this._writeOnlyCMIDataPath(cmiPath)) {
-      return OpignoScormUI2004API.VALUE_WRITE_ONLY;
+      return OpignoScorm2004API.VALUE_WRITE_ONLY;
     }
     // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
     else if (!this._implementedCMIDataPath(cmiPath)) {
-      return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
+      return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
     }
 
     // Recursively walk the data tree and get the requested leaf.
@@ -522,11 +522,11 @@
     else {
       // If we were looking for an element children, return CHILD_DOES_NOT_EXIST.
       if (checkChildren) {
-        return OpignoScormUI2004API.CHILD_DOES_NOT_EXIST;
+        return OpignoScorm2004API.CHILD_DOES_NOT_EXIST;
       }
       // Else, return VALUE_NOT_AVAILABLE.
       else {
-        return OpignoScormUI2004API.VALUE_NOT_AVAILABLE;
+        return OpignoScorm2004API.VALUE_NOT_AVAILABLE;
       }
     }
   }
@@ -540,18 +540,18 @@
    *
    * @returns {String}
    */
-  OpignoScormUI2004API.prototype._setCMIData = function(cmiPath, value) {
+  OpignoScorm2004API.prototype._setCMIData = function(cmiPath, value) {
     // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
     if (!this._validCMIDataPath(cmiPath)) {
-      return OpignoScormUI2004API.CMI_NOT_VALID;
+      return OpignoScorm2004API.CMI_NOT_VALID;
     }
     // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
     else if (!this._implementedCMIDataPath(cmiPath)) {
-      return OpignoScormUI2004API.CMI_NOT_IMPLEMENTED;
+      return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
     }
     // Check if the CMI path is read-only. If so, return VALUE_READ_ONLY.
     else if (this._readOnlyCMIDataPath(cmiPath)) {
-      return OpignoScormUI2004API.VALUE_READ_ONLY;
+      return OpignoScorm2004API.VALUE_READ_ONLY;
     }
 
     // @todo DO not set _count or _children properties. Read-only
@@ -626,7 +626,7 @@
    *
    * @returns {Boolean}
    */
-  OpignoScormUI2004API.prototype._validCMIDataPath = function(cmiPath) {
+  OpignoScorm2004API.prototype._validCMIDataPath = function(cmiPath) {
     var keys = [
       // Special test paths.
       'cmi.__value__',
@@ -657,7 +657,7 @@
    *
    * @returns {Boolean}
    */
-  OpignoScormUI2004API.prototype._writeOnlyCMIDataPath = function(cmiPath) {
+  OpignoScorm2004API.prototype._writeOnlyCMIDataPath = function(cmiPath) {
     // @todo
     return false;
 
@@ -675,7 +675,7 @@
    *
    * @returns {Boolean}
    */
-  OpignoScormUI2004API.prototype._readOnlyCMIDataPath = function(cmiPath) {
+  OpignoScorm2004API.prototype._readOnlyCMIDataPath = function(cmiPath) {
     // Array properties are always read-only.
     if (/\._(count|children)/.test(cmiPath)) {
       return true;
@@ -696,7 +696,7 @@
    *
    * @returns {Boolean}
    */
-  OpignoScormUI2004API.prototype._implementedCMIDataPath = function(cmiPath) {
+  OpignoScorm2004API.prototype._implementedCMIDataPath = function(cmiPath) {
     var keys = [
       // Special test paths.
       'cmi.__value__',
@@ -726,7 +726,7 @@
   }
 
   // Export.
-  window.OpignoScormUI2004API = OpignoScormUI2004API;
-  window.API_1484_11 = new OpignoScormUI2004API();
+  window.OpignoScorm2004API = OpignoScorm2004API;
+  window.API_1484_11 = new OpignoScorm2004API();
 
 })(jQuery, Drupal, window);

@@ -3,7 +3,7 @@
  * Test suite for the SCORM 2004 RTE API.
  */
 
-;(function($, Drupal, window, OpignoScormUI2004API, undefined) {
+;(function($, Drupal, window, OpignoScorm2004API, undefined) {
 
   /**
    * Fixture object.
@@ -26,7 +26,7 @@
     }
   };
 
-  Drupal.tests.OpignoScormUI2004API = {
+  Drupal.tests.OpignoScorm2004API = {
     getInfo: function() {
       return {
         name: 'Opigno SCORM 2004 API',
@@ -49,7 +49,7 @@
         ok(window.API_1484_11.GetDiagnostic,           'REQ_11.1: The API implements the GetDiagnostic() method.');
 
       // Get a new API implementation, so we can easily reset its internals.
-      var api = new OpignoScormUI2004API(), value = '';
+      var api = new OpignoScorm2004API(), value = '';
 
 
       /**
@@ -64,7 +64,7 @@
 
 
       module('API::Initialize()');
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
         equal(api.Initialize(), 'false',             'REQ_3.2: Initializing the API without a parameter fails.');
         equal(api.GetLastError(), '201',             'REQ_3.2: Initializing the API without a parameter gives a 201 error.');
         equal(api.Initialize('any string'), 'false', 'REQ_3.2: Initializing the API with any string fails.');
@@ -85,7 +85,7 @@
 
       module('API::Terminate()');
         // @todo Missing specs for REQ_5.2.1m REQ_5.2.1.1 and REQ_5.3.
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
         equal(api.Terminate(''), 'false',            'REQ_5.4: Terminating the API before initializing fails.');
         equal(api.GetLastError(), '112',             'REQ_5.4: Terminating the API before initializing gives a 112 error.');
         // Initialize the communication.
@@ -106,7 +106,7 @@
 
       module('API::GetValue()');
         // @todo Missing specs for REQ_6.5 and REQ_6.7.
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
         equal(api.GetValue(''), '',                          'REQ_6.8: Requesting a value before initializing fails.');
         equal(api.GetLastError(), '122',                     'REQ_6.8: Requesting a value before initializing gives a 122 error.');
         // Initialize the communication.
@@ -143,7 +143,7 @@
 
       module('API::SetValue()');
         // @todo Missing specs for REQ_7.7, REQ_7.8, REQ_7.11, REQ_7.12, REQ_7.15.
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
         equal(api.SetValue('', ''), 'false',                            'REQ_7.9: Setting a value before initializing fails.');
         equal(api.GetLastError(), '132',                                'REQ_7.8: Setting a value before initializing gives a 132 error.');
         // Initialize the communication.
@@ -180,7 +180,7 @@
 
       module('API::Commit()');
         // @todo Missing specs for REQ_8.2.1, REQ_8.3.
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
         equal(api.Commit(''), 'false',           'REQ_8.4: Committing the API before initializing fails.');
         equal(api.GetLastError(), '142',         'REQ_8.4: Committing the API before initializing gives a 142 error.');
         // Initialize the communication.
@@ -212,7 +212,7 @@
          - REQ_58.0
          - ... many many more
          */
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
         api.Initialize('');
 
         // REQ_55
@@ -239,7 +239,7 @@
 
 
       module('Events');
-        api = new OpignoScormUI2004API();
+        api = new OpignoScorm2004API();
 
         var spy = {};
         api.bind('initialize', function() {
@@ -282,4 +282,4 @@
     }
   };
 
-})(jQuery, Drupal, window, OpignoScormUI2004API);
+})(jQuery, Drupal, window, OpignoScorm2004API);
