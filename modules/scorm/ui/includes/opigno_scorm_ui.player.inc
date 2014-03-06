@@ -186,7 +186,7 @@ function opigno_scorm_ui_add_assets() {
 /**
  * Get the CMI data for the SCORM player.
  *
- * Invokes the hook_opigno_scorm_ui_cmi_data() on all implementing modules
+ * Invokes the hook_opigno_scorm_ui_register_cmi_data() on all implementing modules
  * to retrieve data to pass to the SCORM player.
  *
  * @param object $scorm
@@ -195,7 +195,21 @@ function opigno_scorm_ui_add_assets() {
  * @return array
  */
 function opigno_scorm_ui_add_cmi_data($scorm, $scos) {
-  $data = module_invoke_all('opigno_scorm_ui_cmi_data', $scorm, $scos);
-  drupal_alter('opigno_scorm_ui_cmi_data', $data, $scorm, $scos);
+  $data = module_invoke_all('opigno_scorm_ui_register_cmi_data', $scorm, $scos);
+  drupal_alter('opigno_scorm_ui_register_cmi_data', $data, $scorm, $scos);
   return $data;
+}
+
+/**
+ * Get the available CMI paths for the SCORM player.
+ *
+ * Invokes the hook_opigno_scorm_ui_register_cmi_paths() on all implementing modules
+ * to retrieve data to pass to the SCORM player.
+ *
+ * @return array
+ */
+function opigno_scorm_ui_add_cmi_paths() {
+  $paths = module_invoke_all('opigno_scorm_ui_register_cmi_paths');
+  drupal_alter('opigno_scorm_ui_register_cmi_paths', $paths);
+  return $paths;
 }

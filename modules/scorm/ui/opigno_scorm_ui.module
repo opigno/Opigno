@@ -202,10 +202,19 @@ function opigno_scorm_ui_render_player($scorm) {
   // Add assets.
   opigno_scorm_ui_add_assets();
 
+  // Get implemented CMI paths.
+  $paths = opigno_scorm_ui_add_cmi_paths();
+
   // Get CMI data for each SCO.
   $data = opigno_scorm_ui_add_cmi_data($scorm, $flat_tree);
 
-  dpm($flat_tree);
+  // Pass it to JS.
+  drupal_add_js(array(
+    'opignoScormUIPlayer' => array(
+      'cmiPaths' => $paths,
+      'cmiData' => $data,
+    ),
+  ), 'setting');
 
   return theme('opigno_scorm_ui__player', array('tree' => $tree, 'start_sco' => $start_sco));
 }
