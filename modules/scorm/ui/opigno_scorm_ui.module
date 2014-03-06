@@ -193,12 +193,13 @@ function opigno_scorm_ui_render_player($scorm) {
   module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
 
   // Add assets.
-  $path = drupal_get_path('module', 'opigno_scorm_ui');
-  drupal_add_css("$path/css/opigno_scorm_ui.player.css");
-  drupal_add_js("$path/js/lib/player.js");
+  $path = drupal_get_path('module', 'opigno_scorm');
+  $ui_path = drupal_get_path('module', 'opigno_scorm_ui');
   drupal_add_js("$path/js/lib/api-2004.js");
   drupal_add_js("$path/js/lib/api-1.2.js");
-  drupal_add_js("$path/js/opigno_scorm_ui.player.js");
+  drupal_add_css("$ui_path/css/opigno_scorm_ui.player.css");
+  drupal_add_js("$ui_path/js/lib/player.js");
+  drupal_add_js("$ui_path/js/opigno_scorm_ui.player.js");
 
   // Get the SCO tree.
   $tree = opigno_scorm_ui_player_scorm_tree($scorm);
