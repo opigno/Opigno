@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the Opigno SCORM Quiz integration.
+ */
+
+class OpignoScormQuizUnitTest extends DrupalUnitTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Opigno Scorm Quiz tests',
+      'description' => 'Functional unit tests for the Opigno SCORM Quiz integration.',
+      'group' => 'Opigno',
+      'dependencies' => array('opigno_scorm', 'opigno_scorm_ui'),
+    );
+  }
+
+  /**
+   * Test the CMI data integration.
+   */
+  public function testCMIDataIntegration() {
+    $this->fail('write some tests');
+  }
+
+}

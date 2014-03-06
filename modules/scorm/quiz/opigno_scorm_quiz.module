@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Module hook definitions.
+ */
+
+
+/**
+ * Implements hook_opigno_scorm_ui_cmi_data().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_cmi_data($scorm, $scos) {
+  $data = array(
+    'cmi.objectives' => array(),
+  );
+
+  // Fetch the objectives.
+  foreach ($scos as $sco) {
+    if (!empty($sco->attributes['objectives'])) {
+      foreach ($sco->attributes['objectives'] as $objective) {
+        $data['cmi.objectives'][] = array(
+          'id' => $objective['id'],
+          'score' => array(
+            'scaled' => 0,
+            'raw' => 0,
+            'min' => 0,
+            'max' => 0,
+          ),
+          'success_status' => '',
+          'completion_status' => '',
+          'progress_measure' => '',
+          'description' => '',
+        );
+      }
+    }
+  }
+
+  return $data;
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_add_assets().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_add_assets() {
+  $path = drupal_get_path('module', 'opigno_scorm_quiz');
+  drupal_add_js("$path/js/opigno_scorm_quiz.js");
+}

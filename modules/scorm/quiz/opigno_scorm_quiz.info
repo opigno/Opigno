@@ -1,0 +1,8 @@
+name = Opigno SCORM Quiz
+descpription = SCORM API integration for the Quiz module
+core = 7.x
+package = Opigno
+dependencies[] = opigno_scorm
+dependencies[] = opigno_scorm_
+
+files[] = tests/OpignoScormQuizUnitTest.test
