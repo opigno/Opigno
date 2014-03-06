@@ -394,15 +394,15 @@ function opigno_scorm_extract_item_sequencing_control_modes($item_manifest) {
       // this limitation by PHP. See below.
 
       if (!empty($child['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_ATTR])) {
-        $control_modes['control_mode_choice'] = strtolower($resource['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_ATTR]) === 'true';
+        $control_modes['control_mode_choice'] = strtolower($child['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_ATTR]) === 'true';
       }
 
       if (!empty($child['attrs'][OPIGNO_SCORM_MANIFEST_FLOW_ATTR])) {
-        $control_modes['control_mode_flow'] = strtolower($resource['attrs'][OPIGNO_SCORM_MANIFEST_FLOW_ATTR]) === 'true';
+        $control_modes['control_mode_flow'] = strtolower($child['attrs'][OPIGNO_SCORM_MANIFEST_FLOW_ATTR]) === 'true';
       }
 
       if (!empty($child['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR])) {
-        $control_modes['control_mode_choice_exit'] = strtolower($resource['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR]) === 'true';
+        $control_modes['control_mode_choice_exit'] = strtolower($child['attrs'][OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR]) === 'true';
       }
     }
   }
