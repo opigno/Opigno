@@ -10,29 +10,36 @@
  */
 
 // XML tag names
-define('OPIGNO_SCORM_MANIFEST_METADATA',      'METADATA');
-define('OPIGNO_SCORM_MANIFEST_ORGANIZATIONS', 'ORGANIZATIONS');
-define('OPIGNO_SCORM_MANIFEST_ORGANIZATION',  'ORGANIZATION');
-define('OPIGNO_SCORM_MANIFEST_RESOURCES',     'RESOURCES');
-define('OPIGNO_SCORM_MANIFEST_RESOURCE',      'RESOURCE');
-define('OPIGNO_SCORM_MANIFEST_TITLE',         'TITLE');
-define('OPIGNO_SCORM_MANIFEST_ITEM',          'ITEM');
-define('OPIGNO_SCORM_MANIFEST_SEQUENCING',    'IMSSS:SEQUENCING');
-define('OPIGNO_SCORM_MANIFEST_CTRL_MODE',     'IMSSS:CONTROLMODE');
+define('OPIGNO_SCORM_MANIFEST_METADATA',               'METADATA');
+define('OPIGNO_SCORM_MANIFEST_ORGANIZATIONS',          'ORGANIZATIONS');
+define('OPIGNO_SCORM_MANIFEST_ORGANIZATION',           'ORGANIZATION');
+define('OPIGNO_SCORM_MANIFEST_RESOURCES',              'RESOURCES');
+define('OPIGNO_SCORM_MANIFEST_RESOURCE',               'RESOURCE');
+define('OPIGNO_SCORM_MANIFEST_TITLE',                  'TITLE');
+define('OPIGNO_SCORM_MANIFEST_ITEM',                   'ITEM');
+define('OPIGNO_SCORM_MANIFEST_SEQUENCING',             'IMSSS:SEQUENCING');
+define('OPIGNO_SCORM_MANIFEST_CTRL_MODE',              'IMSSS:CONTROLMODE');
+define('OPIGNO_SCORM_MANIFEST_OBJECTIVES',             'IMSSS:OBJECTIVES');
+define('OPIGNO_SCORM_MANIFEST_OBJECTIVE',              'IMSSS:OBJECTIVE');
+define('OPIGNO_SCORM_MANIFEST_PRIMARY_OBJECTIVE',      'IMSSS:PRIMARYOBJECTIVE');
+define('OPIGNO_SCORM_MANIFEST_MIN_NORMALIZED_MEASURE', 'IMSSS:MINNORMALIZEDMEASURE');
+define('OPIGNO_SCORM_MANIFEST_MAX_NORMALIZED_MEASURE', 'IMSSS:MAXNORMALIZEDMEASURE');
 
 // XML attributes
-define('OPIGNO_SCORM_MANIFEST_DEFAULT_ATTR',     'DEFAULT');
-define('OPIGNO_SCORM_MANIFEST_ID_ATTR',          'IDENTIFIER');
-define('OPIGNO_SCORM_MANIFEST_REFID_ATTR',       'IDENTIFIERREF');
-define('OPIGNO_SCORM_MANIFEST_LAUNCH_ATTR',      'LAUNCH');
-define('OPIGNO_SCORM_MANIFEST_PARAM_ATTR',       'PARAMETERS');
-define('OPIGNO_SCORM_MANIFEST_TYPE_ATTR',        'TYPE');
-define('OPIGNO_SCORM_MANIFEST_SCORM_TYPE_ATTR',  'ADLCP:SCORMTYPE');
-define('OPIGNO_SCORM_MANIFEST_HREF_ATTR',        'HREF');
-define('OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR',    'IDENTIFIER');
-define('OPIGNO_SCORM_MANIFEST_CHOICE_ATTR',      'CHOICE');
-define('OPIGNO_SCORM_MANIFEST_FLOW_ATTR',        'FLOW');
-define('OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR', 'CHOICEEXIT');
+define('OPIGNO_SCORM_MANIFEST_DEFAULT_ATTR',      'DEFAULT');
+define('OPIGNO_SCORM_MANIFEST_ID_ATTR',           'IDENTIFIER');
+define('OPIGNO_SCORM_MANIFEST_REFID_ATTR',        'IDENTIFIERREF');
+define('OPIGNO_SCORM_MANIFEST_LAUNCH_ATTR',       'LAUNCH');
+define('OPIGNO_SCORM_MANIFEST_PARAM_ATTR',        'PARAMETERS');
+define('OPIGNO_SCORM_MANIFEST_TYPE_ATTR',         'TYPE');
+define('OPIGNO_SCORM_MANIFEST_SCORM_TYPE_ATTR',   'ADLCP:SCORMTYPE');
+define('OPIGNO_SCORM_MANIFEST_HREF_ATTR',         'HREF');
+define('OPIGNO_SCORM_MANIFEST_MANIFEST_ATTR',     'IDENTIFIER');
+define('OPIGNO_SCORM_MANIFEST_CHOICE_ATTR',       'CHOICE');
+define('OPIGNO_SCORM_MANIFEST_FLOW_ATTR',         'FLOW');
+define('OPIGNO_SCORM_MANIFEST_CHOICE_EXIT_ATTR',  'CHOICEEXIT');
+define('OPIGNO_SCORM_MANIFEST_OBJECTIVE_ID_ATTR', 'OBJECTIVEID');
+define('OPIGNO_SCORM_MANIFEST_OBJECTIVE_SATISFIED_BY_MEASURE_ATTR', 'SATISFIEDBYMEASURE');
 
 /**
  * Extract the SCORM package from the file.
@@ -328,6 +335,7 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
       foreach ($item['children'] as $child) {
         if ($child['name'] == OPIGNO_SCORM_MANIFEST_SEQUENCING) {
           $control_modes = opigno_scorm_extract_item_sequencing_control_modes($child);
+          $attributes['objectives'] = opigno_scorm_extract_item_sequencing_objectives($child);
         }
       }
 
@@ -367,11 +375,74 @@ function _opigno_scorm_extract_manifest_scos_items($manifest, $parent_identifier
 }
 
 /**
+ * Extract the manifest SCO item sequencing objective.
+ *
+ * This extracts sequencing objectives from an item. Objectives allow the system
+ * to know how to "grade" the SCORM object.
+ *
+ * @param array $item_manifest
+ *
+ * @return array
+ */
+function opigno_scorm_extract_item_sequencing_objectives($item_manifest) {
+  $objectives = array();
+  foreach ($item_manifest['children'] as $child) {
+    if ($child['name'] == OPIGNO_SCORM_MANIFEST_OBJECTIVES) {
+      foreach ($child['children'] as $child_objective) {
+        if (!empty($child_objective['attrs'][OPIGNO_SCORM_MANIFEST_OBJECTIVE_ID_ATTR])) {
+          $id = $child_objective['attrs'][OPIGNO_SCORM_MANIFEST_OBJECTIVE_ID_ATTR];
+        }
+        else {
+          $id = uniqid();
+        }
+
+        if ($child_objective['name'] == OPIGNO_SCORM_MANIFEST_PRIMARY_OBJECTIVE) {
+          // Note: boolean attributes are stored as a strings. PHP does not know
+          // how to cast 'false' to FALSE. Use string comparisons to bypass
+          // this limitation by PHP. See below.
+          $satisfied_by_measure = FALSE;
+          if (!empty($child_objective['attrs'][OPIGNO_SCORM_MANIFEST_OBJECTIVE_SATISFIED_BY_MEASURE_ATTR])) {
+            $satisfied_by_measure = strtolower($child_objective['attrs'][OPIGNO_SCORM_MANIFEST_OBJECTIVE_SATISFIED_BY_MEASURE_ATTR]) === 'true';
+          }
+
+          $objective = array(
+            'primary' => TRUE,
+            'secondary' => FALSE,
+            'id' => $id,
+            'satisfied_by_measure' => $satisfied_by_measure,
+          );
+
+          foreach ($child_objective['children'] as $primary_obj_child) {
+            if ($primary_obj_child['name'] == OPIGNO_SCORM_MANIFEST_MIN_NORMALIZED_MEASURE) {
+              $objective['min_normalized_measure'] = $primary_obj_child['tagData'];
+            }
+            elseif ($primary_obj_child['name'] == OPIGNO_SCORM_MANIFEST_MAX_NORMALIZED_MEASURE) {
+              $objective['max_normalized_measure'] = $primary_obj_child['tagData'];
+            }
+          }
+
+          $objectives[] = $objective;
+        }
+        elseif ($child_objective['name'] == OPIGNO_SCORM_MANIFEST_OBJECTIVE) {
+          $objectives[] = array(
+            'primary' => FALSE,
+            'secondary' => TRUE,
+            'id' => $id,
+          );
+        }
+      }
+    }
+  }
+
+  return $objectives;
+}
+
+/**
  * Extract the manifest SCO item sequencing control modes.
  *
- * This extracts sequencing control modes from an item. It does not extract the global
- * manifest sequencing rules. Control modes describe how the user can navigate
- * around the course (e.g.: display the tree or not, skip SCOs, etc).
+ * This extracts sequencing control modes from an item. Control modes
+ * describe how the user can navigate around the course
+ * (e.g.: display the tree or not, skip SCOs, etc).
  *
  * @param array $item_manifest
  *
