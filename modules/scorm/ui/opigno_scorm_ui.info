@@ -4,3 +4,5 @@ core = 7.x
 package = Opigno
 dependencies[] = file
 dependencies[] = opigno_scorm
+
+files[] = tests/OpignoScormUIUnitTest.test
