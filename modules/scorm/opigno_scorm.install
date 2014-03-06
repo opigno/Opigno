@@ -126,6 +126,45 @@ function opigno_scorm_schema() {
         'opigno_scorm_package_scos' => array('sco_id' => 'id'),
       ),
     ),
+    'opigno_scorm_scorm_cmi_data' => array(
+      'description' => 'SCORM package SCORM CMI data attributes.',
+      'fields' => array(
+        'uid' => array(
+          'description' => 'The user ID this data belongs to.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'scorm_id' => array(
+          'description' => 'The SCORM ID.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'cmi_key' => array(
+          'description' => 'The CMI data key string.',
+          'type' => 'varchar',
+          'length' => 255,
+        ),
+        'value' => array(
+          'type' => 'text',
+        ),
+        'serialized' => array(
+          'type' => 'int',
+          'default' => 0,
+        ),
+      ),
+      'primary key' => array('uid', 'scorm_id', 'cmi_key'),
+      'indexes' => array(
+        'scorm_id' => array('scorm_id'),
+        'uid' => array('uid'),
+        'cmi_key' => array('cmi_key')
+      ),
+      'foreign keys' => array(
+        'opigno_scorm_packages' => array('scorm_id' => 'id'),
+        'users' => array('uid' => 'uid'),
+      ),
+    ),
     'opigno_scorm_sco_cmi_data' => array(
       'description' => 'SCORM package SCO CMI data attributes.',
       'fields' => array(
