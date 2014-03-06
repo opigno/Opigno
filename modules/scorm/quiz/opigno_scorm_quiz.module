@@ -28,6 +28,8 @@ function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_paths() {
  * Implements hook_opigno_scorm_ui_register_cmi_data().
  */
 function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
+  global $user;
+
   $data = array(
     'cmi.location' => 0, // @todo
     'cmi.objectives' => array(),
@@ -64,3 +66,21 @@ function opigno_scorm_quiz_opigno_scorm_ui_add_assets() {
   $path = drupal_get_path('module', 'opigno_scorm_quiz');
   drupal_add_js("$path/js/opigno_scorm_quiz.js");
 }
+
+/**
+ * Implements hook_opigno_scorm_ui_commit().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_commit($scorm, $data) {
+  global $user;
+
+  // Store the last position.
+  if (!empty($data['cmi']['location'])) {
+    opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.location', $data['cmi']['location']);
+  }
+}
+
+/**
+ * Helper function to get SCORM CMI data while also providing a default value.
+ *
+ * 
+ */
