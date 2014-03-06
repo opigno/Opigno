@@ -73,13 +73,11 @@ function opigno_scorm_ui_player_scorm_flatten_tree($tree) {
  *
  * @todo Get last viewed SCO.
  *
- * @param array $tree
+ * @param array $flat_tree
  *
  * @return object
  */
-function opigno_scorm_ui_player_start_sco($tree) {
-  $flat_tree = opigno_scorm_ui_player_scorm_flatten_tree($tree);
-
+function opigno_scorm_ui_player_start_sco($flat_tree) {
   foreach ($flat_tree as $sco) {
     if (!empty($sco->launch)) {
       return $sco;
