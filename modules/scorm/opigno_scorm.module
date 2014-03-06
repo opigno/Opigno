@@ -24,6 +24,18 @@ function opigno_scorm_menu() {
 }
 
 /**
+ * Implements hook_library_alter().
+ */
+function opigno_scorm_library_alter(&$libraries, $module) {
+  // Add available JavaScript tests and dependencies.
+  if ($module == 'qunit') {
+    $path = drupal_get_path('module', 'opigno_scorm');
+    $libraries['qunit']['js'][$path . '/js/lib/api-2004.js'] = array();
+    $libraries['qunit']['js'][$path . '/js/tests/api-2004.js'] = array();
+  }
+}
+
+/**
  * Access callback: verify access to the SCORM object.
  *
  * Invokes hook_opigno_scorm_access() to verify access. If any module
