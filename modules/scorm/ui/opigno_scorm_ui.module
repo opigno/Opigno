@@ -183,38 +183,6 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 }
 
 /**
- * Implements hook_opigno_scorm_ui_cmi_data().
- */
-function opigno_scorm_ui_opigno_scorm_ui_cmi_data($scorm, $scos) {
-  $data = array(
-    'cmi.objectives' => array(),
-  );
-
-  // Fetch the objectives.
-  foreach ($scos as $sco) {
-    if (!empty($sco->attributes['objectives'])) {
-      foreach ($sco->attributes['objectives'] as $objective) {
-        $data['cmi.objectives'][] = array(
-          'id' => $objective['id'],
-          'score' => array(
-            'scaled' => 0,
-            'raw' => 0,
-            'min' => 0,
-            'max' => 0,
-          ),
-          'success_status' => '',
-          'completion_status' => '',
-          'progress_measure' => '',
-          'description' => '',
-        );
-      }
-    }
-  }
-
-  return $data;
-}
-
-/**
  * Render a SCORM player for the given SCORM object.
  *
  * @param object $scorm
