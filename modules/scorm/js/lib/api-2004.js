@@ -36,11 +36,13 @@
       cmi: {
         _version: '1.0',
         comments_from_learner: [],
+        objectives: [],
         completion_status: 'not attempted',
         location: 0
       }
     };
     this.data.cmi.comments_from_learner._children = 'comment,location,timestamp';
+    this.data.cmi.objectives._children = 'id,score,success_status,completion_status,progress_measure,description';
 
     // Overwrite defaults, if necessary. Set other values.
     if (data) {
@@ -248,6 +250,7 @@
         // If the value was found, return it and set the error to '0'.
         else {
           this.error = '0';
+          console.log('GetValueFound', cmiElement, result);
           return result;
         }
       }
@@ -660,6 +663,15 @@
       'cmi._version',
       'cmi.completion_status',
       'cmi.location',
+      'cmi.objectives',
+      'cmi.objectives._children',
+      'cmi.objectives._count',
+      'cmi.objectives.n.score',
+      'cmi.objectives.n.id',
+      'cmi.objectives.n.success_status',
+      'cmi.objectives.n.completion_status',
+      'cmi.objectives.n.progress_measure',
+      'cmi.objectives.n.description',
       'cmi.comments_from_learner',
       'cmi.comments_from_learner._children',
       'cmi.comments_from_learner._count',
@@ -731,6 +743,15 @@
       'cmi._version',
       'cmi.completion_status',
       'cmi.location',
+      'cmi.objectives',
+      'cmi.objectives._children',
+      'cmi.objectives._count',
+      'cmi.objectives.n.score',
+      'cmi.objectives.n.id',
+      'cmi.objectives.n.success_status',
+      'cmi.objectives.n.completion_status',
+      'cmi.objectives.n.progress_measure',
+      'cmi.objectives.n.description',
       'cmi.comments_from_learner',
       'cmi.comments_from_learner._children',
       'cmi.comments_from_learner._count',

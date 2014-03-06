@@ -35,6 +35,7 @@
       };
     },
     test: function() {
+      /*
       module('API detection and method implementations.');
         ok(window.API_1484_11,                         'REQ_2.5: A global API_1484_11 object exists.');
         ok(window.API_1484_11.version,                 'REQ_2.6: The API implements a version property.');
@@ -47,9 +48,56 @@
         ok(window.API_1484_11.GetLastError,            'REQ_9.1: The API implements the GetLastError() method.');
         ok(window.API_1484_11.GetErrorString,          'REQ_10.1: The API implements the GetErrorString() method.');
         ok(window.API_1484_11.GetDiagnostic,           'REQ_11.1: The API implements the GetDiagnostic() method.');
+      */
 
       // Get a new API implementation, so we can easily reset its internals.
       var api = new OpignoScorm2004API(), value = '';
+
+      /**
+       * We use a event powered system for abstracting communication
+       * between the SCO and the LMS. Test the events.
+       */
+      module('Events');
+        api = new OpignoScorm2004API();
+
+        var spy = {};
+        api.bind('initialize', function() {
+          spy.called = true;
+          spy.that = this;
+        });
+        api.Initialize('');
+        ok(spy.called, 'Spy got called for the "initialize" event.');
+        equal(spy.that, api, 'Spy called with correct context (API object).');
+
+        spy = {};
+        api.bind('pre-commit', function() {
+          spy.preCommitCalled = true;
+          spy.preCommitThat = this;
+        });
+        api.bind('commit', function() {
+          spy.commitCalled = true;
+          spy.commitThat = this;
+        });
+        api.bind('post-commit', function() {
+          spy.postCommitCalled = true;
+          spy.postCommitThat = this;
+        });
+        api.Commit('');
+        ok(spy.preCommitCalled, 'Spy got called for the "pre-commit" event.');
+        equal(spy.preCommitThat, api, 'Spy called with correct context (API object).');
+        ok(spy.commitCalled, 'Spy got called for the "commit" event.');
+        equal(spy.commitThat, api, 'Spy called with correct context (API object).');
+        ok(spy.postCommitCalled, 'Spy got called for the "pre-commit" event.');
+        equal(spy.postCommitThat, api, 'Spy called with correct context (API object).');
+
+        spy = {};
+        api.bind('terminate', function() {
+          spy.called = true;
+          spy.that = this;
+        });
+        api.Terminate('');
+        ok(spy.called, 'Spy got called for the "terminate" event.');
+        equal(spy.that, api, 'Spy called with correct context (API object).');
 
 
       /**
@@ -125,8 +173,8 @@
         equal(api.GetLastError(), '301',                     'REQ_6.10: Requesting an empty string key gives a 301 error.');
         equal(api.GetValue(), '',                            'REQ_6.10: Requesting a "null" key fails.');
         equal(api.GetLastError(), '301',                     'REQ_6.10: Requesting a "null" key gives a 301 error.');
-        equal(api.GetValue('cmi.__test__.1.child'), '',      'REQ_6.11: Requesting an inexistent child fails.');
-        equal(api.GetLastError(), '301',                     'REQ_6.11: Requesting an inexistent child gives a 301 error.');
+        equal(api.GetValue('cmi.__test__.1.child'), '',      'REQ_6.11: Requesting an nonexistent child fails.');
+        equal(api.GetLastError(), '301',                     'REQ_6.11: Requesting an nonexistent child gives a 301 error.');
         equal(api.GetValue('cmi.__test__._count'), '',       'REQ_6.12: Requesting the count property of an element that is not an array fails.');
         equal(api.GetLastError(), '301',                     'REQ_6.12: Requesting the count property of an element that is not an array gives a 301 error.');
         // Set some array value to test array properties.
@@ -221,64 +269,58 @@
         // REQ_57
         equal(api.GetValue('cmi.comments_from_learner._children'), 'comment,location,timestamp',
           'REQ_57.1, REQ_57.1.2, REQ_75.1.3: Requesting cmi.comments_from_learner._children succeeds and returns a list of properties.');
-
         equal(api.SetValue('cmi.comments_from_learner._children', 'value'), 'false',
           'REQ_57.1.1: cmi.comments_from_learner._children is read-only.');
-
         equal(api.GetLastError(), '404',
           'REQ_57.1.1: cmi.comments_from_learner._children is read-only.');
-
         equal(api.GetValue('cmi.comments_from_learner._count'), 0,
           'REQ_57.2, REQ_57.1.2, REQ_75.2.3: Requesting cmi.comments_from_learner._children succeeds and returns a list of properties.');
-
         equal(api.SetValue('cmi.comments_from_learner._count', 'value'), 'false',
           'REQ_57.2.1: cmi.comments_from_learner._count is read-only.');
-
         equal(api.GetLastError(), '404',
           'REQ_57.2.1: cmi.comments_from_learner._count is read-only.');
 
+        // REQ_72
+      equal(api.GetValue('cmi.objectives._children'), 'id,score,success_status,completion_status,progress_measure,description',
+        'REQ_72.1: Requesting cmi.objectives._children succeeds and returns "id,score,success_status,completion_status,progress_measure,description".');
+      equal(api.GetValue('cmi.objectives._children'), 'id,score,success_status,completion_status,progress_measure,description',
+        'REQ_72.1.1, REQ_72.1.3: Requesting cmi.objectives._children succeeds and returns "id,score,success_status,completion_status,progress_measure,description".');
+      equal(api.SetValue('cmi.objectives._children', 'value'), 'false',
+        'REQ_72.1.2: cmi.objectives._children is read only.');
+      equal(api.GetValue('cmi.objectives._count'), 0,
+        'REQ_72.2, REQ_72.2.3: Requesting cmi.objectives._count succeeds and returns the number of objectives.');
+      equal(api.SetValue('cmi.objectives._count', 1), 'false',
+        'REQ_72.2.1: cmi.objectives._count is read-only.');
 
-      module('Events');
-        api = new OpignoScorm2004API();
+      // Set some objectives.
+      api.data.cmi.objectives.push({
+        id: 'primary_obj',
+        score: {},
+        success_status: 'failed',
+        completion_status: 'completed',
+        progress_measure: '',
+        description: ''
+      });
+      api.data.cmi.objectives.push({
+        id: 'secondary_obj',
+        score: {},
+        success_status: 'passed',
+        completion_status: 'completed',
+        progress_measure: '',
+        description: ''
+      });
 
-        var spy = {};
-        api.bind('initialize', function() {
-          spy.called = true;
-          spy.that = this;
-        });
-        api.Initialize('');
-        ok(spy.called, 'Spy got called for the "initialize" event.');
-        equal(spy.that, api, 'Spy called with correct context (API object).');
+      equal(api.GetValue('cmi.objectives.0.id'), 'primary_obj',
+        'REQ_72.3, REQ_72.3.1: Requesting cmi.objectives.n.id succeeds and returns the identifier.');
+      equal(api.GetValue('cmi.objectives.1.id'), 'secondary_obj',
+        'REQ_72.3, REQ_72.3.1: Requesting cmi.objectives.n.id succeeds and returns the identifier.');
+      equal(api.SetValue('cmi.objectives.0.id', 'new id'), 'true',
+        'REQ_72.3.1: cmi.objectives.n.id is also writable.');
+      equal(api.GetValue('cmi.objectives.0.id'), 'new id',
+        'REQ_72.3.1: cmi.objectives.n.id is also writable.');
 
-        spy = {};
-        api.bind('pre-commit', function() {
-          spy.preCommitCalled = true;
-          spy.preCommitThat = this;
-        });
-        api.bind('commit', function() {
-          spy.commitCalled = true;
-          spy.commitThat = this;
-        });
-        api.bind('post-commit', function() {
-          spy.postCommitCalled = true;
-          spy.postCommitThat = this;
-        });
-        api.Commit('');
-        ok(spy.preCommitCalled, 'Spy got called for the "pre-commit" event.');
-        equal(spy.preCommitThat, api, 'Spy called with correct context (API object).');
-        ok(spy.commitCalled, 'Spy got called for the "commit" event.');
-        equal(spy.commitThat, api, 'Spy called with correct context (API object).');
-        ok(spy.postCommitCalled, 'Spy got called for the "pre-commit" event.');
-        equal(spy.postCommitThat, api, 'Spy called with correct context (API object).');
 
-        spy = {};
-        api.bind('terminate', function() {
-          spy.called = true;
-          spy.that = this;
-        });
-        api.Terminate('');
-        ok(spy.called, 'Spy got called for the "terminate" event.');
-        equal(spy.that, api, 'Spy called with correct context (API object).');
+
     }
   };
 
