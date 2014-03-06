@@ -191,6 +191,40 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 }
 
 /**
+ * Implements hook_opigno_scorm_ui_register_cmi_paths().
+ */
+function opigno_scorm_ui_opigno_scorm_ui_register_cmi_paths() {
+  return array(
+    'cmi.location' => array(),
+  );
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_register_cmi_data().
+ */
+function opigno_scorm_ui_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
+  global $user;
+
+  $data = array(
+    'cmi.location' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.location', 0),
+  );
+
+  return $data;
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_commit().
+ */
+function opigno_scorm_ui_opigno_scorm_ui_commit($scorm, $data) {
+  global $user;
+
+  // Store the last position.
+  if (!empty($data->cmi->location)) {
+    opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.location', $data->cmi->location);
+  }
+}
+
+/**
  * Render a SCORM player for the given SCORM object.
  *
  * @param object $scorm
@@ -225,4 +259,34 @@ function opigno_scorm_ui_render_player($scorm) {
   ), 'setting');
 
   return theme('opigno_scorm_ui__player', array('scorm_id' => $scorm->id, 'tree' => $tree, 'start_sco' => $start_sco));
+}
+
+/**
+ * Helper function to get SCORM CMI data while also providing a default value.
+ *
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $cmi_key
+ * @param mixed $default_value
+ *
+ * @return mixed|null
+ */
+function opigno_scorm_ui_scorm_cmi_get($uid, $scorm_id, $cmi_key, $default_value = NULL) {
+  $value = opigno_scorm_scorm_cmi_get($uid, $scorm_id, $cmi_key);
+  return isset($value) ? $value : $default_value;
+}
+
+/**
+ * Helper function to get SCO CMI data while also providing a default value.
+ *
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $cmi_key
+ * @param mixed $default_value
+ *
+ * @return mixed|null
+ */
+function opigno_scorm_ui_sco_cmi_get($uid, $scorm_id, $cmi_key, $default_value = NULL) {
+  $value = opigno_scorm_sco_cmi_get($uid, $scorm_id, $cmi_key);
+  return isset($value) ? $value : $default_value;
 }
