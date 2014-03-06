@@ -5,12 +5,31 @@
  * Module hook definitions.
  */
 
+/**
+ * Implements hook_opigno_scorm_ui_register_cmi_paths().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_paths() {
+  return array(
+    'cmi.location',
+    'cmi.objectives',
+    'cmi.objectives._count',
+    'cmi.objectives._children',
+    'cmi.objectives.n.id',
+    'cmi.objectives.n.score',
+    'cmi.objectives.n.score._children',
+    'cmi.objectives.n.success_status',
+    'cmi.objectives.n.completion_status',
+    'cmi.objectives.n.progress_measure',
+    'cmi.objectives.n.description',
+  );
+}
 
 /**
- * Implements hook_opigno_scorm_ui_cmi_data().
+ * Implements hook_opigno_scorm_ui_register_cmi_data().
  */
-function opigno_scorm_quiz_opigno_scorm_ui_cmi_data($scorm, $scos) {
+function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
   $data = array(
+    'cmi.location' => 0, // @todo
     'cmi.objectives' => array(),
   );
 
