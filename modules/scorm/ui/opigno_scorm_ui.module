@@ -34,7 +34,7 @@ function opigno_scorm_ui_menu() {
 function opigno_scorm_ui_theme() {
   return array(
     'opigno_scorm_ui__player' => array(
-      'variables' => array('tree' => array(), 'start_sco' => NULL),
+      'variables' => array('scorm_id' => NULL, 'tree' => array(), 'start_sco' => NULL),
       'template' => 'theme/opigno-scorm-ui--player',
     ),
     'opigno_scorm_ui__player_tree' => array(
@@ -224,5 +224,5 @@ function opigno_scorm_ui_render_player($scorm) {
     ),
   ), 'setting');
 
-  return theme('opigno_scorm_ui__player', array('tree' => $tree, 'start_sco' => $start_sco));
+  return theme('opigno_scorm_ui__player', array('scorm_id' => $scorm->id, 'tree' => $tree, 'start_sco' => $start_sco));
 }
