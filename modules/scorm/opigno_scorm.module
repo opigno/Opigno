@@ -17,7 +17,7 @@ function opigno_scorm_menu() {
       'page arguments' => array(4, 6, 7),
       'access callback' => 'opigno_scorm_access',
       'access arguments' => array(2),
-      'file' => 'opigno_scorm.ajax.inc',
+      'file' => 'includes/opigno_scorm.ajax.inc',
       'type' => MENU_CALLBACK,
     ),
   );
