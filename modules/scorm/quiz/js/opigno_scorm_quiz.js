@@ -11,7 +11,7 @@
       // Register our own paths.
       if (window.API_1484_11 !== undefined) {
         window.API_1484_11.registerCMIPath({
-          
+
         });
       }
     }
