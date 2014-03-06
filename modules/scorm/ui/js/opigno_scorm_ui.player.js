@@ -11,6 +11,12 @@
   Drupal.behaviors.opignoScormUIPlayer = {
 
     attach: function(context, settings) {
+
+      // Initiate the API.
+      if (window.API_1484_11 === undefined) {
+        window.API_1484_11 = new OpignoScorm2004API(settings.scorm_data || {});
+      }
+
       // Get all SCORM players in our context.
       var $players = $('.scorm-ui-player', context);
 
@@ -26,7 +32,7 @@
           player.init();
 
           // Bind event listeners for different API events.
-          API_1484_11.bind('commit', function(value, data) {
+          window.API_1484_11.bind('commit', function(value, data) {
 
           });
 

@@ -12,12 +12,17 @@
    * Implementation of the SCORM API.
    *
    * @constructor
+   *
+   * @param {Object} data
+   *        A key-value hash table containing default data for the API.
    */
-  var OpignoScorm2004API = function() {
+  var OpignoScorm2004API = function(data) {
     this.version = '1.0.0';
     this.error = '0';
     this.isInitialized = false;
     this.isTerminated = false;
+
+    // Event callbacks.
     this.eventCallbacks = {
       initialize: [],
       terminate: [],
@@ -25,13 +30,26 @@
       'pre-commit': [],
       'post-commit': []
     };
+
+    // Set default data values.
     this.data = {
       cmi: {
         _version: '1.0',
-        comments_from_learner: []
+        comments_from_learner: [],
+        completion_status: 'not attempted',
+        location: 0
       }
     };
     this.data.cmi.comments_from_learner._children = 'comment,location,timestamp';
+
+    // Overwrite defaults, if necessary. Set other values.
+    if (data) {
+      for (var cmiKey in data) {
+        if (typeof cmiKey === 'string') {
+          this._setValue(cmiKey, data[cmiKey]);
+        }
+      }
+    }
   };
 
   /**
@@ -171,6 +189,7 @@
    * @returns {String}
    */
   OpignoScorm2004API.prototype.GetValue = function(cmiElement) {
+    console.log('GetValue', cmiElement);
     // Cannot get a value if not initialized.
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
@@ -255,6 +274,7 @@
    * @return {String}
    */
   OpignoScorm2004API.prototype.SetValue = function(cmiElement, value) {
+    console.log('SetValue', cmiElement, value);
     // Cannot get a value if not initialized.
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
@@ -638,6 +658,8 @@
 
       // Real CMI paths.
       'cmi._version',
+      'cmi.completion_status',
+      'cmi.location',
       'cmi.comments_from_learner',
       'cmi.comments_from_learner._children',
       'cmi.comments_from_learner._count',
@@ -707,6 +729,8 @@
 
       // Real CMI paths.
       'cmi._version',
+      'cmi.completion_status',
+      'cmi.location',
       'cmi.comments_from_learner',
       'cmi.comments_from_learner._children',
       'cmi.comments_from_learner._count',
@@ -727,6 +751,5 @@
 
   // Export.
   window.OpignoScorm2004API = OpignoScorm2004API;
-  window.API_1484_11 = new OpignoScorm2004API();
 
 })(jQuery, Drupal, window);
