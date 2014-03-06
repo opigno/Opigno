@@ -17,6 +17,14 @@ function opigno_scorm_ui_menu() {
       'file' => 'includes/opigno_scorm_ui.player.inc',
       'type' => MENU_CALLBACK,
     ),
+    'opigno-scorm/ui/scorm/%opigno_scorm_scorm/ajax/commit' => array(
+      'page callback' => 'opigno_scorm_ui_ajax_commit',
+      'page arguments' => array(3),
+      'access callback' => 'opigno_scorm_access',
+      'access arguments' => array(3),
+      'file' => 'includes/opigno_scorm_ui.ajax.inc',
+      'type' => MENU_CALLBACK,
+    ),
   );
 }
 

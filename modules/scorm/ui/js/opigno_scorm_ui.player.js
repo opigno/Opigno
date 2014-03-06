@@ -29,6 +29,11 @@
         }
       }
 
+      // Listen on commit event, and send the data to the server.
+      window.API_1484_11.bind('commit', function(value, data) {
+
+      });
+
       // Get all SCORM players in our context.
       var $players = $('.scorm-ui-player', context);
 
