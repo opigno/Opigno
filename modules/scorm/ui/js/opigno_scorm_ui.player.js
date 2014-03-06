@@ -29,18 +29,20 @@
         }
       }
 
-      // Listen on commit event, and send the data to the server.
-      window.API_1484_11.bind('commit', function(value, data) {
-
-      });
-
       // Get all SCORM players in our context.
       var $players = $('.scorm-ui-player', context);
 
       // If any players were found...
       if ($players.length) {
         // Register each player.
+        // NOTE: SCORM only allows on SCORM package on the page at any given time.
+        // Skip after the first one.
+        var first = true;
         $players.each(function() {
+          if (!first) {
+            return false;
+          }
+
           var element = this,
               $element = $(element),
               // Create a new OpignoScormUIPlayer().
@@ -48,8 +50,22 @@
 
           player.init();
 
+          // Listen on commit event, and send the data to the server.
+          window.API_1484_11.bind('commit', function(value, data) {
+            $.ajax({
+              url: Drupal.settings.basePath + '?q=opigno-scorm/ui/scorm/' + $element.data('scorm-id') + '/ajax/commit',
+              data: { data: JSON.stringify(data) },
+              dataType: 'json',
+              type: 'post',
+              success: function(json) {
+                // @todo
+              }
+            });
+          });
+
           // Add a class to the player, so the CSS can style it differently if needed.
           $element.addClass('js-processed');
+          first = false;
         });
       }
     }
