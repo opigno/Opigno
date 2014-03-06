@@ -17,6 +17,18 @@
         window.API_1484_11 = new OpignoScorm2004API(settings.scorm_data || {});
       }
 
+      // Register CMI paths.
+      if (settings.opignoScormUIPlayer && settings.opignoScormUIPlayer.cmiPaths) {
+        window.API_1484_11.registerCMIPaths(settings.opignoScormUIPlayer.cmiPaths);
+      }
+
+      // Register default CMI data.
+      if (settings.opignoScormUIPlayer && settings.opignoScormUIPlayer.cmiData) {
+        for (var item in settings.opignoScormUIPlayer.cmiData) {
+          window.API_1484_11.registerCMIData(item, settings.opignoScormUIPlayer.cmiData[item]);
+        }
+      }
+
       // Get all SCORM players in our context.
       var $players = $('.scorm-ui-player', context);
 
