@@ -12,15 +12,16 @@
    * Implementation of the SCORM API.
    *
    * @constructor
-   *
-   * @param {Object} data
-   *        A key-value hash table containing default data for the API.
    */
-  var OpignoScorm2004API = function(data) {
+  var OpignoScorm2004API = function() {
     this.version = '1.0.0';
     this.error = '0';
     this.isInitialized = false;
     this.isTerminated = false;
+    this.skipCheck = false;
+    this.registeredCMIPaths = ['cmi._version'];
+    this.readOnlyCMIPaths = ['cmi._version'];
+    this.writeOnlyCMIPaths = [];
 
     // Event callbacks.
     this.eventCallbacks = {
@@ -35,23 +36,8 @@
     this.data = {
       cmi: {
         _version: '1.0',
-        comments_from_learner: [],
-        objectives: [],
-        completion_status: 'not attempted',
-        location: 0
       }
     };
-    this.data.cmi.comments_from_learner._children = 'comment,location,timestamp';
-    this.data.cmi.objectives._children = 'id,score,success_status,completion_status,progress_measure,description';
-
-    // Overwrite defaults, if necessary. Set other values.
-    if (data) {
-      for (var cmiKey in data) {
-        if (typeof cmiKey === 'string') {
-          this._setValue(cmiKey, data[cmiKey]);
-        }
-      }
-    }
   };
 
   /**
@@ -83,6 +69,14 @@
    * @const Requested CMI child value does not exist.
    */
   OpignoScorm2004API.CHILD_DOES_NOT_EXIST = 'CHILD_DOES_NOT_EXIST';
+
+
+
+  /**
+   * @defgroup scorm_2004_rte_api SCORM 2004 RTE API definition
+   * @{
+   * Method definitions of the SCORM 2004 Runtime Environment API.
+   */
 
   /**
    * Implements Initialize().
@@ -427,16 +421,25 @@
   }
 
   /**
-   * Initialize the communication between the SCORM package and Opigno.
-   *
-   * @return {Boolean}
+   * @} End of "defgroup scorm_2004_rte_api".
    */
-  OpignoScorm2004API.prototype._initCommunication = function() {
-    // The SCORM 2004 edition does not provide any asynchronous logic, or the concept
-    // of promises. This means establishing the communication between the SCORM
-    // and Opigno must always be considered "active", and can never "fail".
-    // We return true in any case.
-    return true;
+
+
+
+  /**
+   * @defgroup scorm_2004_public Public methods
+   * @{
+   * Public method definitions of the SCORM 2004 API class.
+   *
+   * These function can be used for generic data manipulation or interacting with
+   * the OpignoScorm2004API object directly.
+   */
+
+  /**
+   *
+   */
+  OpignoScorm2004API.prototype.normalizeCMIPath = function(cmiPath) {
+    return cmiPath.replace(/\.[0-9]+\./g, '.n.');
   }
 
   /**
@@ -472,6 +475,48 @@
         this.eventCallbacks[event][i].apply(this, args);
       }
     }
+  }
+
+  /**
+   * Register CMI paths.
+   *
+   * This will make the API tell the SCO the passed paths
+   * are available and implemented.
+   *
+   * @param {Object} cmiPaths
+   *        A hash map of paths, where each item has a writeOnly or readOnly property.
+   */
+  OpignoScorm2004API.prototype.registerCMIPath = function(cmiPaths) {
+
+    this.registeredCMIPaths = this.registeredCMIPaths.concat(cmiPaths);
+  }
+
+  /**
+   * @} End of "defgroup scorm_2004_public".
+   */
+
+
+
+  /**
+   * @defgroup scorm_2004_private Private methods
+   * @{
+   * Private method definitions of the SCORM 2004 API class.
+   *
+   * These function should not be used directly. Prefer using the public methods
+   * or extending the OpignoScorm2004API object. Method signatures can change.
+   */
+
+  /**
+   * Initialize the communication between the SCORM package and Opigno.
+   *
+   * @return {Boolean}
+   */
+  OpignoScorm2004API.prototype._initCommunication = function() {
+    // The SCORM 2004 edition does not provide any asynchronous logic, or the concept
+    // of promises. This means establishing the communication between the SCORM
+    // and Opigno must always be considered "active", and can never "fail".
+    // We return true in any case.
+    return true;
   }
 
   /**
@@ -577,8 +622,6 @@
       return OpignoScorm2004API.VALUE_READ_ONLY;
     }
 
-    // @todo DO not set _count or _children properties. Read-only
-
     // Recursively walk the data tree and get the requested leaf.
     var pathTree = cmiPath.split('.'),
       // Get the first path element, usually 'cmi'.
@@ -650,6 +693,9 @@
    * @returns {Boolean}
    */
   OpignoScorm2004API.prototype._validCMIDataPath = function(cmiPath) {
+    // Normalize the path.
+    var normalizedPath = this.normalizeCMIPath(cmiPath);
+
     var keys = [
       // Special test paths.
       'cmi.__value__',
@@ -659,7 +705,7 @@
       'cmi.__test__._count',
       'cmi.__test__.n.child',
 
-      // Real CMI paths.
+      // Real CMI paths, from SORM 2004 3rd edition requirement document.
       'cmi._version',
       'cmi.completion_status',
       'cmi.location',
@@ -680,8 +726,7 @@
       'cmi.comments_from_learner.n.timestamp'
     ];
 
-    // Replace all ".[0-9]." values with ".n.".
-    return keys.indexOf(cmiPath.replace(/\.[0-9]+\./g, '.n.')) !== -1;
+    return keys.indexOf(normalizedPath) !== -1;
   }
 
   /**
@@ -692,14 +737,11 @@
    * @returns {Boolean}
    */
   OpignoScorm2004API.prototype._writeOnlyCMIDataPath = function(cmiPath) {
-    // @todo
-    return false;
+    // Normalize the path.
+    var normalizedPath = this.normalizeCMIPath(cmiPath);
 
-    var keys = [
-
-    ];
-
-    return keys.indexOf(cmiPath) !== -1;
+    // Check implemented paths.
+    return this.writeOnlyCMIPaths.indexOf(normalizedPath) !== -1;
   }
 
   /**
@@ -715,12 +757,20 @@
       return true;
     }
 
+    // Normalize the path.
+    var normalizedPath = this.normalizeCMIPath(cmiPath);
+
     var keys = [
       // Special test paths.
       'cmi.__read_only__'
     ];
 
-    return keys.indexOf(cmiPath) !== -1;
+    if (keys.indexOf(normalizedPath) !== -1) {
+      return true;
+    }
+
+    // Check implemented paths.
+    return this.readOnlyCMIPaths.indexOf(normalizedPath) !== -1;
   }
 
   /**
@@ -731,44 +781,34 @@
    * @returns {Boolean}
    */
   OpignoScorm2004API.prototype._implementedCMIDataPath = function(cmiPath) {
+    // In some cases, we may want to use every CMI path anyway.
+    if (this.skipCheck) {
+      return true;
+    }
+
+    // Normalize the path.
+    var normalizedPath = this.normalizeCMIPath(cmiPath);
+
+    // Special test paths.
     var keys = [
-      // Special test paths.
       'cmi.__value__',
       'cmi.__read_only__',
       'cmi.__test__',
       'cmi.__test__._count',
       'cmi.__test__.n.child',
-
-      // Real CMI paths.
-      'cmi._version',
-      'cmi.completion_status',
-      'cmi.location',
-      'cmi.objectives',
-      'cmi.objectives._children',
-      'cmi.objectives._count',
-      'cmi.objectives.n.score',
-      'cmi.objectives.n.id',
-      'cmi.objectives.n.success_status',
-      'cmi.objectives.n.completion_status',
-      'cmi.objectives.n.progress_measure',
-      'cmi.objectives.n.description',
-      'cmi.comments_from_learner',
-      'cmi.comments_from_learner._children',
-      'cmi.comments_from_learner._count',
-      'cmi.comments_from_learner.n.comment',
-      'cmi.comments_from_learner.n.location',
-      'cmi.comments_from_learner.n.timestamp',
-      'cmi.comments_from_lms._children',
-      'cmi.comments_from_lms._count',
-      // 'cmi.comments_from_lms.n.comment',
-      // 'cmi.comments_from_lms.n.location',
-      // 'cmi.comments_from_lms.n.timestamp',
-
-      '' // Dummy value to prevent trailing comma errors in this particular list.
     ];
 
-    return keys.indexOf(cmiPath.replace(/\.[0-9]+\./g, '.n.')) !== -1;
+    if (keys.indexOf(normalizedPath) !== -1) {
+      return true;
+    }
+
+    // Check implemented paths.
+    return this.registeredCMIPaths.indexOf(normalizedPath) !== -1;
   }
+
+  /**
+   * @} End of "defgroup scorm_2004_private".
+   */
 
   // Export.
   window.OpignoScorm2004API = OpignoScorm2004API;
