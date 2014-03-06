@@ -487,7 +487,7 @@
    * @param {Object} cmiPaths
    *        A hash map of paths, where each item has a writeOnly or readOnly property.
    */
-  OpignoScorm2004API.prototype.registerCMIPath = function(cmiPaths) {
+  OpignoScorm2004API.prototype.registerCMIPaths = function(cmiPaths) {
     for (var cmiPath in cmiPaths) {
       if (cmiPath) {
         this.registeredCMIPaths.push(cmiPath);
@@ -515,8 +515,8 @@
    * @param {String} cmiPath
    * @param {Object} data
    */
-  OpignoScorm2004API.prototype.registerData = function(cmiPath, data) {
-    this._setCMIData(cmiPath, value, true);
+  OpignoScorm2004API.prototype.registerCMIData = function(cmiPath, data) {
+    this._setCMIData(cmiPath, data, true);
   }
 
   /**

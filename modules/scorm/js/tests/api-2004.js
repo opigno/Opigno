@@ -54,6 +54,16 @@
       var api = new OpignoScorm2004API(), value = '';
 
       /**
+       * @defgroup scorm_2004_object_specs Object specs
+       * @{
+       * Specs for the OpignoScorm2004API custom methods.
+       *
+       * OpignoScorm2004API provides several methods for easy integration
+       * with other libraries. This is different from the SCORM API methods,
+       * which are defined by the ADL Conformance Requirements.
+       */
+
+      /**
        * We use a event powered system for abstracting communication
        * between the SCO and the LMS. Test the events.
        */
@@ -98,6 +108,62 @@
         api.Terminate('');
         ok(spy.called, 'Spy got called for the "terminate" event.');
         equal(spy.that, api, 'Spy called with correct context (API object).');
+
+
+      /**
+       * We allow third party JS to register CMI paths, flag them as write only, read only, etc.
+       */
+      module('Register paths');
+        api = new OpignoScorm2004API();
+
+        ok(!api._implementedCMIDataPath('cmi.write_only_path'), 'Path cmi.write_only_path is not registered.');
+        ok(!api._implementedCMIDataPath('cmi.read_only_path'), 'Path cmi.read_only_path is not registered.');
+        ok(!api._implementedCMIDataPath('cmi.read_write_path'), 'Path cmi.read_write_path is not registered.');
+        ok(!api._implementedCMIDataPath('cmi.read_write_path_2'), 'Path cmi.read_write_path_2 is not registered.');
+
+        api.registerCMIPaths({
+          'cmi.write_only_path': {
+            writeOnly: true
+          },
+          'cmi.read_only_path': {
+            readOnly: true
+          },
+          'cmi.read_write_path': { },
+          'cmi.read_write_path_2': {
+            writeOnly: false,
+            readOnly: false
+          }
+        });
+
+        ok(!api._implementedCMIDataPath('cmi.__unkown__'), "Registering paths don't make all paths magically available.");
+        ok(api._implementedCMIDataPath('cmi.write_only_path'), 'Path cmi.write_only_path got registered correctly.');
+        ok(api._implementedCMIDataPath('cmi.read_only_path'), 'Path cmi.read_only_path got registered correctly.');
+        ok(api._implementedCMIDataPath('cmi.read_write_path'), 'Path cmi.read_write_path got registered correctly.');
+        ok(api._implementedCMIDataPath('cmi.read_write_path_2'), 'Path cmi.read_write_path_2 got registered correctly.');
+
+
+      /**
+       * We allow third party JS to register data needed for the SCO at startup.
+       */
+      module('Register data');
+        api = new OpignoScorm2004API();
+
+        notEqual(api._getCMIData('cmi.__data_value__', true), 'value', 'Data cmi.__data_value__ got correctly registered.');
+        notDeepEqual(api._getCMIData('cmi.__tree_value__', true), { tree: { leaf: 1 } }, 'Data cmi.__tree_value__ got correctly registered.');
+        notDeepEqual(api._getCMIData('cmi.__array_value__', true), [{ key: 'value' }, { key: 'value2' }], 'Data cmi.__array_value__ got correctly registered.');
+
+        api.registerCMIData('cmi.__data_value__', 'value');
+        api.registerCMIData('cmi.__tree_value__', { tree: { leaf: 1 } });
+        api.registerCMIData('cmi.__array_value__', [{ key: 'value' }, { key: 'value2' }]);
+
+        equal(api._getCMIData('cmi.__data_value__', true), 'value', 'Data cmi.__data_value__ got correctly registered.');
+        deepEqual(api._getCMIData('cmi.__tree_value__', true), { tree: { leaf: 1 } }, 'Data cmi.__tree_value__ got correctly registered.');
+        deepEqual(api._getCMIData('cmi.__array_value__', true), [{ key: 'value' }, { key: 'value2' }], 'Data cmi.__array_value__ got correctly registered.');
+
+      /**
+       * @} End of "defgroup scorm_2004_object_specs".
+       */
+
 
 
       /**
