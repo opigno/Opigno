@@ -35,7 +35,7 @@
     // Set default data values.
     this.data = {
       cmi: {
-        _version: '1.0',
+        _version: '1.0'
       }
     };
   };
@@ -481,14 +481,24 @@
    * Register CMI paths.
    *
    * This will make the API tell the SCO the passed paths
-   * are available and implemented.
+   * are available and implemented. When reading/writing these values,
+   * the API will behave as the SCO expects.
    *
    * @param {Object} cmiPaths
    *        A hash map of paths, where each item has a writeOnly or readOnly property.
    */
   OpignoScorm2004API.prototype.registerCMIPath = function(cmiPaths) {
-
-    this.registeredCMIPaths = this.registeredCMIPaths.concat(cmiPaths);
+    for (var cmiPath in cmiPaths) {
+      if (cmiPath) {
+        this.registeredCMIPaths.push(cmiPath);
+        if (cmiPaths[cmiPath].readOnly !== undefined && cmiPaths[cmiPath].readOnly) {
+          this.readOnlyCMIPaths.push(cmiPath);
+        }
+        else if (cmiPaths[cmiPath].writeOnly !== undefined && cmiPaths[cmiPath].writeOnly) {
+          this.writeOnlyCMIPaths.push(cmiPath);
+        }
+      }
+    }
   }
 
   /**
