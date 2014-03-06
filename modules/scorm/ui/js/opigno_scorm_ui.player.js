@@ -31,11 +31,6 @@
 
           player.init();
 
-          // Bind event listeners for different API events.
-          window.API_1484_11.bind('commit', function(value, data) {
-
-          });
-
           // Add a class to the player, so the CSS can style it differently if needed.
           $element.addClass('js-processed');
         });
