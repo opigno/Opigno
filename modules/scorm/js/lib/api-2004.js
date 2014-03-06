@@ -752,6 +752,10 @@
       'cmi.objectives._children',
       'cmi.objectives._count',
       'cmi.objectives.n.score',
+      'cmi.objectives.n.score.scaled',
+      'cmi.objectives.n.score.raw',
+      'cmi.objectives.n.score.min',
+      'cmi.objectives.n.score.max',
       'cmi.objectives.n.id',
       'cmi.objectives.n.success_status',
       'cmi.objectives.n.completion_status',
@@ -842,6 +846,7 @@
     }
 
     // Check implemented paths.
+    console.log(this.registeredCMIPaths, normalizedPath, 'found: ', this.registeredCMIPaths.indexOf(normalizedPath) !== -1)
     return this.registeredCMIPaths.indexOf(normalizedPath) !== -1;
   }
 
