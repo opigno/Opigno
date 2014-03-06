@@ -31,7 +31,7 @@ function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
   global $user;
 
   $data = array(
-    'cmi.location' => 0, // @todo
+    'cmi.location' => opigno_scorm_quiz_scorm_cmi_get($user->uid, $scorm->id, 'cmi.location', 0),
     'cmi.objectives' => array(),
   );
 
@@ -82,5 +82,29 @@ function opigno_scorm_quiz_opigno_scorm_ui_commit($scorm, $data) {
 /**
  * Helper function to get SCORM CMI data while also providing a default value.
  *
- * 
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $cmi_key
+ * @param mixed $default_value
+ *
+ * @return mixed|null
  */
+function opigno_scorm_quiz_scorm_cmi_get($uid, $scorm_id, $cmi_key, $default_value = NULL) {
+  $value = opigno_scorm_scorm_cmi_get($uid, $scorm_id, $cmi_key);
+  return isset($value) ? $value : $default_value;
+}
+
+/**
+ * Helper function to get SCO CMI data while also providing a default value.
+ *
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $cmi_key
+ * @param mixed $default_value
+ *
+ * @return mixed|null
+ */
+function opigno_scorm_quiz_sco_cmi_get($uid, $scorm_id, $cmi_key, $default_value = NULL) {
+  $value = opigno_scorm_sco_cmi_get($uid, $scorm_id, $cmi_key);
+  return isset($value) ? $value : $default_value;
+}
