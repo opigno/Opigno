@@ -307,23 +307,27 @@
         // If the value does not exist, set the error to 401
         // and return 'false'.
         if (result === OpignoScorm2004API.CMI_NOT_VALID) {
+          console.log('SetValue', 'NOT VALID');
           this.error = '401';
           return 'false';
         }
         // For currently unimplemented values, set the error to 402
         // and return 'false'.
         else if (result === OpignoScorm2004API.CMI_NOT_IMPLEMENTED) {
+          console.log('SetValue', 'NOT IMPLEMENTED');
           this.error = '402';
           return 'false';
         }
         // For read-only values, set the error to 404 and return 'false'.
         else if (result === OpignoScorm2004API.VALUE_READ_ONLY) {
+          console.log('SetValue', 'NOT WRITABLE');
           this.error = '404';
           return 'false';
         }
       }
       // For unknown values, set the error to 401 and return ''.
       else {
+        console.log('SetValue', 'UNKNOWN ERROR');
         this.error = '401';
         return 'false';
       }
@@ -331,6 +335,7 @@
     catch (e) {
       // If anything fails, for whatever reason, set the error to 351 and
       // return ''.
+      console.log('SetValue', 'THREW ERROR');
       this.error = '351';
       return 'false';
     }
