@@ -167,3 +167,35 @@ function opigno_scorm_ui_player_sco_attributes($sco) {
 
   return drupal_attributes($attributes);
 }
+
+/**
+ * Helper function to add JS and CSS assets for the SCORM player.
+ */
+function opigno_scorm_ui_add_assets() {
+  $path = drupal_get_path('module', 'opigno_scorm');
+  $ui_path = drupal_get_path('module', 'opigno_scorm_ui');
+  drupal_add_js("$path/js/lib/api-2004.js");
+  drupal_add_js("$path/js/lib/api-1.2.js");
+  drupal_add_css("$ui_path/css/opigno_scorm_ui.player.css");
+  drupal_add_js("$ui_path/js/lib/player.js");
+  drupal_add_js("$ui_path/js/opigno_scorm_ui.player.js");
+
+  module_invoke_all('opigno_scorm_ui_add_assets');
+}
+
+/**
+ * Get the CMI data for the SCORM player.
+ *
+ * Invokes the hook_opigno_scorm_ui_cmi_data() on all implementing modules
+ * to retrieve data to pass to the SCORM player.
+ *
+ * @param object $scorm
+ * @param array $scos
+ *
+ * @return array
+ */
+function opigno_scorm_ui_add_cmi_data($scorm, $scos) {
+  $data = module_invoke_all('opigno_scorm_ui_cmi_data', $scorm, $scos);
+  drupal_alter('opigno_scorm_ui_cmi_data', $data, $scorm, $scos);
+  return $data;
+}
