@@ -502,6 +502,24 @@
   }
 
   /**
+   * Register CMI data.
+   *
+   * This is different from SetValue, as it allows developers to set entire
+   * data structures very quickly. This should be used on initialization for
+   * providing data the SCO will need.
+   *
+   * Warning ! This can override data previously set by other callers. Use with caution.
+   *
+   * @see _setCMIData().
+   *
+   * @param {String} cmiPath
+   * @param {Object} data
+   */
+  OpignoScorm2004API.prototype.registerData = function(cmiPath, data) {
+    this._setCMIData(cmiPath, value, true);
+  }
+
+  /**
    * @} End of "defgroup scorm_2004_public".
    */
 
@@ -533,35 +551,38 @@
    * Fetch the CMI data by recursively checking the CMI data tree.
    *
    * @param {String} cmiPath
+   * @param {Boolean} skipValidation
    *
    * @returns {String}
    */
-  OpignoScorm2004API.prototype._getCMIData = function(cmiPath) {
-    // Special test values.
-    if (cmiPath === 'cmi.__value__') {
-      return 'value';
-    }
-    else if (cmiPath === 'cmi.__write_only__') {
-      return OpignoScorm2004API.VALUE_WRITE_ONLY;
-    }
-    else if (cmiPath === 'cmi.__unimplemented__') {
-      return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
-    }
-    else if (cmiPath === 'cmi.__unknown__') {
-      return OpignoScorm2004API.CMI_NOT_VALID;
-    }
+  OpignoScorm2004API.prototype._getCMIData = function(cmiPath, skipValidation) {
+    if (!skipValidation) {
+      // Special test values.
+      if (cmiPath === 'cmi.__value__') {
+        return 'value';
+      }
+      else if (cmiPath === 'cmi.__write_only__') {
+        return OpignoScorm2004API.VALUE_WRITE_ONLY;
+      }
+      else if (cmiPath === 'cmi.__unimplemented__') {
+        return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
+      }
+      else if (cmiPath === 'cmi.__unknown__') {
+        return OpignoScorm2004API.CMI_NOT_VALID;
+      }
 
-    // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
-    if (!this._validCMIDataPath(cmiPath)) {
-      return OpignoScorm2004API.CMI_NOT_VALID;
-    }
-    // Check if the CMI path is write-only. If so, return VALUE_WRITE_ONLY.
-    else if (this._writeOnlyCMIDataPath(cmiPath)) {
-      return OpignoScorm2004API.VALUE_WRITE_ONLY;
-    }
-    // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
-    else if (!this._implementedCMIDataPath(cmiPath)) {
-      return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
+      // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
+      if (!this._validCMIDataPath(cmiPath)) {
+        return OpignoScorm2004API.CMI_NOT_VALID;
+      }
+      // Check if the CMI path is write-only. If so, return VALUE_WRITE_ONLY.
+      else if (this._writeOnlyCMIDataPath(cmiPath)) {
+        return OpignoScorm2004API.VALUE_WRITE_ONLY;
+      }
+      // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
+      else if (!this._implementedCMIDataPath(cmiPath)) {
+        return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
+      }
     }
 
     // Recursively walk the data tree and get the requested leaf.
@@ -615,21 +636,24 @@
    *
    * @param {String} cmiPath
    * @param {String} value
+   * @param {Boolean} skipValidation
    *
    * @returns {String}
    */
-  OpignoScorm2004API.prototype._setCMIData = function(cmiPath, value) {
-    // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
-    if (!this._validCMIDataPath(cmiPath)) {
-      return OpignoScorm2004API.CMI_NOT_VALID;
-    }
-    // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
-    else if (!this._implementedCMIDataPath(cmiPath)) {
-      return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
-    }
-    // Check if the CMI path is read-only. If so, return VALUE_READ_ONLY.
-    else if (this._readOnlyCMIDataPath(cmiPath)) {
-      return OpignoScorm2004API.VALUE_READ_ONLY;
+  OpignoScorm2004API.prototype._setCMIData = function(cmiPath, value, skipValidation) {
+    if (!skipValidation) {
+      // Check if the CMI path is valid. If not, return CMI_NOT_VALID.
+      if (!this._validCMIDataPath(cmiPath)) {
+        return OpignoScorm2004API.CMI_NOT_VALID;
+      }
+      // Check if the CMI path is implemented. If not, return CMI_NOT_IMPLEMENTED.
+      else if (!this._implementedCMIDataPath(cmiPath)) {
+        return OpignoScorm2004API.CMI_NOT_IMPLEMENTED;
+      }
+      // Check if the CMI path is read-only. If so, return VALUE_READ_ONLY.
+      else if (this._readOnlyCMIDataPath(cmiPath)) {
+        return OpignoScorm2004API.VALUE_READ_ONLY;
+      }
     }
 
     // Recursively walk the data tree and get the requested leaf.
