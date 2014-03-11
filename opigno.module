@@ -393,7 +393,7 @@ function opigno_og_context_handler() {
     }
   }
   elseif (preg_match('/^entityreference\/autocomplete\/single/', current_path())) {
-    if (og_is_group('node', node_load(arg(6)))) {
+    if (is_numeric(arg(6))&&og_is_group('node', node_load(arg(6)))) {
       return array('node' => array(arg(6)));
     }
   }
