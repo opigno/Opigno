@@ -196,6 +196,8 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 function opigno_scorm_ui_opigno_scorm_ui_register_cmi_paths() {
   return array(
     'cmi.location' => array(),
+    'cmi.completion_status' => array(),
+    'cmi.exit' => array(),
   );
 }
 
@@ -207,6 +209,8 @@ function opigno_scorm_ui_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
 
   $data = array(
     'cmi.location' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.location', 0),
+    'cmi.completion_status' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.completion_status', ''),
+    'cmi.exit' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.exit', ''),
   );
 
   return $data;
@@ -221,6 +225,11 @@ function opigno_scorm_ui_opigno_scorm_ui_commit($scorm, $data) {
   // Store the last position.
   if (!empty($data->cmi->location)) {
     opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.location', $data->cmi->location);
+  }
+
+  // Store the completion status.
+  if (!empty($data->cmi->completion_status)) {
+    opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.completion_status', $data->cmi->completion_status);
   }
 }
 

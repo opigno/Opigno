@@ -757,7 +757,13 @@
 
       // Real CMI paths, from SORM 2004 3rd edition requirement document.
       'cmi._version',
+      'cmi.exit',
+      'cmi.success_status',
       'cmi.completion_status',
+      'cmi.score.raw',
+      'cmi.score.min',
+      'cmi.score.max',
+      'cmi.score.scaled',
       'cmi.location',
       'cmi.objectives',
       'cmi.objectives._children',

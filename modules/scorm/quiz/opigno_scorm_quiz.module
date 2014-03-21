@@ -10,6 +10,11 @@
  */
 function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_paths() {
   return array(
+    'cmi.score.raw' => array(),
+    'cmi.score.min' => array(),
+    'cmi.score.max' => array(),
+    'cmi.score.scaled' => array(),
+    'cmi.success_status' => array(),
     'cmi.objectives' => array(),
     'cmi.objectives._count' => array('readOnly' => 1),
     'cmi.objectives._children' => array('readOnly' => 1),
@@ -34,6 +39,11 @@ function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
   global $user;
 
   $data = array(
+    'cmi.score.raw' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.raw', ''),
+    'cmi.score.min' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.min', ''),
+    'cmi.score.max' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.max', ''),
+    'cmi.score.scaled' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.scaled', ''),
+    'cmi.success_status' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.success_status', ''),    
     'cmi.objectives' => array(),
   );
 
