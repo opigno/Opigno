@@ -6,3 +6,5 @@ dependencies[] = opigno_scorm
 dependencies[] = opigno_scorm_ui
 
 files[] = tests/OpignoScormQuizUnitTest.test
+files[] = includes/opigno_scorm_quiz.question.inc
+files[] = includes/opigno_scorm_quiz.response.inc

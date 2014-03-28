@@ -1,0 +1,195 @@
+<?php
+
+/**
+ * @file
+ * Install logic.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function opigno_scorm_quiz_install() {
+  quiz_question_add_body_field('opigno_scorm_quiz_question');
+  variable_set('node_options_opigno_scorm_quiz_question', array('status'));
+  
+  $field = field_info_field('opigno_scorm_package');
+  if (empty($field)) {
+    field_create_field(array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'opigno_scorm_package',
+      'foreign keys' => array(
+        'fid' => array(
+          'columns' => array(
+            'fid' => 'fid',
+          ),
+          'table' => 'file_managed',
+        ),
+      ),
+      'indexes' => array(
+        'fid' => array(
+          0 => 'fid',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'opigno_scorm_ui',
+      'settings' => array(
+        'display_default' => 0,
+        'display_field' => 0,
+        'uri_scheme' => 'public',
+      ),
+      'translatable' => 0,
+      'type' => 'opigno_scorm_package',
+    ));
+  }
+
+  $field = field_info_field('opigno_scorm_round_method');
+  if (empty($field)) {
+    field_create_field(array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'opigno_scorm_round_method',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          'ceil' => 'Round up',
+          'round' => 'Round to closest',
+          'floor' => 'Round down',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => 0,
+      'type' => 'list_text',
+    ));
+  }
+
+  $instance = field_info_instance('node', 'opigno_scorm_quiz_question', 'opigno_scorm_package');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'bundle' => 'opigno_scorm_quiz_question',
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'module' => 'opigno_scorm_ui',
+          'settings' => array(),
+          'type' => 'opigno_scorm_player',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'module' => 'opigno_scorm_ui',
+          'settings' => array(),
+          'type' => 'opigno_scorm_player',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'opigno_scorm_package',
+      'label' => 'SCORM',
+      'required' => 1,
+      'settings' => array(
+        'description_field' => 0,
+        'file_directory' => 'opigno_scorm',
+        'file_extensions' => 'zip',
+        'max_filesize' => '',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'file',
+        'settings' => array(
+          'progress_indicator' => 'throbber',
+        ),
+        'type' => 'file_generic',
+        'weight' => 32,
+      ),
+    ));
+  }
+
+  $instance = field_info_instance('node', 'opigno_scorm_quiz_question', 'opigno_scorm_round_method');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'bundle' => 'opigno_scorm_quiz_question',
+      'default_value' => array(
+        0 => array(
+          'value' => 'round',
+        ),
+      ),
+      'deleted' => 0,
+      'description' => 'Some SCORM packages use a float point number for scoring, whereas we require an integer. Choose the appropriate method for rounding the final score.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 2,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'opigno_scorm_round_method',
+      'label' => 'Round method',
+      'required' => 1,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_buttons',
+        'weight' => 33,
+      ),
+    ));
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function opigno_scorm_quiz_schema() {
+  return array(
+    'opigno_scorm_quiz_user_results' => array(
+      'fields' => array(
+        'question_nid' => array(
+          'type' => 'int',
+          'unsiged' => TRUE,
+          'not null' => TRUE,
+        ),
+        'question_vid' => array(
+          'type' => 'int',
+          'unsiged' => TRUE,
+          'not null' => TRUE,
+        ),
+        'result_id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'score_scaled' => array(
+          'type' => 'float',
+          'size' => 'big',
+        ),
+      ),
+      'primary key' => array('question_nid', 'question_vid', 'result_id'),
+    ),
+  );
+}

@@ -102,6 +102,30 @@ function opigno_scorm_quiz_opigno_scorm_ui_commit($scorm, $data) {
       opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, "cmi.objectives.$i", $data->cmi->objectives[$i]);
     }
   }
+
+  // Store the score.
+  if (!empty($data->cmi->score)) {
+    foreach (array('raw', 'min', 'max', 'scaled') as $key) {
+      if (isset($data->cmi->score->{$key})) {
+        opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, "cmi.score.{$key}", $data->cmi->score->{$key});
+      }
+    }
+  }
+}
+
+/**
+ * Implements of hook_quiz_question_info().
+ */
+function opigno_scorm_quiz_quiz_question_info() {
+  return array(
+    'opigno_scorm_quiz_question' => array(
+      'name' => t('SCORM Package'),
+      'description' => t('Question using SCORM packages.'),
+      'question provider' => 'OpignoScormQuizQuestion',
+      'response provider' => 'OpignoScormQuizResponse',
+      'module' => 'quiz_question',
+    ),
+  );
 }
 
 /**
