@@ -280,7 +280,6 @@ function opigno_field_formatter_view($entity_type, $entity, $field, $instance, $
   global $user;
   $element = array();
 
-  if (opigno_access_tools($entity)) {
     switch ($display['type']) {
       case 'opigno_tools_name':
         foreach ($items as $delta => $item) {
@@ -308,7 +307,6 @@ function opigno_field_formatter_view($entity_type, $entity, $field, $instance, $
         }
         break;
     }
-  }
 
   return $element;
 }
