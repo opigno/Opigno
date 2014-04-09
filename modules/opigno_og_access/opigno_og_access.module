@@ -1,0 +1,1159 @@
+<?php
+
+
+/**
+ * @file
+ * Enable access control for private and public groups and group content.
+ */
+
+/**
+ * The access realm of group member.
+ */
+define('OPIGNO_OG_ACCESS_REALM', 'og_access');
+
+/**
+ * Group public access field.
+ */
+define('OPIGNO_OG_ACCESS_FIELD', 'group_access');
+
+
+function opigno_og_access_node_grants($account, $op) {
+  if ($op != 'view') {
+    return;
+  }
+
+  if ($groups = og_get_entity_groups('user', $account)) {
+    foreach ($groups as $group_type => $gids) {
+      foreach ($gids as $gid) {
+        $realm = OPIGNO_OG_ACCESS_REALM . ':' . $group_type;
+        $grants[$realm][] = $gid;
+      }
+    }
+  }
+
+  if ($account->uid) {
+    $realm = OPIGNO_OG_ACCESS_REALM . ':only_auth';
+    $grants[$realm][] = 1;
+  }
+
+  return !empty($grants) ? $grants : array();
+}
+
+
+/**
+ * Implements hook_node_access_records().
+ */
+function opigno_og_access_node_access_records($node) {
+  if (empty($node->status)) {
+    // Node is unpublished, so we don't allow every group member to see
+    // it.
+    return array();
+  }
+
+  $gids = array();
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $hideforanonymous=FALSE;
+
+
+  if ((!empty($wrapper->{OPIGNO_OG_ACCESS_FIELD})) && (og_is_group('node', $node))) {
+    if (!opigno_og_access_node_access($wrapper)) {
+      $gids['node'][] = $node->nid;
+    }
+    $hideforanonymous = $wrapper->anomymous_visibility->value()==1;
+  }
+
+  if (og_is_group_content_type('node', $node->type)) {
+    $has_private = FALSE;
+    $entity_groups = og_get_entity_groups('node', $node);
+    foreach ($entity_groups as $group_type => $values) {
+      entity_load($group_type, $values);
+      foreach ($values as $gid) {
+        $list_gids[$group_type][] = $gid;
+        if ($has_private) {
+          // We already know we have a private group, so we can avoid
+          // re-checking it.
+          continue;
+        }
+        $group_wrapper = entity_metadata_wrapper($group_type, $gid);
+        if (!opigno_og_access_node_content_access($group_wrapper)) {
+          $has_private = TRUE;
+        }
+        if (!$hideforanonymous) {
+          $hideforanonymous = $group_wrapper->anomymous_visibility->value()==1;
+        }
+      }
+    }
+    if ($has_private) {
+      $gids = array_merge_recursive($gids, $list_gids);
+    }
+  }
+
+  foreach ($gids as $group_type => $values) {
+    foreach ($values as $gid) {
+      $grants[] = array(
+        'realm' => OPIGNO_OG_ACCESS_REALM . ':' . $group_type,
+        'gid' => $gid,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'priority' => 1,
+      );
+    }
+  }
+
+  if ($hideforanonymous) {
+    $grants[] = array(
+      'realm' => OPIGNO_OG_ACCESS_REALM . ':only_auth',
+      'gid' => 1,
+      'grant_view' => 1,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'priority' => 1,
+    );
+  }
+  return !empty($grants) ? $grants : array();
+}
+
+
+function opigno_og_access_node_access($wrapper) {
+  if (empty($wrapper->{OPIGNO_OG_ACCESS_FIELD})) {
+    return TRUE;
+  }
+  $wrapper = entity_metadata_wrapper('node', $wrapper);
+  if (($wrapper->{OPIGNO_OG_ACCESS_FIELD}->value() == 0) || ($wrapper->{OPIGNO_OG_ACCESS_FIELD}->value() == 1)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+function opigno_og_access_node_content_access($wrapper) {
+  if (empty($wrapper->{OPIGNO_OG_ACCESS_FIELD})) {
+    return TRUE;
+  }
+  $wrapper = entity_metadata_wrapper('node', $wrapper);
+  if (($wrapper->{OPIGNO_OG_ACCESS_FIELD}->value() == 0)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+function opigno_og_access_entity_insert($entity, $entity_type) {
+  if (($entity_type == "node") && (($entity->type == "course")||($entity->type == "class"))) {
+    $entity->{OG_DEFAULT_ACCESS_FIELD}[LANGUAGE_NONE][0]['value'] = 1;
+    opigno_og_access_node_set_og_permissions($entity);
+  }
+}
+
+function opigno_og_access_entity_update($entity, $entity_type) {
+  if (($entity_type == "node") && (($entity->type == "course")||($entity->type == "class"))) {
+    $entity->{OG_DEFAULT_ACCESS_FIELD}[LANGUAGE_NONE][0]['value'] = 1;
+    opigno_og_access_node_set_og_permissions($entity);
+  }
+}
+
+function opigno_og_access_node_set_og_permissions($entity) {
+  $roles = og_roles("node",$entity->entity, $entity->nid, FALSE, TRUE);
+  dpm($roles, "roles");
+  $ak = array_keys($roles);
+  $rid = $ak[0];
+  $role_names = array($rid => $roles[$rid]);
+  // Fetch permissions for all roles or the one selected role.
+  $role_permissions = og_role_permissions($role_names);
+  $tosave = array();
+  $og_permissions = og_get_permissions();
+  foreach ($og_permissions as $index => $value) {
+    if ($role_permissions[$rid][$index] == TRUE) {
+      $tosave[$index] = $index;
+    }
+    else {
+      $tosave[$index] = 0;
+    }
+  }
+  dpm($tosave, "to save");
+  og_role_change_permissions($rid, $tosave);
+  opigno_og_access_node_set_subscribe_permissions($entity);
+}
+
+
+function opigno_og_access_node_set_subscribe_permissions($entity) {
+  $roles = og_roles("node", $entity->type, $entity->nid, FALSE, TRUE);
+  //$role_names=array($roles);
+  $role_permissions = og_role_permissions($roles);
+  $og_permissions = og_get_permissions();
+  foreach ($role_permissions as $rid => $permission) {
+    $tosave = array();
+    foreach ($og_permissions as $index => $value) {
+      if ($role_permissions[$rid][$index] == TRUE) {
+        $tosave[$index] = $index;
+      }
+      else {
+        $tosave[$index] = 0;
+      }
+    }
+
+    if ($entity->requires_validation[LANGUAGE_NONE][0]['value'] != 1) {
+      $tosave['subscribe without approval'] = 'subscribe without approval';
+    }
+    else {
+      $tosave['subscribe without approval'] = 0;
+    }
+
+    if ($entity->{OPIGNO_OG_ACCESS_FIELD}[LANGUAGE_NONE][0]['value'] == 2) {
+      $tosave['subscribe'] = 0;
+      $tosave['subscribe without approval'] = 0;
+    }
+    else {
+      $tosave['subscribe'] = 'subscribe';
+    }
+    og_role_change_permissions($rid, $tosave);
+  }
+}
+
+function opigno_og_access_node_update($node) {
+  $loaded_node = node_load($node->nid, NULL, TRUE);
+  if (($loaded_node->type == "course")||($loaded_node->type == "class"))
+  {
+    $content = opigno_og_group_get_contents_in_group($loaded_node->nid);
+    while ($record = $content->fetchAssoc()) {
+      $nd = node_load($record['nid']);
+      node_access_acquire_grants($nd, TRUE);
+    }
+  }
+}
+
+function opigno_og_access_remove_anonymous_node_access(&$permissions) {
+  if ($permissions['view'][0] == 1) {
+    unset($permissions['view'][0]);
+    sort($permissions['view']);
+  }
+  if ($permissions['view_own'][0] == 1) {
+    unset($permissions['view_own'][0]);
+    sort($permissions['view_own']);
+  }
+}
+
+function opigno_og_access_give_anonymous_node_access(&$permissions) {
+  $permissions['view'][] = 1;
+  sort($permissions['view']);
+  $permissions['view_own'][] = 1;
+  sort($permissions['view_own']);
+}
+
+function opigno_og_group_get_contents_in_group($gid) {
+  $query = db_select('node', 'n');
+  $query->condition('n.status', 1, '=')
+    ->fields('n', array('nid', 'title'))
+    ->join('og_membership', 'ogm', "ogm.gid = :gid AND n.nid = ogm.etid AND ogm.entity_type = 'node'", array(':gid' => $gid));
+  return $query->execute();
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function opigno_og_access_views_api() {
+  return array(
+    'api' => '3.0',
+  );
+}
+
+function opigno_og_access_views_query_alter(&$view, &$query) {
+  if ($view->name == "opigno_course_catalgue") {
+    if (!user_is_logged_in()) {
+      $condition = db_or()->condition('field_data_anomymous_visibility.anomymous_visibility_value', '0', '=');
+      $query->add_where(0, $condition);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_views_default_views_alter().
+ */
+function opigno_og_access_views_default_views_alter(&$views) {
+  // Alter the catalogue view and add a taxonomy filter.
+  if (array_key_exists('opigno_course_catalgue', $views)) {
+    $display = $views['opigno_course_catalgue']->display['default'];
+    /* Field: Content: Hide for anonymous users */
+    $display->display_options['fields']['anomymous_visibility']['id'] = 'anomymous_visibility';
+    $display->display_options['fields']['anomymous_visibility']['table'] = 'field_data_anomymous_visibility';
+    $display->display_options['fields']['anomymous_visibility']['field'] = 'anomymous_visibility';
+    $display->display_options['fields']['anomymous_visibility']['label'] = '';
+    $display->display_options['fields']['anomymous_visibility']['exclude'] = TRUE;
+    $display->display_options['fields']['anomymous_visibility']['element_label_colon'] = FALSE;
+    /* Field: Content: Hide from Catalogue */
+    $display->display_options['fields']['catalogue_visibility']['id'] = 'catalogue_visibility';
+    $display->display_options['fields']['catalogue_visibility']['table'] = 'field_data_catalogue_visibility';
+    $display->display_options['fields']['catalogue_visibility']['field'] = 'catalogue_visibility';
+    $display->display_options['fields']['catalogue_visibility']['label'] = '';
+    $display->display_options['fields']['catalogue_visibility']['exclude'] = TRUE;
+    $display->display_options['fields']['catalogue_visibility']['element_label_colon'] = FALSE;
+
+    /* Filter criterion: Content: Hide from Catalogue (catalogue_visibility) */
+    $display->display_options['filters']['catalogue_visibility_value']['id'] = 'catalogue_visibility_value';
+    $display->display_options['filters']['catalogue_visibility_value']['table'] = 'field_data_catalogue_visibility';
+    $display->display_options['filters']['catalogue_visibility_value']['field'] = 'catalogue_visibility_value';
+    $display->display_options['filters']['catalogue_visibility_value']['value'] = array(
+      0 => '0',
+    );
+    /* Filter criterion: Content: Hide for anonymous users (anomymous_visibility) */
+    $display->display_options['filters']['anomymous_visibility_value']['id'] = 'anomymous_visibility_value';
+    $display->display_options['filters']['anomymous_visibility_value']['table'] = 'field_data_anomymous_visibility';
+    $display->display_options['filters']['anomymous_visibility_value']['field'] = 'anomymous_visibility_value';
+    $display->display_options['filters']['anomymous_visibility_value']['value'] = array(
+      0 => '0',
+      1 => '1',
+    );
+    /* Filter criterion: Content: Group visibility (group_access) */
+    $display->display_options['filters']['group_access_value']['id'] = 'group_access_value';
+    $display->display_options['filters']['group_access_value']['table'] = 'field_data_group_access';
+    $display->display_options['filters']['group_access_value']['field'] = 'group_access_value';
+    $display->display_options['filters']['group_access_value']['value'] = array(
+      0 => '0',
+      1 => '1',
+    );
+
+    unset($display->display_options['access']);
+    $display->display_options['access']['type'] = 'perm';
+  }
+}
+
+
+
+function opigno_og_access_modules_enabled($modules)
+{
+  if (in_array('opigno', $modules)) {
+    opigno_og_access_install_course_fields();
+  }
+
+  if (in_array('opigno_class_app', $modules)) {
+    opigno_og_access_install_class_fields();
+  }
+}
+
+function opigno_og_access_install_course_fields()
+{
+  $field = field_info_field('group_access');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          'Public - Group and group content is visible and available to all users',
+          'Semi Public - Group is visible and available to all users, group content for members only',
+          'Private - Group and group content only available for members',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_group_access' => array(
+                'value' => 'group_access_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_group_access' => array(
+                'value' => 'group_access_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'group_access',
+      'type' => 'list_integer',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));
+  }
+
+  $instance = field_info_instance('node', 'group_access', 'course');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Group visibility',
+      'widget' => array(
+        'weight' => '35',
+        'type' => 'options_buttons',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 12,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 1,
+      'description' => '',
+      'default_value' => NULL,
+      'field_name' => 'group_access',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));
+  }
+
+  $field = field_info_field('requires_validation');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          '0',
+          '1',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_requires_validation' => array(
+                'value' => 'requires_validation_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_requires_validation' => array(
+                'value' => 'requires_validation_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'requires_validation',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));}
+
+  $instance = field_info_instance('node', 'requires_validation', 'course');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Requires validation',
+      'widget' => array(
+        'weight' => '34',
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 11,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 0,
+        ),
+      ),
+      'field_name' => 'requires_validation',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));
+  }
+
+  $field = field_info_field('anomymous_visibility');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          '0',
+          '1',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_anomymous_visibility' => array(
+                'value' => 'anomymous_visibility_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_anomymous_visibility' => array(
+                'value' => 'anomymous_visibility_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'anomymous_visibility',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));
+  }
+
+  $instance = field_info_instance('node', 'anomymous_visibility', 'course');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Hide for anonymous users',
+      'widget' => array(
+        'weight' => '33',
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 0,
+        ),
+      ),
+      'field_name' => 'anomymous_visibility',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));}
+
+  $field = field_info_field('catalogue_visibility');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          '0',
+          '1',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_catalogue_visibility' => array(
+                'value' => 'catalogue_visibility_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_catalogue_visibility' => array(
+                'value' => 'catalogue_visibility_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'catalogue_visibility',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));}
+
+  $instance = field_info_instance('node', 'catalogue_visibility', 'course');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Hide from Catalogue',
+      'widget' => array(
+        'weight' => '36',
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 13,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 0,
+        ),
+      ),
+      'field_name' => 'catalogue_visibility',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));
+  }
+  og_create_field(OG_DEFAULT_ACCESS_FIELD, 'node', "course");
+}
+
+function opigno_og_access_install_class_fields()
+{
+  $field = field_info_field('group_access');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          'Public - Group and group content is visible and available to all users',
+          'Semi Public - Group is visible and available to all users, group content for members only',
+          'Private - Group and group content only available for members',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_group_access' => array(
+                'value' => 'group_access_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_group_access' => array(
+                'value' => 'group_access_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'group_access',
+      'type' => 'list_integer',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));
+  }
+
+  $instance = field_info_instance('node', 'group_access', 'class');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Group visibility',
+      'widget' => array(
+        'weight' => '35',
+        'type' => 'options_buttons',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 12,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 1,
+      'description' => '',
+      'default_value' => NULL,
+      'field_name' => 'group_access',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));
+  }
+
+  $field = field_info_field('requires_validation');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          '0',
+          '1',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_requires_validation' => array(
+                'value' => 'requires_validation_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_requires_validation' => array(
+                'value' => 'requires_validation_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'requires_validation',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));}
+
+  $instance = field_info_instance('node', 'requires_validation', 'class');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Requires validation',
+      'widget' => array(
+        'weight' => '34',
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 11,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 0,
+        ),
+      ),
+      'field_name' => 'requires_validation',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));
+  }
+
+  $field = field_info_field('anomymous_visibility');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          '0',
+          '1',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_anomymous_visibility' => array(
+                'value' => 'anomymous_visibility_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_anomymous_visibility' => array(
+                'value' => 'anomymous_visibility_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'anomymous_visibility',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));
+  }
+
+  $instance = field_info_instance('node', 'anomymous_visibility', 'class');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Hide for anonymous users',
+      'widget' => array(
+        'weight' => '33',
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 0,
+        ),
+      ),
+      'field_name' => 'anomymous_visibility',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));}
+
+  $field = field_info_field('catalogue_visibility');
+  if (empty($field)) {
+    field_create_field(array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          '0',
+          '1',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_catalogue_visibility' => array(
+                'value' => 'catalogue_visibility_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_catalogue_visibility' => array(
+                'value' => 'catalogue_visibility_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'catalogue_visibility',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'course',
+        ),
+      ),
+    ));}
+
+  $instance = field_info_instance('node', 'catalogue_visibility', 'class');
+  if (empty($instance)) {
+    field_create_instance(array(
+      'label' => 'Hide from Catalogue',
+      'widget' => array(
+        'weight' => '36',
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'list_default',
+          'settings' => array(),
+          'module' => 'list',
+          'weight' => 13,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 0,
+        ),
+      ),
+      'field_name' => 'catalogue_visibility',
+      'entity_type' => 'node',
+      'bundle' => 'course',
+      'deleted' => '0',
+    ));
+  }
+
+  og_create_field(OG_DEFAULT_ACCESS_FIELD, 'node', "class");
+}
+
+
+

@@ -1,0 +1,13 @@
+<?php
+
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Organic groups access module.
+ */
+
+
+function opigno_og_access_install()
+{
+
+}

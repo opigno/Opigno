@@ -1,0 +1,9 @@
+name = Opigno Og access control
+description = "Enables opigno og access control, do not enable with og_access at the same time"
+core = 7.x
+package = Opigno Apps
+dependencies[] = og
+core = 7.x
+version = VERSION
+files[] = opigno_og_access.module
+files[] = opigno_og_access.install
