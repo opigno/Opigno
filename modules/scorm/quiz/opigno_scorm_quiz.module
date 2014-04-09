@@ -1,0 +1,175 @@
+<?php
+
+/**
+ * @file
+ * Module hook definitions.
+ */
+
+/**
+ * Implements hook_opigno_scorm_ui_register_cmi_paths().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_paths() {
+  return array(
+    'cmi.score.raw' => array(),
+    'cmi.score.min' => array(),
+    'cmi.score.max' => array(),
+    'cmi.score.scaled' => array(),
+    'cmi.success_status' => array(),
+    'cmi.objectives' => array(),
+    'cmi.objectives._count' => array('readOnly' => 1),
+    'cmi.objectives._children' => array('readOnly' => 1),
+    'cmi.objectives.n.id' => array(),
+    'cmi.objectives.n.score' => array(),
+    'cmi.objectives.n.score._children' => array('readOnly' => 1),
+    'cmi.objectives.n.score.scaled' => array(),
+    'cmi.objectives.n.score.raw' => array(),
+    'cmi.objectives.n.score.min' => array(),
+    'cmi.objectives.n.score.max' => array(),
+    'cmi.objectives.n.success_status' => array(),
+    'cmi.objectives.n.completion_status' => array(),
+    'cmi.objectives.n.progress_measure' => array(),
+    'cmi.objectives.n.description' => array(),
+  );
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_register_cmi_data().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
+  global $user;
+
+  $data = array(
+    'cmi.score.raw' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.raw', ''),
+    'cmi.score.min' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.min', ''),
+    'cmi.score.max' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.max', ''),
+    'cmi.score.scaled' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.scaled', ''),
+    'cmi.success_status' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.success_status', ''),    
+    'cmi.objectives' => array(),
+  );
+
+  // Fetch the objectives.
+  foreach ($scos as $sco) {
+    if (!empty($sco->attributes['objectives'])) {
+      foreach ($sco->attributes['objectives'] as $objective) {
+        $stored_objective = opigno_scorm_quiz_load_objective($user->uid, $scorm->id, $objective['id']);
+        $defaults = array(
+          'id' => $objective['id'],
+          'score' => array(
+            'scaled' => 0,
+            'raw' => 0,
+            'min' => 0,
+            'max' => 0,
+          ),
+          'success_status' => '',
+          'completion_status' => '',
+          'progress_measure' => '',
+          'description' => '',
+        );
+
+        if (!empty($stored_objective)) {
+          $stored_objective = (array) $stored_objective;
+          $stored_objective += $defaults;
+        }
+        else {
+          $stored_objective = $defaults;
+        }
+
+        $data['cmi.objectives'][] = $stored_objective;
+      }
+    }
+  }
+
+  return $data;
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_add_assets().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_add_assets() {
+  $path = drupal_get_path('module', 'opigno_scorm_quiz');
+  drupal_add_js("$path/js/opigno_scorm_quiz.js");
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_commit().
+ */
+function opigno_scorm_quiz_opigno_scorm_ui_commit($scorm, $data) {
+  global $user;
+
+  // Store objectives and results.
+  if (!empty($data->cmi->objectives)) {
+    for ($i = 0, $len = count($data->cmi->objectives); $i < $len; $i++) {
+      opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, "cmi.objectives.$i", $data->cmi->objectives[$i]);
+    }
+  }
+
+  // Store the score.
+  if (!empty($data->cmi->score)) {
+    foreach (array('raw', 'min', 'max', 'scaled') as $key) {
+      if (isset($data->cmi->score->{$key})) {
+        opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, "cmi.score.{$key}", $data->cmi->score->{$key});
+      }
+    }
+  }
+}
+
+/**
+ * Implements of hook_quiz_question_info().
+ */
+function opigno_scorm_quiz_quiz_question_info() {
+  return array(
+    'opigno_scorm_quiz_question' => array(
+      'name' => t('SCORM Package'),
+      'description' => t('Question using SCORM packages.'),
+      'question provider' => 'OpignoScormQuizQuestion',
+      'response provider' => 'OpignoScormQuizResponse',
+      'module' => 'quiz_question',
+    ),
+  );
+}
+
+/**
+ * Load all objective data for the given SCORM.
+ *
+ * Helper function to load objective CMI data that was stored. Pass the ID
+ * of the objective to fetch the data for it.
+ *
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $objective_id
+ *
+ * @return object|null
+ */
+function opigno_scorm_quiz_load_objective($uid, $scorm_id, $objective_id) {
+  $objectives = &drupal_static(__FUNCTION__);
+
+  if (!isset($objectives)) {
+    // We query the database ourselves here instead of relying on opigno_scorm_scorm_cmi_get(),
+    // as we need a LIKE query.
+    $result = db_select('opigno_scorm_scorm_cmi_data', 'o')
+      ->fields('o')
+      ->condition('o.uid', $uid)
+      ->condition('o.scorm_id', $scorm_id)
+      ->condition('o.cmi_key', 'cmi.objectives.%', 'LIKE')
+      ->execute();
+
+    while ($row = $result->fetchObject()) {
+      // Make sure this is one of ours.
+      if (preg_match('/^cmi\.objectives\.[0-9]+$/', $row->cmi_key)) {
+        $data = unserialize($row->value);
+
+        // Allow modules to alter the data.
+        $context = array(
+          'uid' => $uid,
+          'scorm_id' => $scorm_id,
+          'original_value' => $data,
+        );
+        drupal_alter('opigno_scorm_scorm_cmi_get', $data, $row->cmi_key, $context);
+
+        $objectives[$data->id] = $data;
+      }
+    }
+  }
+
+  return isset($objectives[$objective_id]) ? $objectives[$objective_id] : NULL;
+}

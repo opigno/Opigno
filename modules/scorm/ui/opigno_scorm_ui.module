@@ -17,19 +17,15 @@ function opigno_scorm_ui_menu() {
       'file' => 'includes/opigno_scorm_ui.player.inc',
       'type' => MENU_CALLBACK,
     ),
+    'opigno-scorm/ui/scorm/%opigno_scorm_scorm/ajax/commit' => array(
+      'page callback' => 'opigno_scorm_ui_ajax_commit',
+      'page arguments' => array(3),
+      'access callback' => 'opigno_scorm_access',
+      'access arguments' => array(3),
+      'file' => 'includes/opigno_scorm_ui.ajax.inc',
+      'type' => MENU_CALLBACK,
+    ),
   );
-}
-
-/**
- * Implements hook_library_alter().
- */
-function opigno_scorm_ui_library_alter(&$libraries, $module) {
-  // Add available JavaScript tests and dependencies.
-  if ($module == 'qunit') {
-    $path = drupal_get_path('module', 'opigno_scorm_ui');
-    $libraries['qunit']['js'][$path . '/js/lib/api-2004.js'] = array();
-    $libraries['qunit']['js'][$path . '/js/tests/api-2004.js'] = array();
-  }
 }
 
 /**
@@ -38,7 +34,7 @@ function opigno_scorm_ui_library_alter(&$libraries, $module) {
 function opigno_scorm_ui_theme() {
   return array(
     'opigno_scorm_ui__player' => array(
-      'variables' => array('tree' => array(), 'start_sco' => NULL),
+      'variables' => array('scorm_id' => NULL, 'tree' => array(), 'start_sco' => NULL),
       'template' => 'theme/opigno-scorm-ui--player',
     ),
     'opigno_scorm_ui__player_tree' => array(
@@ -195,6 +191,49 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 }
 
 /**
+ * Implements hook_opigno_scorm_ui_register_cmi_paths().
+ */
+function opigno_scorm_ui_opigno_scorm_ui_register_cmi_paths() {
+  return array(
+    'cmi.location' => array(),
+    'cmi.completion_status' => array(),
+    'cmi.exit' => array(),
+  );
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_register_cmi_data().
+ */
+function opigno_scorm_ui_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
+  global $user;
+
+  $data = array(
+    'cmi.location' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.location', 0),
+    'cmi.completion_status' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.completion_status', ''),
+    'cmi.exit' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.exit', ''),
+  );
+
+  return $data;
+}
+
+/**
+ * Implements hook_opigno_scorm_ui_commit().
+ */
+function opigno_scorm_ui_opigno_scorm_ui_commit($scorm, $data) {
+  global $user;
+
+  // Store the last position.
+  if (!empty($data->cmi->location)) {
+    opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.location', $data->cmi->location);
+  }
+
+  // Store the completion status.
+  if (!empty($data->cmi->completion_status)) {
+    opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.completion_status', $data->cmi->completion_status);
+  }
+}
+
+/**
  * Render a SCORM player for the given SCORM object.
  *
  * @param object $scorm
@@ -204,19 +243,59 @@ function opigno_scorm_ui_field_formatter_view($entity_type, $entity, $field, $in
 function opigno_scorm_ui_render_player($scorm) {
   module_load_include('inc', 'opigno_scorm_ui', 'includes/opigno_scorm_ui.player');
 
-  // Add assets.
-  $path = drupal_get_path('module', 'opigno_scorm_ui');
-  drupal_add_css("$path/css/opigno_scorm_ui.player.css");
-  drupal_add_js("$path/js/lib/player.js");
-  drupal_add_js("$path/js/lib/api-2004.js");
-  drupal_add_js("$path/js/lib/api-1.2.js");
-  drupal_add_js("$path/js/opigno_scorm_ui.player.js");
-
   // Get the SCO tree.
   $tree = opigno_scorm_ui_player_scorm_tree($scorm);
+  $flat_tree = opigno_scorm_ui_player_scorm_flatten_tree($tree);
 
   // Get the start SCO.
-  $start_sco = opigno_scorm_ui_player_start_sco($tree);
+  $start_sco = opigno_scorm_ui_player_start_sco($flat_tree);
 
-  return theme('opigno_scorm_ui__player', array('tree' => $tree, 'start_sco' => $start_sco));
+  // Add assets.
+  opigno_scorm_ui_add_assets();
+
+  // Get implemented CMI paths.
+  $paths = opigno_scorm_ui_add_cmi_paths();
+
+  // Get CMI data for each SCO.
+  $data = opigno_scorm_ui_add_cmi_data($scorm, $flat_tree);
+
+  // Pass it to JS.
+  drupal_add_js(array(
+    'opignoScormUIPlayer' => array(
+      'cmiPaths' => $paths,
+      'cmiData' => $data,
+    ),
+  ), 'setting');
+
+  return theme('opigno_scorm_ui__player', array('scorm_id' => $scorm->id, 'tree' => $tree, 'start_sco' => $start_sco));
+}
+
+/**
+ * Helper function to get SCORM CMI data while also providing a default value.
+ *
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $cmi_key
+ * @param mixed $default_value
+ *
+ * @return mixed|null
+ */
+function opigno_scorm_ui_scorm_cmi_get($uid, $scorm_id, $cmi_key, $default_value = NULL) {
+  $value = opigno_scorm_scorm_cmi_get($uid, $scorm_id, $cmi_key);
+  return isset($value) ? $value : $default_value;
+}
+
+/**
+ * Helper function to get SCO CMI data while also providing a default value.
+ *
+ * @param int $uid
+ * @param int $scorm_id
+ * @param string $cmi_key
+ * @param mixed $default_value
+ *
+ * @return mixed|null
+ */
+function opigno_scorm_ui_sco_cmi_get($uid, $scorm_id, $cmi_key, $default_value = NULL) {
+  $value = opigno_scorm_sco_cmi_get($uid, $scorm_id, $cmi_key);
+  return isset($value) ? $value : $default_value;
 }
