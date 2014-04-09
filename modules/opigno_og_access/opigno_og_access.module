@@ -79,7 +79,10 @@ function opigno_og_access_node_access_records($node) {
           $has_private = TRUE;
         }
         if (!$hideforanonymous) {
+          if (!$has_private)
+          {
           $hideforanonymous = $group_wrapper->anomymous_visibility->value()==1;
+          }
         }
       }
     }
@@ -111,6 +114,7 @@ function opigno_og_access_node_access_records($node) {
       'priority' => 1,
     );
   }
+  //dpm($grants);
   return !empty($grants) ? $grants : array();
 }
 
@@ -154,7 +158,7 @@ function opigno_og_access_entity_update($entity, $entity_type) {
 
 function opigno_og_access_node_set_og_permissions($entity) {
   $roles = og_roles("node",$entity->entity, $entity->nid, FALSE, TRUE);
-  dpm($roles, "roles");
+  //dpm($roles, "roles");
   $ak = array_keys($roles);
   $rid = $ak[0];
   $role_names = array($rid => $roles[$rid]);
@@ -170,7 +174,19 @@ function opigno_og_access_node_set_og_permissions($entity) {
       $tosave[$index] = 0;
     }
   }
-  dpm($tosave, "to save");
+  if ($entity->{OG_ACCESS_FIELD}[LANGUAGE_NONE][0]['value']=0)
+  {
+    $tosave['vote on polls'] = 'vote on polls';
+    $tosave['tft access file tree']='tft access file tree';
+    $tosave['access quiz']='access quiz';
+  }
+  else
+  {
+    $tosave['vote on polls'] = 0;
+    $tosave['tft access file tree']= 0;
+    $tosave['access quiz']=0;
+  }
+  //dpm($tosave, "to save");
   og_role_change_permissions($rid, $tosave);
   opigno_og_access_node_set_subscribe_permissions($entity);
 }
@@ -260,8 +276,12 @@ function opigno_og_access_views_api() {
 function opigno_og_access_views_query_alter(&$view, &$query) {
   if ($view->name == "opigno_course_catalgue") {
     if (!user_is_logged_in()) {
-      $condition = db_or()->condition('field_data_anomymous_visibility.anomymous_visibility_value', '0', '=');
-      $query->add_where(0, $condition);
+      $condition = array(
+        'field' => 'field_data_anomymous_visibility.anomymous_visibility_value',
+        'value' => 0,
+        'operator' => '=',
+      );
+      $view->query->where[1]['conditions'][]=$condition;
     }
   }
 }
@@ -798,7 +818,7 @@ function opigno_og_access_install_class_fields()
       ),
       'bundles' => array(
         'node' => array(
-          'course',
+          'class',
         ),
       ),
     ));
@@ -838,7 +858,7 @@ function opigno_og_access_install_class_fields()
       'default_value' => NULL,
       'field_name' => 'group_access',
       'entity_type' => 'node',
-      'bundle' => 'course',
+      'bundle' => 'class',
       'deleted' => '0',
     ));
   }
@@ -896,7 +916,7 @@ function opigno_og_access_install_class_fields()
       ),
       'bundles' => array(
         'node' => array(
-          'course',
+          'class',
         ),
       ),
     ));}
@@ -941,7 +961,7 @@ function opigno_og_access_install_class_fields()
       ),
       'field_name' => 'requires_validation',
       'entity_type' => 'node',
-      'bundle' => 'course',
+      'bundle' => 'class',
       'deleted' => '0',
     ));
   }
@@ -999,7 +1019,7 @@ function opigno_og_access_install_class_fields()
       ),
       'bundles' => array(
         'node' => array(
-          'course',
+          'class',
         ),
       ),
     ));
@@ -1045,7 +1065,7 @@ function opigno_og_access_install_class_fields()
       ),
       'field_name' => 'anomymous_visibility',
       'entity_type' => 'node',
-      'bundle' => 'course',
+      'bundle' => 'class',
       'deleted' => '0',
     ));}
 
@@ -1102,7 +1122,7 @@ function opigno_og_access_install_class_fields()
       ),
       'bundles' => array(
         'node' => array(
-          'course',
+          'class',
         ),
       ),
     ));}
@@ -1147,7 +1167,7 @@ function opigno_og_access_install_class_fields()
       ),
       'field_name' => 'catalogue_visibility',
       'entity_type' => 'node',
-      'bundle' => 'course',
+      'bundle' => 'class',
       'deleted' => '0',
     ));
   }

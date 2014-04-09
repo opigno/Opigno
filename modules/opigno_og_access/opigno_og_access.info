@@ -7,3 +7,10 @@ core = 7.x
 version = VERSION
 files[] = opigno_og_access.module
 files[] = opigno_og_access.install
+
+; Information added by drush on 2014-04-09
+version = "7.x-1.3+5-dev"
+core = "7.x"
+project = "opigno"
+datestamp = "1397034870"
+
