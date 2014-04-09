@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Define the unit tests for the Opigno SCORM UI module, like player integration
+ * or CMI data extraction.
+ */
+
+class OpignoScormUIUnitTest extends DrupalUnitTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Opigno Scorm UI tests',
+      'description' => 'Functional unit tests for the Opigno SCORM UI.',
+      'group' => 'Opigno',
+      'dependencies' => array('opigno_scorm'),
+    );
+  }
+
+  public function testCMIDataIntegration() {
+    $this->fail('write some tests');
+  }
+
+}

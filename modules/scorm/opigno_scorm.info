@@ -1,5 +1,5 @@
 name = Opigno SCORM API
-descpription = SCORM API for Opigno
+description = SCORM API for Opigno
 core = 7.x
 package = Opigno
 

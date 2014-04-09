@@ -1,6 +1,8 @@
 name = Opigno SCORM UI
-descrpition = User interface for the Opigno SCORM API
+description = User interface for the Opigno SCORM API. Provides a SCORM player.
 core = 7.x
 package = Opigno
 dependencies[] = file
 dependencies[] = opigno_scorm
+
+files[] = tests/OpignoScormUIUnitTest.test
