@@ -9,12 +9,12 @@
 /**
  * The access realm of group member.
  */
-define('OPIGNO_OG_ACCESS_REALM', 'og_access');
+define('OG_ACCESS_REALM', 'og_access');
 
 /**
  * Group public access field.
  */
-define('OPIGNO_OG_ACCESS_FIELD', 'group_access');
+define('OG_ACCESS_FIELD', 'group_access');
 
 
 function opigno_og_access_node_grants($account, $op) {
@@ -25,14 +25,14 @@ function opigno_og_access_node_grants($account, $op) {
   if ($groups = og_get_entity_groups('user', $account)) {
     foreach ($groups as $group_type => $gids) {
       foreach ($gids as $gid) {
-        $realm = OPIGNO_OG_ACCESS_REALM . ':' . $group_type;
+        $realm = OG_ACCESS_REALM . ':' . $group_type;
         $grants[$realm][] = $gid;
       }
     }
   }
 
   if ($account->uid) {
-    $realm = OPIGNO_OG_ACCESS_REALM . ':only_auth';
+    $realm = OG_ACCESS_REALM . ':only_auth';
     $grants[$realm][] = 1;
   }
 
@@ -55,7 +55,7 @@ function opigno_og_access_node_access_records($node) {
   $hideforanonymous=FALSE;
 
 
-  if ((!empty($wrapper->{OPIGNO_OG_ACCESS_FIELD})) && (og_is_group('node', $node))) {
+  if ((!empty($wrapper->{OG_ACCESS_FIELD})) && (og_is_group('node', $node))) {
     if (!opigno_og_access_node_access($wrapper)) {
       $gids['node'][] = $node->nid;
     }
@@ -91,7 +91,7 @@ function opigno_og_access_node_access_records($node) {
   foreach ($gids as $group_type => $values) {
     foreach ($values as $gid) {
       $grants[] = array(
-        'realm' => OPIGNO_OG_ACCESS_REALM . ':' . $group_type,
+        'realm' => OG_ACCESS_REALM . ':' . $group_type,
         'gid' => $gid,
         'grant_view' => 1,
         'grant_update' => 0,
@@ -103,7 +103,7 @@ function opigno_og_access_node_access_records($node) {
 
   if ($hideforanonymous) {
     $grants[] = array(
-      'realm' => OPIGNO_OG_ACCESS_REALM . ':only_auth',
+      'realm' => OG_ACCESS_REALM . ':only_auth',
       'gid' => 1,
       'grant_view' => 1,
       'grant_update' => 0,
@@ -116,22 +116,22 @@ function opigno_og_access_node_access_records($node) {
 
 
 function opigno_og_access_node_access($wrapper) {
-  if (empty($wrapper->{OPIGNO_OG_ACCESS_FIELD})) {
+  if (empty($wrapper->{OG_ACCESS_FIELD})) {
     return TRUE;
   }
   $wrapper = entity_metadata_wrapper('node', $wrapper);
-  if (($wrapper->{OPIGNO_OG_ACCESS_FIELD}->value() == 0) || ($wrapper->{OPIGNO_OG_ACCESS_FIELD}->value() == 1)) {
+  if (($wrapper->{OG_ACCESS_FIELD}->value() == 0) || ($wrapper->{OG_ACCESS_FIELD}->value() == 1)) {
     return TRUE;
   }
   return FALSE;
 }
 
 function opigno_og_access_node_content_access($wrapper) {
-  if (empty($wrapper->{OPIGNO_OG_ACCESS_FIELD})) {
+  if (empty($wrapper->{OG_ACCESS_FIELD})) {
     return TRUE;
   }
   $wrapper = entity_metadata_wrapper('node', $wrapper);
-  if (($wrapper->{OPIGNO_OG_ACCESS_FIELD}->value() == 0)) {
+  if (($wrapper->{OG_ACCESS_FIELD}->value() == 0)) {
     return TRUE;
   }
   return FALSE;
@@ -199,7 +199,7 @@ function opigno_og_access_node_set_subscribe_permissions($entity) {
       $tosave['subscribe without approval'] = 0;
     }
 
-    if ($entity->{OPIGNO_OG_ACCESS_FIELD}[LANGUAGE_NONE][0]['value'] == 2) {
+    if ($entity->{OG_ACCESS_FIELD}[LANGUAGE_NONE][0]['value'] == 2) {
       $tosave['subscribe'] = 0;
       $tosave['subscribe without approval'] = 0;
     }
