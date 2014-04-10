@@ -81,7 +81,7 @@ function opigno_og_access_node_access_records($node) {
         if (!$hideforanonymous) {
           if (!$has_private)
           {
-          $hideforanonymous = $group_wrapper->anomymous_visibility->value()==1;
+            $hideforanonymous = $group_wrapper->anomymous_visibility->value()==1;
           }
         }
       }
@@ -186,7 +186,7 @@ function opigno_og_access_node_set_og_permissions($entity) {
     $tosave['tft access file tree']= 0;
     $tosave['access quiz']=0;
   }
-  //dpm($tosave, "to save");
+  dpm($tosave, "to save");
   og_role_change_permissions($rid, $tosave);
   opigno_og_access_node_set_subscribe_permissions($entity);
 }
@@ -290,54 +290,55 @@ function opigno_og_access_views_query_alter(&$view, &$query) {
  * Implementation of hook_views_default_views_alter().
  */
 function opigno_og_access_views_default_views_alter(&$views) {
+  global $user;
   // Alter the catalogue view and add a taxonomy filter.
   if (array_key_exists('opigno_course_catalgue', $views)) {
-    $display = $views['opigno_course_catalgue']->display['default'];
-    /* Field: Content: Hide for anonymous users */
-    $display->display_options['fields']['anomymous_visibility']['id'] = 'anomymous_visibility';
-    $display->display_options['fields']['anomymous_visibility']['table'] = 'field_data_anomymous_visibility';
-    $display->display_options['fields']['anomymous_visibility']['field'] = 'anomymous_visibility';
-    $display->display_options['fields']['anomymous_visibility']['label'] = '';
-    $display->display_options['fields']['anomymous_visibility']['exclude'] = TRUE;
-    $display->display_options['fields']['anomymous_visibility']['element_label_colon'] = FALSE;
-    /* Field: Content: Hide from Catalogue */
-    $display->display_options['fields']['catalogue_visibility']['id'] = 'catalogue_visibility';
-    $display->display_options['fields']['catalogue_visibility']['table'] = 'field_data_catalogue_visibility';
-    $display->display_options['fields']['catalogue_visibility']['field'] = 'catalogue_visibility';
-    $display->display_options['fields']['catalogue_visibility']['label'] = '';
-    $display->display_options['fields']['catalogue_visibility']['exclude'] = TRUE;
-    $display->display_options['fields']['catalogue_visibility']['element_label_colon'] = FALSE;
+    if (!(in_array('administrator', $user->roles)))
+    {
+      $display = $views['opigno_course_catalgue']->display['default'];
+      /* Field: Content: Hide for anonymous users */
+      $display->display_options['fields']['anomymous_visibility']['id'] = 'anomymous_visibility';
+      $display->display_options['fields']['anomymous_visibility']['table'] = 'field_data_anomymous_visibility';
+      $display->display_options['fields']['anomymous_visibility']['field'] = 'anomymous_visibility';
+      $display->display_options['fields']['anomymous_visibility']['label'] = '';
+      $display->display_options['fields']['anomymous_visibility']['exclude'] = TRUE;
+      $display->display_options['fields']['anomymous_visibility']['element_label_colon'] = FALSE;
+      /* Field: Content: Hide from Catalogue */
+      $display->display_options['fields']['catalogue_visibility']['id'] = 'catalogue_visibility';
+      $display->display_options['fields']['catalogue_visibility']['table'] = 'field_data_catalogue_visibility';
+      $display->display_options['fields']['catalogue_visibility']['field'] = 'catalogue_visibility';
+      $display->display_options['fields']['catalogue_visibility']['label'] = '';
+      $display->display_options['fields']['catalogue_visibility']['exclude'] = TRUE;
+      $display->display_options['fields']['catalogue_visibility']['element_label_colon'] = FALSE;
 
-    /* Filter criterion: Content: Hide from Catalogue (catalogue_visibility) */
-    $display->display_options['filters']['catalogue_visibility_value']['id'] = 'catalogue_visibility_value';
-    $display->display_options['filters']['catalogue_visibility_value']['table'] = 'field_data_catalogue_visibility';
-    $display->display_options['filters']['catalogue_visibility_value']['field'] = 'catalogue_visibility_value';
-    $display->display_options['filters']['catalogue_visibility_value']['value'] = array(
-      0 => '0',
-    );
-    /* Filter criterion: Content: Hide for anonymous users (anomymous_visibility) */
-    $display->display_options['filters']['anomymous_visibility_value']['id'] = 'anomymous_visibility_value';
-    $display->display_options['filters']['anomymous_visibility_value']['table'] = 'field_data_anomymous_visibility';
-    $display->display_options['filters']['anomymous_visibility_value']['field'] = 'anomymous_visibility_value';
-    $display->display_options['filters']['anomymous_visibility_value']['value'] = array(
-      0 => '0',
-      1 => '1',
-    );
-    /* Filter criterion: Content: Group visibility (group_access) */
-    $display->display_options['filters']['group_access_value']['id'] = 'group_access_value';
-    $display->display_options['filters']['group_access_value']['table'] = 'field_data_group_access';
-    $display->display_options['filters']['group_access_value']['field'] = 'group_access_value';
-    $display->display_options['filters']['group_access_value']['value'] = array(
-      0 => '0',
-      1 => '1',
-    );
+      /* Filter criterion: Content: Hide from Catalogue (catalogue_visibility) */
+      $display->display_options['filters']['catalogue_visibility_value']['id'] = 'catalogue_visibility_value';
+      $display->display_options['filters']['catalogue_visibility_value']['table'] = 'field_data_catalogue_visibility';
+      $display->display_options['filters']['catalogue_visibility_value']['field'] = 'catalogue_visibility_value';
+      $display->display_options['filters']['catalogue_visibility_value']['value'] = array(
+        0 => '0',
+      );
+      /* Filter criterion: Content: Hide for anonymous users (anomymous_visibility) */
+      $display->display_options['filters']['anomymous_visibility_value']['id'] = 'anomymous_visibility_value';
+      $display->display_options['filters']['anomymous_visibility_value']['table'] = 'field_data_anomymous_visibility';
+      $display->display_options['filters']['anomymous_visibility_value']['field'] = 'anomymous_visibility_value';
+      $display->display_options['filters']['anomymous_visibility_value']['value'] = array(
+        0 => '0',
+        1 => '1',
+      );
+      /* Filter criterion: Content: Group visibility (group_access) */
+      $display->display_options['filters']['group_access_value']['id'] = 'group_access_value';
+      $display->display_options['filters']['group_access_value']['table'] = 'field_data_group_access';
+      $display->display_options['filters']['group_access_value']['field'] = 'group_access_value';
+      $display->display_options['filters']['group_access_value']['value'] = array(
+        0 => '0',
+        1 => '1',
+      );}
 
     unset($display->display_options['access']);
     $display->display_options['access']['type'] = 'perm';
   }
 }
-
-
 
 function opigno_og_access_modules_enabled($modules)
 {
@@ -361,7 +362,7 @@ function opigno_og_access_install_course_fields()
         'allowed_values' => array(
           'Public (World-wide open, for example for demo courses)',
           'Semi-public (registered users can subscribe to the course)',
-          'Private (users can only be subscribed by a course administrator or a teacher ; the course is hidden from course catalogue)',
+          'Private (users can only be subscribed by a course administrator or a teacher, the course is hidden from course catalogue)',
         ),
         'allowed_values_function' => '',
       ),
@@ -773,7 +774,7 @@ function opigno_og_access_install_class_fields()
         'allowed_values' => array(
           'Public (World-wide open, for example for demo courses)',
           'Semi-public (registered users can subscribe to the course)',
-          'Private (users can only be subscribed by a course administrator or a teacher ; the course is hidden from course catalogue)',
+          'Private (users can only be subscribed by a course administrator or a teacher, the course is hidden from course catalogue)',
         ),
         'allowed_values_function' => '',
       ),
@@ -1176,4 +1177,50 @@ function opigno_og_access_install_class_fields()
 }
 
 
+function opigno_og_access_form_alter(&$form, &$form_state, $form_id)
+{
+  dpm($form);
+  if (($form_id=="course_node_form")||(($form_id=="class_node_form")))
+  {
+    if (isset($form['#node_edit_form'])&&($form['#node_edit_form']==TRUE))
+    {
+      /// Hide the og roles permissions and set them to overwrite always /////////////////////
+      $form['og_roles_permissions'][LANGUAGE_NONE]['#default_value'][0]=1;
+      $form['og_roles_permissions'][LANGUAGE_NONE]['#type']='hidden';
+      ////////////////////////////////////////////////////////////////////////////////////////
+
+      // Hide fields ///////////////////////////////////////////////////////////
+      $form['catalogue_visibility'][LANGUAGE_NONE]['#type']='hidden';
+      ///////////////////////////////////////////////////////////////////////////////////////      
+
+      $form['#submit'][] = 'opigno_og_access_form_submit_alter';
+
+      $form['#attached']['js'] = array(
+        drupal_get_path('module', 'opigno_og_access') . '/js/opigno_og_access.js',
+      );
+
+    }
+  }
+}
+
+
+function opigno_og_access_form_submit_alter($form, &$form_state)
+{
+  if ($form_state['values']['group_access'][LANGUAGE_NONE][0]['value']==0)
+  {
+    $form_state['values']['catalogue_visibility'][LANGUAGE_NONE][0]['value']=0;
+    $form_state['values']['anomymous_visibility'][LANGUAGE_NONE][0]['value']=0;
+    $form_state['values']['requires_validation'][LANGUAGE_NONE][0]['value']=0;
+  }
+  elseif($form_state['values']['group_access'][LANGUAGE_NONE][0]['value']==1)
+  {
+    $form_state['values']['catalogue_visibility'][LANGUAGE_NONE][0]['value']=1;
+  }
+  elseif(($form_state['values']['group_access'][LANGUAGE_NONE][0]['value']==2))
+  {
+    $form_state['values']['catalogue_visibility'][LANGUAGE_NONE][0]['value']=1;
+    $form_state['values']['anomymous_visibility'][LANGUAGE_NONE][0]['value']=1;
+    $form_state['values']['requires_validation'][LANGUAGE_NONE][0]['value']=1;
+  }
+}
 

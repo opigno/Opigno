@@ -16,9 +16,9 @@ function opigno_og_access_install()
         'entity_types' => array(),
         'settings' => array(
           'allowed_values' => array(
-            'Public - Group and group content is visible and available to all users',
-            'Semi Public - Group is visible and available to all users, group content for members only',
-            'Private - Group and group content only available for members',
+            'Public (World-wide open, for example for demo courses)',
+            'Semi-public (registered users can subscribe to the course)',
+            'Private (users can only be subscribed by a course administrator or a teacher, the course is hidden from course catalogue)',
           ),
           'allowed_values_function' => '',
         ),
@@ -425,9 +425,9 @@ function opigno_og_access_install()
       'entity_types' => array(),
       'settings' => array(
         'allowed_values' => array(
-          'Public - Group and group content is visible and available to all users',
-          'Semi Public - Group is visible and available to all users, group content for members only',
-          'Private - Group and group content only available for members',
+          'Public (World-wide open, for example for demo courses)',
+          'Semi-public (registered users can subscribe to the course)',
+          'Private (users can only be subscribed by a course administrator or a teacher, the course is hidden from course catalogue)',
         ),
         'allowed_values_function' => '',
       ),
