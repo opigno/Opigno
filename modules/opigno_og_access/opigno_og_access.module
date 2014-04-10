@@ -367,7 +367,7 @@ function opigno_og_access_install_course_fields()
         'allowed_values' => array(
           'Public (World-wide open, for example for demo courses)',
           'Semi-public (registered users can subscribe to the course)',
-          'Private (users can only be subscribed by a course administrator or a teacher, the course is hidden from course catalogue)',
+          'Private (users can only be subscribed by a course administrator or a teacher ; the course is hidden from course catalogue)',
         ),
         'allowed_values_function' => '',
       ),
