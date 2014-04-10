@@ -140,7 +140,7 @@ function opigno_scorm_quiz_node_type_insert($info) {
     if (module_exists('comment')) {
       variable_set('comment_opigno_scorm_quiz_question', COMMENT_NODE_CLOSED);
     }
-    
+
     $field = field_info_field('opigno_scorm_package');
     if (empty($field)) {
       field_create_field(array(
