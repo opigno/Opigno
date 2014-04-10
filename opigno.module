@@ -349,7 +349,7 @@ function opigno_views_query_alter(&$view, &$query) {
   global $user;
   if (preg_match('/exclude_own_groups/', $query->options['query_comment'])) {
     $nids = array();
-    
+
     $nid_query = new EntityFieldQuery();
     $nid_query->entityCondition('entity_type', 'og_membership')
       ->entityCondition('bundle', 'og_membership_type_default')
