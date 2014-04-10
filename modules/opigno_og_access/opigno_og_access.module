@@ -174,7 +174,7 @@ function opigno_og_access_node_set_og_permissions($entity) {
       $tosave[$index] = 0;
     }
   }
-  if ($entity->{OG_ACCESS_FIELD}[LANGUAGE_NONE][0]['value']=0)
+  if ($entity->{OG_ACCESS_FIELD}[LANGUAGE_NONE][0]['value']==0)
   {
     $tosave['vote on polls'] = 'vote on polls';
     $tosave['tft access file tree']='tft access file tree';
@@ -359,9 +359,9 @@ function opigno_og_access_install_course_fields()
       'entity_types' => array(),
       'settings' => array(
         'allowed_values' => array(
-          'Public - Group and group content is visible and available to all users',
-          'Semi Public - Group is visible and available to all users, group content for members only',
-          'Private - Group and group content only available for members',
+          'Public (World-wide open, for example for demo courses)',
+          'Semi-public (registered users can subscribe to the course)',
+          'Private (users can only be subscribed by a course administrator or a teacher ; the course is hidden from course catalogue)',
         ),
         'allowed_values_function' => '',
       ),
@@ -771,9 +771,9 @@ function opigno_og_access_install_class_fields()
       'entity_types' => array(),
       'settings' => array(
         'allowed_values' => array(
-          'Public - Group and group content is visible and available to all users',
-          'Semi Public - Group is visible and available to all users, group content for members only',
-          'Private - Group and group content only available for members',
+          'Public (World-wide open, for example for demo courses)',
+          'Semi-public (registered users can subscribe to the course)',
+          'Private (users can only be subscribed by a course administrator or a teacher ; the course is hidden from course catalogue)',
         ),
         'allowed_values_function' => '',
       ),
