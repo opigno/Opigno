@@ -9,8 +9,30 @@
  * Implements hook_install().
  */
 function opigno_scorm_quiz_install() {
+  $type = node_type_load('opigno_scorm_quiz_question');
+
+  if (empty($type)) {
+    $t = get_t();
+    $type = node_type_set_defaults(array(
+      'type' => 'opigno_scorm_quiz_question',
+      'name' => $t('SCORM Package'),
+      'base' => 'node_content',
+      'description' => $t('Question using SCORM packages.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+      'promoted' => 0,
+    ));
+    node_type_save($type);
+  }
+
   quiz_question_add_body_field('opigno_scorm_quiz_question');
   variable_set('node_options_opigno_scorm_quiz_question', array('status'));
+
+  // Disable comments by default.
+  if (module_exists('comment')) {
+    variable_set('comment_opigno_scorm_quiz_question', COMMENT_NODE_CLOSED);
+  }
   
   $field = field_info_field('opigno_scorm_package');
   if (empty($field)) {
