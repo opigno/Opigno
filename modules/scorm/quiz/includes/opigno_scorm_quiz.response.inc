@@ -20,6 +20,7 @@ class OpignoScormQuizResponse extends QuizQuestionResponse {
       // for the global CMI storage. The result stored is always the latest. Get it,
       // and presist it again in the user results table so we can track results through
       // time.
+      module_load_include('module', 'opigno_scorm_ui');
       $scaled = opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.scaled', '');
     }
 
