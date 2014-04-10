@@ -349,17 +349,20 @@ function opigno_views_query_alter(&$view, &$query) {
   global $user;
   if (preg_match('/exclude_own_groups/', $query->options['query_comment'])) {
     $nids = array();
+    
+    $nid_query = new EntityFieldQuery();
+    $nid_query->entityCondition('entity_type', 'og_membership')
+      ->entityCondition('bundle', 'og_membership_type_default')
+      ->propertyCondition('entity_type', 'user', '=')
+      ->propertyCondition('etid', $user->uid, '=')
+      ->addMetaData('account', user_load(1)); // Run the query as user 1.
 
-    // Load the "My courses" view.
-    $my_courses_view = views_get_view('opigno_my_courses');
-    $my_courses_view->set_display('entityreference');
-    $my_courses_view->set_arguments($user->uid);
-    $my_courses_view->pre_execute();
-    $my_courses_view->execute();
-
-    // Get the nids.
-    foreach ($my_courses_view->result as $node) {
-      $nids[] = $node->node_og_membership_nid;
+    $result = $nid_query->execute();
+    if (!empty($result['og_membership'])) {
+      foreach($result['og_membership'] as $id => $item) {
+        $og_membership = og_membership_load($id);
+        $nids[] = $og_membership->gid;
+      }
     }
 
     foreach ($query->where as &$conditions) {
