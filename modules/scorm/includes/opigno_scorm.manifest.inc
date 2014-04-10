@@ -207,7 +207,7 @@ function opigno_scorm_extract_manifest_data($manifest_file) {
 
   // Combine the resources and SCOs.
   $data['scos']['items'] = opigno_scorm_combine_manifest_sco_and_resources($data['scos']['items'], $data['resources']);
-  
+
   return $data;
 }
 
