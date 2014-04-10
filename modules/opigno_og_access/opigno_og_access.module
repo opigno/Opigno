@@ -290,7 +290,6 @@ function opigno_og_access_views_query_alter(&$view, &$query) {
         }
       }
     }
-    dpm($query);
   }
 }
 
