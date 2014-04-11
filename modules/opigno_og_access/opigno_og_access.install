@@ -280,7 +280,7 @@ function opigno_og_access_install()
       field_create_instance(array(
         'label' => 'Hide for anonymous users',
         'widget' => array(
-          'weight' => '3',
+          'weight' => '2',
           'type' => 'options_onoff',
           'module' => 'options',
           'active' => 1,
