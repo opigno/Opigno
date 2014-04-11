@@ -9,6 +9,11 @@
 
 function opigno_og_access_install()
 {
+  db_update('system')
+    ->fields(array('weight' => 20))
+    ->condition('name', 'opigno_og_access')
+    ->execute();
+
     $field = field_info_field('group_access');
     if (empty($field)) {
       field_create_field(array(

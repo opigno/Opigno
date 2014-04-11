@@ -16,6 +16,14 @@ define('OG_ACCESS_REALM', 'og_access');
  */
 define('OG_ACCESS_FIELD', 'group_access');
 
+function opigno_og_access_menu_alter(&$items) {
+  // This is very bad/hacky. Do it like this for now.
+  // Too much pressure :-(.
+  $items['opigno-calendar']['access callback'] = 'user_is_logged_in';
+  $items['opigno-calendar']['access arguments'] = NULL;
+  $items['forum']['access callback'] = 'user_is_logged_in';
+  $items['forum']['access arguments'] = NULL;
+}
 
 function opigno_og_access_node_grants($account, $op) {
   if ($op != 'view') {
