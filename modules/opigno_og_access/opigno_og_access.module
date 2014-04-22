@@ -332,13 +332,13 @@ function opigno_og_access_views_default_views_alter(&$views) {
       0 => '0',
     );*/
     /* Filter criterion: Content: Hide for anonymous users (anomymous_visibility) */
-    /*$display->display_options['filters']['anomymous_visibility_value']['id'] = 'anomymous_visibility_value';
+    $display->display_options['filters']['anomymous_visibility_value']['id'] = 'anomymous_visibility_value';
     $display->display_options['filters']['anomymous_visibility_value']['table'] = 'field_data_anomymous_visibility';
     $display->display_options['filters']['anomymous_visibility_value']['field'] = 'anomymous_visibility_value';
     $display->display_options['filters']['anomymous_visibility_value']['value'] = array(
       0 => '0',
       1 => '1',
-    );*/
+    );
     /* Filter criterion: Content: Group visibility (group_access) */
     $display->display_options['filters']['group_access_value']['id'] = 'group_access_value';
     $display->display_options['filters']['group_access_value']['table'] = 'field_data_group_access';
