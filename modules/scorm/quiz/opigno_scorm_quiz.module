@@ -141,6 +141,8 @@ function opigno_scorm_quiz_node_type_insert($info) {
       variable_set('comment_opigno_scorm_quiz_question', COMMENT_NODE_CLOSED);
     }
 
+    variable_set('node_submitted_opigno_scorm_quiz_question', 0);
+
     $field = field_info_field('opigno_scorm_package');
     if (empty($field)) {
       field_create_field(array(
