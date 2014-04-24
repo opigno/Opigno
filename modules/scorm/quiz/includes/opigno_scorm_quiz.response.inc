@@ -25,7 +25,7 @@ class OpignoScormQuizResponse extends QuizQuestionResponse {
     }
 
     // Something went wrong. Set a score of -1.
-    if (!isset($scaled)) {
+    if (!isset($scaled) || !is_numeric($scaled)) {
       $scaled = -1;
     }
 
