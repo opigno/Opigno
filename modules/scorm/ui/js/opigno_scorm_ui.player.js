@@ -46,7 +46,8 @@
           var element = this,
               $element = $(element),
               // Create a new OpignoScormUIPlayer().
-              player = new OpignoScormUIPlayer(element);
+              player = new OpignoScormUIPlayer(element),
+              alertDataStored = false;
 
           player.init();
 
@@ -58,9 +59,21 @@
               dataType: 'json',
               type: 'post',
               success: function(json) {
-                // @todo
+                if (alertDataStored) {
+                  alert(Drupal.t('We successfully stored your results. You can now proceed further.'));
+                }
               }
             });
+          });
+
+          // Listen to the unload event. Some users click "Next" or go to a different page, expecting
+          // their data to be saved. We try to commit the data for them, hoping ot will get stored.
+          $(window).bind('beforeunload', function() {
+            if (!window.API_1484_11.isTerminated) {
+              window.API_1484_11.Terminate('');
+              alertDataStored = true;
+              return Drupal.t('It seems you did not finish the SCORM course, or maybe the SCORM course did not save your results. Should we try to store it for you ?');
+            }
           });
 
           // Add a class to the player, so the CSS can style it differently if needed.
