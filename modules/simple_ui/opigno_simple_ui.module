@@ -116,6 +116,39 @@ function opigno_simple_ui_form_node_form_alter(&$form, $form_state) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter() for user_admin_permissions.
+ */
+function opigno_simple_ui_form_user_admin_permissions_alter(&$form, $form_state) {
+  // If in distribution context, order the roles by importance.
+  if (function_exists('opigno_lms_get_platform_role_id')) {
+    $admin_rid = opigno_lms_get_platform_role_id(OPIGNO_LMS_ADMIN_ROLE);
+    $student_manager_rid = opigno_lms_get_platform_role_id(OPIGNO_LMS_STUDENT_MANAGER_ROLE);
+
+    if (isset($form['role_names'][$admin_rid]) && count($form['role_names']) > 3) {
+      if (isset($form['role_names'][$student_manager_rid])) {
+        // This will add it to the end of the list.
+        $student_manager_header = $form['role_names'][$student_manager_rid];
+        unset($form['role_names'][$student_manager_rid]);
+        $form['role_names'][$student_manager_rid] = $student_manager_header;
+
+        $student_manager_perms = $form['checkboxes'][$student_manager_rid];
+        unset($form['checkboxes'][$student_manager_rid]);
+        $form['checkboxes'][$student_manager_rid] = $student_manager_perms;
+      }
+
+      // This will add it to the end of the list.
+      $admin_header = $form['role_names'][$admin_rid];
+      unset($form['role_names'][$admin_rid]);
+      $form['role_names'][$admin_rid] = $admin_header;
+
+      $admin_perms = $form['checkboxes'][$admin_rid];
+      unset($form['checkboxes'][$admin_rid]);
+      $form['checkboxes'][$admin_rid] = $admin_perms;
+    }
+  }
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function opigno_simple_ui_menu_alter(&$items) {
