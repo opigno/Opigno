@@ -267,7 +267,7 @@ function opigno_scorm_ui_render_player($scorm) {
     ),
   ), 'setting');
 
-  return theme('opigno_scorm_ui__player', array('scorm_id' => $scorm->id, 'tree' => $tree, 'start_sco' => $start_sco));
+  return theme('opigno_scorm_ui__player', array('scorm_id' => $scorm->id, 'tree' => count($flat_tree) == 2 ? NULL : $tree, 'start_sco' => $start_sco));
 }
 
 /**
