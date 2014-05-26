@@ -144,31 +144,31 @@
     // If it's not empty, don't bother terminating the package.
     if (value !== '') {
       this.error =  '201';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
 
     // Can only terminate if the session was initialized. Else, set error to
     // 112 and return 'false'.
     if (!this.isInitialized) {
       this.error = '112';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
     // If already terminated, set the error to 113 and return 'false'.
     else if (this.isTerminated) {
       this.error = '113';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
     // Terminate must call Commit to persist all data.
     else if (this.Commit('') === 'false') {
       this.error = '391';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
     else {
       // Terminate the communication.
       // If the termination fails, set the error to 111 end return 'false'.
       if (false) {
         this.error = '111';
-        return 'false';
+        return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
       }
       else {
         this.isTerminated = true;
@@ -283,27 +283,27 @@
     // Set the error to 122 end return ''.
     if (!this.isInitialized) {
       this.error = '132';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
     // Cannot get a value if terminated.
     // Set the error to 123 end return ''.
     else if (this.isTerminated) {
       this.error = '133';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
 
     // Must provide a cmiElement. If no valid identifier is provided,
     // set the error to 301 and return ''.
     if (cmiElement === undefined || cmiElement === null || cmiElement === '' || typeof cmiElement !== 'string') {
       this.error = '351';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
 
     // The value must either be a String or a number. All other values have to be rejected.
     // Return 'false' and set the error to 406.
     if (typeof value !== 'string' && typeof value !== 'number') {
       this.error = '406';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
 
     this.trigger('pre-setvalue', cmiElement, value);
@@ -318,27 +318,27 @@
         if (result === OpignoScorm2004API.CMI_NOT_VALID) {
           console.log('SetValue', 'NOT VALID');
           this.error = '401';
-          return 'false';
+          return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
         }
         // For currently unimplemented values, set the error to 402
         // and return 'false'.
         else if (result === OpignoScorm2004API.CMI_NOT_IMPLEMENTED) {
           console.log('SetValue', 'NOT IMPLEMENTED');
           this.error = '402';
-          return 'false';
+          return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
         }
         // For read-only values, set the error to 404 and return 'false'.
         else if (result === OpignoScorm2004API.VALUE_READ_ONLY) {
           console.log('SetValue', 'NOT WRITABLE');
           this.error = '404';
-          return 'false';
+          return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
         }
       }
       // For unknown values, set the error to 401 and return ''.
       else {
         console.log('SetValue', 'UNKNOWN ERROR');
         this.error = '401';
-        return 'false';
+        return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
       }
     }
     catch (e) {
@@ -346,7 +346,7 @@
       // return ''.
       console.log('SetValue', 'THREW ERROR');
       this.error = '351';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
 
     this.trigger('post-setvalue', cmiElement, value);
@@ -382,7 +382,7 @@
     // If already terminated, set the error to 143 and return 'false'.
     else if (this.isTerminated) {
       this.error = '143';
-      return 'false';
+      return 'true'; // 'false'; As per SCORM.2004.3ED.ConfReq.v1.0, should return false. However, to prevent annoying alerts from popping up in certain, malfunctioning packages, we return true.
     }
 
     this.trigger('pre-commit', value, this.data);
