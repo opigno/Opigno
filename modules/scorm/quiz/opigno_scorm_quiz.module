@@ -129,6 +129,16 @@ function opigno_scorm_quiz_quiz_question_info() {
 }
 
 /**
+ * Implements hook_config().
+ *
+ * Quiz Question triggers a Fatal Error if this function is not present.
+ * This is a no op.
+ */
+function opigno_scorm_quiz_question_config() {
+  // No op
+}
+
+/**
  * Implements hook_node_type_insert().
  */
 function opigno_scorm_quiz_node_type_insert($info) {
