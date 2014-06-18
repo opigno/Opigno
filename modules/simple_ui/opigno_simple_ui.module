@@ -203,6 +203,19 @@ function opigno_simple_ui_menu_alter(&$items) {
 
   // Correct sort quizzes page title.
   $items['node/%node/sort-quizzes']['title'] = t("Sort lessons");
+
+  if (isset($items['group/%/%/admin/permissions'])) {
+    // Per group og permissions.
+    $items['node/%/group/permissions'] = $items['group/%/%/admin/permissions'];
+    $items['node/%/group/permissions']['title arguments'][1] = 'node';
+    $items['node/%/group/permissions']['title arguments'][2] = 1;
+    $items['node/%/group/permissions']['access arguments'][1] = 'node';
+    $items['node/%/group/permissions']['access arguments'][2] = 1;
+    $items['node/%/group/permissions']['page arguments'][1] = 'node';
+    $items['node/%/group/permissions']['page arguments'][2] = 1;
+    $items['node/%/group/permissions']['type'] = MENU_LOCAL_TASK;
+    $items['node/%/group/permissions']['weight'] = 10;
+  }
 }
 
 /**
