@@ -38,7 +38,7 @@ class OpignoScormQuizQuestion extends QuizQuestion {
    * @copydoc QuizQuestion::getMaximumScore()
    */
   public function getMaximumScore() {
-    return variable_get('opigno_scorm_quiz_max_score', 5);
+    return variable_get('opigno_scorm_quiz_max_score', 50);
   }
 
   /**
