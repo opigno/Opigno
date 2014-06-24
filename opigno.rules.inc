@@ -3,7 +3,7 @@
 //*
 function opigno_rules_add_role_to_user($role, $user, EntityDrupalWrapper $group) {
   // Load the user we want to add to the group
-  $all_roles = og_roles('node', $group->getBundle(), 0, TRUE, TRUE);
+  $all_roles = og_roles('node', $group->getBundle(), $group->getIdentifier(), TRUE, TRUE);
   foreach ($all_roles as $role_id => $a_role) {
     if ($role == $role_id) {
       og_role_grant('node', $group->getIdentifier(), $user->uid, $role_id);
@@ -13,7 +13,7 @@ function opigno_rules_add_role_to_user($role, $user, EntityDrupalWrapper $group)
 
 function opigno_rules_revoke_role_to_user($role, $user, EntityDrupalWrapper $group) {
 // Load the user we want to add to the group
-  $all_roles = og_roles('node', $group->getBundle(), 0, TRUE, TRUE);
+  $all_roles = og_roles('node', $group->getBundle(), $group->getIdentifier(), TRUE, TRUE);
   foreach ($all_roles as $role_id => $a_role) {
     if ($role == $role_id) {
       og_role_revoke('node', $group->getIdentifier(), $user->uid, $role_id);
@@ -21,7 +21,7 @@ function opigno_rules_revoke_role_to_user($role, $user, EntityDrupalWrapper $gro
   }
 }
 
-function opigno_rules_user_has_roles_options_list() {
+/*function opigno_rules_user_has_roles_options_list() {
   $all_bundles = og_get_all_group_bundle();
   foreach ($all_bundles['node'] as $bundle_machine_name => $bundle_name) {
     $all_roles = og_roles('node', $bundle_machine_name, 0, TRUE, TRUE);
@@ -30,7 +30,7 @@ function opigno_rules_user_has_roles_options_list() {
     }
   }
   return $roles;
-}
+}*/
 
 
 function opigno_rules_user_has_roles($role, $group, $account) {
@@ -78,7 +78,7 @@ function opigno_rules_action_info() {
         'type' => 'text',
         'label' => t('Role'),
         'description' => t('The role to be removed'),
-        'options list' => 'opigno_rules_user_has_roles_options_list',
+        //'options list' => 'opigno_rules_user_has_roles_options_list',
       ),
       'user' => array(
         'type' => 'user',
@@ -108,7 +108,7 @@ function opigno_rules_action_info() {
         'type' => 'text',
         'label' => t('Role'),
         'description' => t('The role to add'),
-        'options list' => 'opigno_rules_user_has_roles_options_list',
+        //'options list' => 'opigno_rules_user_has_roles_options_list',
       ),
       'user' => array(
         'type' => 'user',
