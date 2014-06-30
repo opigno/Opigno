@@ -321,6 +321,22 @@ function opigno_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'user_admin_permissions') {
     $form['#attached']['js'][] = drupal_get_path('module', 'opigno') . '/js/opigno.admin.js';
   }
+  if ($form_id=="og_ui_confirm_subscribe")
+  {
+    $form['#submit'][]="opigno_set_user_as_student";
+  }
+}
+
+function opigno_set_user_as_student($form, &$form_state) {
+  Global $user;
+  $gid = $form['gid']['#value'];
+  $node = node_load($gid);
+  $roles = og_roles("node", $node->type, $node->nid, $force_group = FALSE, $include_all = TRUE);
+  foreach ($roles as $index => $role) {
+    if ($role == 'student') {
+      og_role_grant("node", $gid, $user->uid, $index);
+    }
+  }
 }
 
 /**
