@@ -112,7 +112,7 @@ function opigno_og_access_node_access_records($node) {
     }
   }
 
-  if ($hideforanonymous) {
+  if (($hideforanonymous)&&($wrapper->{OG_ACCESS_FIELD}->value()!=2)) {
     $grants[] = array(
       'realm' => OG_ACCESS_REALM . ':only_auth',
       'gid' => 1,
