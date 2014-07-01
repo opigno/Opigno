@@ -64,7 +64,7 @@ function opigno_og_access_node_access_records($node) {
 
 
   if ((!empty($wrapper->{OG_ACCESS_FIELD})) && (og_is_group('node', $node))) {
-    if (!opigno_og_access_node_access($wrapper)) {
+    if (!_opigno_og_access_node_access($wrapper)) {
       $gids['node'][] = $node->nid;
     }
     $hideforanonymous = $wrapper->anomymous_visibility->value()==1;
@@ -127,7 +127,7 @@ function opigno_og_access_node_access_records($node) {
 }
 
 
-function opigno_og_access_node_access($wrapper) {
+function _opigno_og_access_node_access($wrapper) {
   if (empty($wrapper->{OG_ACCESS_FIELD})) {
     return TRUE;
   }
