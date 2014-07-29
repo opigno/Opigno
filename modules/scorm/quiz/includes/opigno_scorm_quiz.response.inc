@@ -93,7 +93,7 @@ class OpignoScormQuizResponse extends QuizQuestionResponse {
   /**
    * @copydoc QuizQuestionResponse::getReportFormResponse()
    */
-  public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
+  /*public function getReportFormResponse($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
     if (empty($this->question->answers)) {
       return array(
         '#markup' => t('Missing question.'),
@@ -105,13 +105,25 @@ class OpignoScormQuizResponse extends QuizQuestionResponse {
     return array(
       '#markup' => 'SCORE',
     );
-  }
+  }*/
 
-  public function getReportFormScore($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
+  /*public function getReportFormScore($showfeedback = TRUE, $showpoints = TRUE, $allow_scoring = FALSE) {
     return array(
       '#markup' => $this->score(),
     );
+  }*/
+
+  /**
+   * Implementation of getReportForm
+   *
+   * @see QuizQuestionResponse#getReportForm($showpoints, $showfeedback, $allow_scoring)
+   */
+  public function getReportForm($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
+    return array(
+      '#no_report' => TRUE,
+    );
   }
+	
 
   public function getReportFormAnswerFeedback($showpoints = TRUE, $showfeedback = TRUE, $allow_scoring = FALSE) {
     return FALSE;
