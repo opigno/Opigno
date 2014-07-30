@@ -116,6 +116,28 @@ function opigno_simple_ui_form_node_form_alter(&$form, $form_state) {
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function opigno_simple_ui_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'user_login_block') {
+    $form['user_login_fieldset'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('User login'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['user_login_fieldset']['name'] = $form['name'];
+    $form['user_login_fieldset']['pass'] = $form['pass'];
+    $form['user_login_fieldset']['actions'] = $form['actions'];
+    $form['user_login_fieldset']['links'] = $form['links'];
+    unset($form['name']);
+    unset($form['pass']);
+    unset($form['actions']);
+    unset($form['links']);
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter() for user_admin_permissions.
  */
 function opigno_simple_ui_form_user_admin_permissions_alter(&$form, $form_state) {
