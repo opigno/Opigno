@@ -72,7 +72,7 @@
             if (!window.API_1484_11.isTerminated) {
               window.API_1484_11.Terminate('');
               alertDataStored = true;
-              return Drupal.t('It seems you did not finish the SCORM course, or maybe the SCORM course did not save your results. Should we try to store it for you ?');
+              //return Drupal.t('It seems you did not finish the SCORM course, or maybe the SCORM course did not save your results. Should we try to store it for you ?');
             }
           });
 
