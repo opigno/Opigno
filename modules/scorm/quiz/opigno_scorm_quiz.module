@@ -111,6 +111,11 @@ function opigno_scorm_quiz_opigno_scorm_ui_commit($scorm, $data) {
       }
     }
   }
+
+  // Store the success status.
+  if (!empty($data->cmi->success_status)) {
+    opigno_scorm_scorm_cmi_set($user->uid, $scorm->id, 'cmi.success_status', $data->cmi->success_status);
+  }
 }
 
 /**
