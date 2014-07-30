@@ -24,6 +24,16 @@ class OpignoScormQuizResponse extends QuizQuestionResponse {
       $scaled = opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.scaled', '');
     }
 
+    if (empty($completion)) {
+      $scaled = 0;
+    }
+    if (($completion == "completed") && (empty($raw)) && (!is_numeric($raw))) {
+      $scaled = 1;
+    }
+    if (($completion == "incomplete") && (empty($raw)) && (!is_numeric($raw))) {
+      $scaled = 0;
+    }
+
     // Something went wrong. Set a score of -1.
     if (!isset($scaled) || !is_numeric($scaled)) {
       $scaled = -1;
