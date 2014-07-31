@@ -24,6 +24,12 @@ class OpignoScormQuizResponse extends QuizQuestionResponse {
       $scaled = opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.scaled', '');
     }
 
+    $completion=opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.completion_status', '');
+    $raw=opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.raw', '');
+    $max=opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.score.max', '');
+    $success_status=opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.success_status', '');
+	
+
     if (empty($completion)) {
       $scaled = 0;
     }
