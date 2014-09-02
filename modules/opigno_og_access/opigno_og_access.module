@@ -175,7 +175,7 @@ function opigno_og_access_node_set_og_permissions($entity) {
   $tosave = array();
   $og_permissions = og_get_permissions();
   foreach ($og_permissions as $index => $value) {
-    if ($role_permissions[$rid][$index] == TRUE) {
+    if (isset($role_permissions[$rid][$index])&&($role_permissions[$rid][$index] == TRUE)) {
       $tosave[$index] = $index;
     }
     else {
@@ -208,7 +208,7 @@ function opigno_og_access_node_set_subscribe_permissions($entity) {
   foreach ($role_permissions as $rid => $permission) {
     $tosave = array();
     foreach ($og_permissions as $index => $value) {
-      if ($role_permissions[$rid][$index] == TRUE) {
+      if (isset($role_permissions[$rid][$index])&&($role_permissions[$rid][$index] == TRUE)) {
         $tosave[$index] = $index;
       }
       else {
