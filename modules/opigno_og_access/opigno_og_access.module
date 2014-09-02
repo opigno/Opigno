@@ -165,7 +165,7 @@ function opigno_og_access_entity_update($entity, $entity_type) {
 }
 
 function opigno_og_access_node_set_og_permissions($entity) {
-  $roles = og_roles("node",$entity->entity, $entity->nid, FALSE, TRUE);
+  $roles = og_roles("node",$entity->type, $entity->nid, FALSE, TRUE);
 
   $ak = array_keys($roles);
   $rid = $ak[0];
