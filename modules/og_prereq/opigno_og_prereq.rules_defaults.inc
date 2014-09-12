@@ -96,43 +96,38 @@ function opigno_og_prereq_default_rules_configuration() {
       "RESULT" : [  ]
     }
   }');
-  $items['rules_get_courses_that_require_this_course'] = entity_import('rules_config', '{ "rules_get_courses_that_require_this_course" : {
-  "LABEL" : "Get courses that require this course",
+    $items['rules_get_courses_that_require_this_course'] = entity_import('rules_config', ' "rules_get_courses_that_require_this_course" : {
+    "LABEL" : "Get courses that require this course",
     "PLUGIN" : "action set",
     "OWNER" : "rules",
     "TAGS" : [ "og", "opigno" ],
-    "REQUIRES" : [ "rules" ],
+    "REQUIRES" : [ "rules", "opigno_og_prereq" ],
     "USES VARIABLES" : {
-    "course" : { "label" : "Course", "type" : "node" },
+      "course" : { "label" : "Course", "type" : "node" },
       "requiring_courses" : {
-      "label" : "Requiring courses",
+        "label" : "Requiring courses",
         "type" : "list\u003Cnode\u003E",
         "parameter" : false
       }
     },
     "ACTION SET" : [
       { "variable_add" : {
-        "USING" : { "type" : "list\u003Cnode\u003E" },
+          "USING" : { "type" : "list\u003Cnode\u003E" },
           "PROVIDE" : { "variable_added" : { "node_list" : "Node list" } }
         }
       },
       { "list_add" : { "list" : [ "node-list" ], "item" : [ "course" ] } },
-      { "entity_query" : {
-        "USING" : {
-          "type" : "node",
-            "property" : "course_required_course_ref",
-            "value" : [ "node-list" ],
-            "limit" : "100"
-          },
-          "PROVIDE" : { "entity_fetched" : { "entities_fetched" : "Fetched entities" } }
+      { "opigno_og_prereq_gpc_with_required_course" : {
+          "USING" : { "course" : [ "course" ] },
+          "PROVIDE" : { "entities_fetched" : { "entities_fetched" : "Requiring courses" } }
         }
       },
       { "LOOP" : {
-        "USING" : { "list" : [ "entities-fetched" ] },
+          "USING" : { "list" : [ "entities-fetched" ] },
           "ITEM" : { "list_item" : "Current list item" },
           "DO" : [
             { "list_add" : {
-              "list" : [ "requiring-courses" ],
+                "list" : [ "requiring-courses" ],
                 "item" : [ "list-item" ],
                 "unique" : 1
               }
