@@ -25,6 +25,7 @@ function opigno_og_prereq_rules_action_info() {
         'label' => t('Requiring courses'),
       ),
     ),
+    'base' => 'opigno_og_prereq_rules_get_required_og',
   );
   $items['opigno_og_prereq_gpc_with_required_course'] = array(
     'label' => t("Get passed courses with required course"),
@@ -42,7 +43,7 @@ function opigno_og_prereq_rules_action_info() {
         'label' => t('Requiring courses'),
       ),
     ),
-    'base' => 'opigno_get_passed_courses_with_required_course',
+    'base' => 'opigno_og_prereq_gpc_with_required_course',
   );
   return $items;
 }
