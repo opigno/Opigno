@@ -43,47 +43,6 @@ function opigno_rules_user_has_roles($role, $group, $account) {
   }
   return FALSE;
 }
-    $items['opigno_fetch_entity'] = array(
-      'label' => t('Fetch entity by property'),
-      'parameter' => array(
-        'type' => array(
-          'type' => 'text',
-          'label' => t('Entity type'),
-          'options list' => 'rules_entity_action_type_options',
-          'description' => t('Specifies the type of the entity that should be fetched.'),
-          'restriction' => 'input',
-        ),
-        'property' => array(
-          'type' => 'text',
-          'label' => t('Property'),
-          'description' => t('The property by which the entity is to be selected.'),
-          'restriction' => 'input',
-        ),
-        'value' => array(
-          'type' => 'unknown',
-          'label' => t('Value'),
-          'description' => t('The property value of the entity to be fetched.'),
-        ),
-        'limit' => array(
-          'type' => 'integer',
-          'label' => t('Limit result count'),
-          'description' => t('Limit the maximum number of fetched entities.'),
-          'optional' => TRUE,
-          'default value' => '10',
-        ),
-      ),
-      'provides' => array(
-        'entity_fetched' => array('type' => 'list', 'label' => t('Fetched entity')),
-      ),
-      'group' => t('Entities'),
-      'access callback' => 'rules_entity_action_access',
-      'base' => 'rules_action_entity_query',
-      'callbacks' => array(
-        'form_alter' => 'rules_action_type_form_alter',
-      ),
-    );
-
-
 
 function opigno_rules_action_info() {
   $items = array();
