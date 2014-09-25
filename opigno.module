@@ -811,6 +811,5 @@ function opigno_get_teacher_html($gid) {
     $html .= theme('username', array('account' => $user));
     $html .= "</div>";
   }
-  dpm($html);
   return $html;
 }
