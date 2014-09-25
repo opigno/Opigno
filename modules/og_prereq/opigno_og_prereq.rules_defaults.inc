@@ -96,7 +96,7 @@ function opigno_og_prereq_default_rules_configuration() {
       "RESULT" : [  ]
     }
   }');
-    $items['rules_get_courses_that_require_this_course'] = entity_import('rules_config', ' "rules_get_courses_that_require_this_course" : {
+  $items['rules_get_courses_that_require_this_course'] = entity_import('rules_config', '{ "rules_get_courses_that_require_this_course" : {
     "LABEL" : "Get courses that require this course",
     "PLUGIN" : "action set",
     "OWNER" : "rules",
