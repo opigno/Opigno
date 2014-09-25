@@ -257,6 +257,7 @@ function opigno_field_is_empty($item, $field) {
   return empty($item['tool']);
 }
 
+
 /**
  * Implements hook_field_formatter_info().
  */
@@ -495,8 +496,12 @@ function opigno_get_tool($name, $node = NULL, $account = NULL) {
  *
  * @return bool
  */
-function opigno_tool_access($tool, $account) {
-  return call_user_func_array($tool['access_callback'], array_merge($tool['access_arguments'], array($account)));
+function opigno_tool_access($tool, $user=NULL) {
+  if ($user==null)
+  {
+    Global $user;
+  }
+  return call_user_func_array($tool['access_callback'], array_merge($tool['access_arguments'], array($user)));
 }
 
 /**
@@ -776,4 +781,36 @@ function opigno_og_role_revoke($entity_type, $gid, $uid, $rid) {
   if (module_exists('rules')) {
     rules_invoke_event('og_user_was_revoked_role', $entity_type, $gid, $uid, $rid);
   }
+}
+
+function opigno_get_course_teachers($gid)
+{
+  $users=opigno_get_users_in_group($gid,OG_STATE_ACTIVE);
+  $teachers=array();
+  foreach($users as $user)
+  {
+    $roles=og_get_user_roles('node',$gid, $user->uid, $include = TRUE);
+    foreach($roles as $index => $role)
+    {
+      if ($role=="teacher")
+      {
+        $teachers[]=$user;
+      }
+    }
+  }
+  return $teachers;
+}
+
+function opigno_get_teacher_html($gid) {
+  $teachers = opigno_get_course_teachers($gid);
+  $html = "";
+  foreach ($teachers as $teacher) {
+    $user = user_load($teacher->uid);
+    $html .= '<div class="teacher teacher-' . $user->uid . '">';
+    $html .= theme('user_picture', array('account' => $user));
+    $html .= theme('username', array('account' => $user));
+    $html .= "</div>";
+  }
+  dpm($html);
+  return $html;
 }
