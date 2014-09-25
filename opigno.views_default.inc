@@ -26,7 +26,7 @@ function opigno_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'My courses';
+  $handler->display->display_options['title'] = 'fdsfdsa';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -40,7 +40,7 @@ function opigno_views_default_views() {
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '30';
-  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['style_options']['grouping'] = array(
     0 => array(
       'field' => 'title_1',
@@ -48,6 +48,7 @@ function opigno_views_default_views() {
       'rendered_strip' => 0,
     ),
   );
+  $handler->display->display_options['row_plugin'] = 'fields';
   /* Relationship: OG membership: Group Node from OG membership */
   $handler->display->display_options['relationships']['og_membership_related_node_group']['id'] = 'og_membership_related_node_group';
   $handler->display->display_options['relationships']['og_membership_related_node_group']['table'] = 'og_membership';
@@ -58,11 +59,53 @@ function opigno_views_default_views() {
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['field'] = 'reverse_opigno_class_courses_node';
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['relationship'] = 'og_membership_related_node_group';
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['label'] = 'Class referencing the course';
+
+
+  /* Field: Content: course_image */
+  $handler->display->display_options['fields']['opigno_course_image']['id'] = 'opigno_course_image';
+  $handler->display->display_options['fields']['opigno_course_image']['table'] = 'field_data_opigno_course_image';
+  $handler->display->display_options['fields']['opigno_course_image']['field'] = 'opigno_course_image';
+  $handler->display->display_options['fields']['opigno_course_image']['relationship'] = 'og_membership_related_node_group';
+  $handler->display->display_options['fields']['opigno_course_image']['label'] = '';
+  $handler->display->display_options['fields']['opigno_course_image']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['opigno_course_image']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['opigno_course_image']['settings'] = array(
+    'image_style' => 'thumbnail',
+    'image_link' => '',
+  );
+
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['relationship'] = 'og_membership_related_node_group';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+
+  /* Field: Content: Description */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['relationship'] = 'og_membership_related_node_group';
+  $handler->display->display_options['fields']['body']['label'] = 'Description';
+  $handler->display->display_options['fields']['body']['type'] = 'text_summary_or_trimmed';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '600',
+  );
+
+  /* Field: Global: PHP */
+  $handler->display->display_options['fields']['php_teachers']['id'] = 'php_teachers';
+  $handler->display->display_options['fields']['php_teachers']['table'] = 'views';
+  $handler->display->display_options['fields']['php_teachers']['field'] = 'php';
+  $handler->display->display_options['fields']['php_teachers']['label'] = 'Teachers';
+  $handler->display->display_options['fields']['php_teachers']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['php_teachers']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_teachers']['php_output'] = '<?
+print opigno_get_teacher_html($data->node_og_membership_nid);
+?>';
+  $handler->display->display_options['fields']['php_teachers']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_teachers']['php_click_sortable'] = '';
+
   /* Field: OG membership: Created */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'og_membership';
@@ -210,35 +253,96 @@ function opigno_views_default_views() {
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '30';
-  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['style_options']['grouping'] = array(
     0 => array(
-      'field' => 'title_1',
+      'field' => 'group_group_1',
       'rendered' => 1,
       'rendered_strip' => 0,
     ),
   );
+  $handler->display->display_options['row_plugin'] = 'fields';
   /* Relationship: Entity Reference: Referencing entity */
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['id'] = 'reverse_opigno_class_courses_node';
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['table'] = 'node';
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['field'] = 'reverse_opigno_class_courses_node';
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['relationship'] = 'og_membership_related_node_group';
   $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['label'] = 'Class referencing the course';
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+
   /* Field: Content: Group */
   $handler->display->display_options['fields']['group_group']['id'] = 'group_group';
   $handler->display->display_options['fields']['group_group']['table'] = 'field_data_group_group';
   $handler->display->display_options['fields']['group_group']['field'] = 'group_group';
-  $handler->display->display_options['fields']['group_group']['label'] = 'Subscribe';
+  $handler->display->display_options['fields']['group_group']['label'] = '';
+  $handler->display->display_options['fields']['group_group']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['group_group']['type'] = 'og_group_subscribe';
   $handler->display->display_options['fields']['group_group']['settings'] = array(
     'field_name' => '0',
   );
+
+  /* Field: Content: course_image */
+  $handler->display->display_options['fields']['opigno_course_image']['id'] = 'opigno_course_image';
+  $handler->display->display_options['fields']['opigno_course_image']['table'] = 'field_data_opigno_course_image';
+  $handler->display->display_options['fields']['opigno_course_image']['field'] = 'opigno_course_image';
+  $handler->display->display_options['fields']['opigno_course_image']['label'] = '';
+  $handler->display->display_options['fields']['opigno_course_image']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['opigno_course_image']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['opigno_course_image']['settings'] = array(
+    'image_style' => 'thumbnail',
+    'image_link' => '',
+  );
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+
+  /* Field: Content: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = 'Description';
+  $handler->display->display_options['fields']['body']['type'] = 'text_summary_or_trimmed';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '600',
+  );
+
+  if (module_exists("opigno_course_quota_app"))
+  {
+  /* Field: Global: PHP */
+  $handler->display->display_options['fields']['php_available_places']['id'] = 'php_available_places';
+  $handler->display->display_options['fields']['php_available_places']['table'] = 'views';
+  $handler->display->display_options['fields']['php_available_places']['field'] = 'php';
+  $handler->display->display_options['fields']['php_available_places']['label'] = 'Available places';
+  $handler->display->display_options['fields']['php_available_places']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['php_available_places']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_available_places']['php_output'] = '<?
+$node=node_load($data->nid);
+$info=opigno_course_quota_app_students_info($node);
+if ((isset($info[\'places\']))&&($info[\'places\']!=-1))
+{
+ print $info[\'available_places\'];
+}
+?>';
+  $handler->display->display_options['fields']['php_available_places']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_available_places']['php_click_sortable'] = '';
+  }
+
+  /* Field: Global: PHP Teachers */
+  $handler->display->display_options['fields']['php_course_teachers']['id'] = 'php_course_teachers';
+  $handler->display->display_options['fields']['php_course_teachers']['table'] = 'views';
+  $handler->display->display_options['fields']['php_course_teachers']['field'] = 'php';
+  $handler->display->display_options['fields']['php_course_teachers']['label'] = 'Teachers';
+  $handler->display->display_options['fields']['php_course_teachers']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['php_course_teachers']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_course_teachers']['php_output'] = '<?
+print opigno_get_teacher_html($data->nid);
+?>';
+  $handler->display->display_options['fields']['php_course_teachers']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_course_teachers']['php_click_sortable'] = '';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
   $handler->display->display_options['fields']['title_1']['table'] = 'node';
@@ -247,6 +351,39 @@ function opigno_views_default_views() {
   $handler->display->display_options['fields']['title_1']['label'] = '';
   $handler->display->display_options['fields']['title_1']['exclude'] = TRUE;
   $handler->display->display_options['fields']['title_1']['element_label_colon'] = FALSE;
+
+  if (module_exists("opigno_in_house_training_app"))
+  {
+  /* Field: Global: PHP */
+  $handler->display->display_options['fields']['php_in_house_trainings']['id'] = 'php_in_house_trainings';
+  $handler->display->display_options['fields']['php_in_house_trainings']['table'] = 'views';
+  $handler->display->display_options['fields']['php_in_house_trainings']['field'] = 'php';
+  $handler->display->display_options['fields']['php_in_house_trainings']['label'] = 'In house training';
+  $handler->display->display_options['fields']['php_in_house_trainings']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['php_in_house_trainings']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_in_house_trainings']['php_output'] = '<?
+print opigno_in_house_training_app_get_all_iht_unrestricted_view($data->nid);
+?>';
+  $handler->display->display_options['fields']['php_in_house_trainings']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_in_house_trainings']['php_click_sortable'] = '';
+  }
+
+  if (module_exists("opigno_webex_app"))
+  {
+  /* Field: Global: PHP */
+  $handler->display->display_options['fields']['php_webex']['id'] = 'php_webex';
+  $handler->display->display_options['fields']['php_webex']['table'] = 'views';
+  $handler->display->display_options['fields']['php_webex']['field'] = 'php';
+  $handler->display->display_options['fields']['php_webex']['label'] = 'Webex meetings';
+  $handler->display->display_options['fields']['php_webex']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['php_webex']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_webex']['php_output'] = '<?
+print opigno_webex_app_get_all_webex_unrestricted_view($data->nid);
+?>';
+  $handler->display->display_options['fields']['php_webex']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_webex']['php_click_sortable'] = '';
+  }
+
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
