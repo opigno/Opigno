@@ -187,12 +187,14 @@ function opigno_og_access_node_set_og_permissions($entity) {
     $tosave['vote on polls'] = 'vote on polls';
     $tosave['tft access file tree']='tft access file tree';
     $tosave['access quiz']='access quiz';
+    $tosave['view in_house_app content']='view in_house_app content';
   }
   else
   {
     $tosave['vote on polls'] = 0;
     $tosave['tft access file tree']= 0;
     $tosave['access quiz']=0;
+    $tosave['view in_house_app content']=0;
   }
 
   og_role_change_permissions($rid, $tosave);
