@@ -8,5 +8,8 @@ dependencies[] = options
 dependencies[] = og_ui
 dependencies[] = rules
 dependencies[] = rules_conditional
+dependencies[] = views
+dependencies[] = views_php
+dependencies[] = better_exposed_filters
 
 files[] = tests/OpignoWebTestCase.test

@@ -165,7 +165,7 @@ function opigno_update_7101()
     $source_dir=drupal_get_path('profile','opigno_lms')."/img";
     $filename="opigno_lms.png";
     $source = $source_dir . '/' . $filename;
-    $destination = 'default_images/' . $filename;
+    $destination = $filename;
     $field = field_info_field('opigno_course_image');
     opigno_content_set_default_image($field,$filename, $source, $destination);
   }
