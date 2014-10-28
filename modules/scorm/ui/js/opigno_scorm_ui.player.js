@@ -56,6 +56,7 @@
             $.ajax({
               url: Drupal.settings.basePath + '?q=opigno-scorm/ui/scorm/' + $element.data('scorm-id') + '/ajax/commit',
               data: { data: JSON.stringify(data) },
+              async:   false,
               dataType: 'json',
               type: 'post',
               success: function(json) {
