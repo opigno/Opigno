@@ -783,7 +783,12 @@
       'cmi.comments_from_learner._count',
       'cmi.comments_from_learner.n.comment',
       'cmi.comments_from_learner.n.location',
-      'cmi.comments_from_learner.n.timestamp'
+      'cmi.comments_from_learner.n.timestamp',
+      'cmi.learner_preference._children',
+      'cmi.learner_preference.audio_level',
+      'cmi.learner_preference.language',
+      'cmi.learner_preference.delivery_speed',
+      'cmi.learner_preference.audio_captioning'
     ];
 
     return keys.indexOf(normalizedPath) !== -1;

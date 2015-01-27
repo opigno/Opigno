@@ -198,6 +198,11 @@ function opigno_scorm_ui_opigno_scorm_ui_register_cmi_paths() {
     'cmi.location' => array(),
     'cmi.completion_status' => array(),
     'cmi.exit' => array(),
+    'cmi.learner_preference._children' => array(),
+    'cmi.learner_preference.audio_level' => array(),
+    'cmi.learner_preference.language' => array(),
+    'cmi.learner_preference.delivery_speed' => array(),
+    'cmi.learner_preference.audio_captioning' => array(),
   );
 }
 
@@ -211,6 +216,11 @@ function opigno_scorm_ui_opigno_scorm_ui_register_cmi_data($scorm, $scos) {
     'cmi.location' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.location', 0),
     'cmi.completion_status' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.completion_status', ''),
     'cmi.exit' => opigno_scorm_ui_scorm_cmi_get($user->uid, $scorm->id, 'cmi.exit', ''),
+    'cmi.learner_preference._children' => "audio_level,language,delivery_speed,audio_captioning",
+    'cmi.learner_preference.audio_level' => 1,
+    'cmi.learner_preference.language' => '',
+    'cmi.learner_preference.delivery_speed' => 1,
+    'cmi.learner_preference.audio_captioning' => 0,
   );
 
   return $data;
