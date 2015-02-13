@@ -127,8 +127,7 @@ function opigno_views_default_views() {
   $handler->display->display_options['fields']['php_teachers']['label'] = 'Teachers';
   $handler->display->display_options['fields']['php_teachers']['hide_empty'] = TRUE;
   $handler->display->display_options['fields']['php_teachers']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php_teachers']['php_output'] = '<?
-print opigno_get_teacher_html($data->node_og_membership_nid);
+  $handler->display->display_options['fields']['php_teachers']['php_output'] = '<?php print opigno_get_teacher_html($data->node_og_membership_nid);
 ?>';
   $handler->display->display_options['fields']['php_teachers']['use_php_click_sortable'] = '0';
   $handler->display->display_options['fields']['php_teachers']['php_click_sortable'] = '';
@@ -373,7 +372,7 @@ print opigno_get_teacher_html($data->node_og_membership_nid);
     $handler->display->display_options['fields']['php_available_places']['label'] = 'Available places';
     $handler->display->display_options['fields']['php_available_places']['hide_empty'] = TRUE;
     $handler->display->display_options['fields']['php_available_places']['use_php_setup'] = 0;
-    $handler->display->display_options['fields']['php_available_places']['php_output'] = '<?
+    $handler->display->display_options['fields']['php_available_places']['php_output'] = '<?php
 $node=node_load($data->nid);
 $info=opigno_course_quota_app_students_info($node);
 if ((isset($info[\'places\']))&&($info[\'places\']!=-1))
@@ -392,7 +391,7 @@ if ((isset($info[\'places\']))&&($info[\'places\']!=-1))
   $handler->display->display_options['fields']['php_course_teachers']['label'] = 'Teachers';
   $handler->display->display_options['fields']['php_course_teachers']['hide_empty'] = TRUE;
   $handler->display->display_options['fields']['php_course_teachers']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php_course_teachers']['php_output'] = '<?
+  $handler->display->display_options['fields']['php_course_teachers']['php_output'] = '<?php
 print opigno_get_teacher_html($data->nid);
 ?>';
   $handler->display->display_options['fields']['php_course_teachers']['use_php_click_sortable'] = '0';
@@ -415,7 +414,7 @@ print opigno_get_teacher_html($data->nid);
     $handler->display->display_options['fields']['php_in_house_trainings']['label'] = 'In house training';
     $handler->display->display_options['fields']['php_in_house_trainings']['hide_empty'] = TRUE;
     $handler->display->display_options['fields']['php_in_house_trainings']['use_php_setup'] = 0;
-    $handler->display->display_options['fields']['php_in_house_trainings']['php_output'] = '<?
+    $handler->display->display_options['fields']['php_in_house_trainings']['php_output'] = '<?php
 print opigno_in_house_training_app_get_all_iht_unrestricted_view($data->nid);
 ?>';
     $handler->display->display_options['fields']['php_in_house_trainings']['use_php_click_sortable'] = '0';
@@ -431,7 +430,7 @@ print opigno_in_house_training_app_get_all_iht_unrestricted_view($data->nid);
     $handler->display->display_options['fields']['php_webex']['label'] = 'Webex meetings';
     $handler->display->display_options['fields']['php_webex']['hide_empty'] = TRUE;
     $handler->display->display_options['fields']['php_webex']['use_php_setup'] = 0;
-    $handler->display->display_options['fields']['php_webex']['php_output'] = '<?
+    $handler->display->display_options['fields']['php_webex']['php_output'] = '<?php
 print opigno_webex_app_get_all_webex_unrestricted_view($data->nid);
 ?>';
     $handler->display->display_options['fields']['php_webex']['use_php_click_sortable'] = '0';
