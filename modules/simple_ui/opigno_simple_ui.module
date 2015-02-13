@@ -409,3 +409,15 @@ function opigno_simple_ui_apps_page() {
   module_load_include('inc', 'apps' ,'apps.pages');
   return apps_install_page('opigno');
 }
+
+/**
+ * Fix for ckeditor <p>&nbsp;</p>
+ */
+function opigno_simple_ui_wysiwyg_editor_settings_alter(&$settings, $context) {
+  if ($context['profile']->editor == 'ckeditor') {
+    // set various CKEditor option to address problem with extra p tags being added
+    $settings['enterMode'] = 2;
+    $settings['forceEnterMode'] = true;
+    $settings['shiftEnterMode'] = 1;
+  }
+}
