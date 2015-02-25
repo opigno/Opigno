@@ -87,7 +87,6 @@ function opigno_simple_ui_form_quiz_questions_form_alter(&$form, $form_state) {
       $form['add_slide']['add_slide'] = $form['additional_questions']['quiz_directions'];
 
       $form['question_list']['#title'] = t("Slides inside this lesson");
-      $form['question_list']['browser']['#access'] = FALSE;
 
       $form['additional_questions']['#attributes']['class'][] = 'element-hidden';
     }
