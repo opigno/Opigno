@@ -567,10 +567,12 @@ function opigno_access_tools($node) {
  */
 function opigno_get_node_tools($node, $account = NULL) {
   $tools = array();
-  foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
-    $tool = opigno_get_tool($item['tool'], $node, $account);
-    if (!empty($tool)) {
-      $tools[$item['tool']] = $tool;
+  if (isset($node->opigno_course_tools[LANGUAGE_NONE])) {
+    foreach ($node->opigno_course_tools[LANGUAGE_NONE] as $item) {
+      $tool = opigno_get_tool($item['tool'], $node, $account);
+      if (!empty($tool)) {
+        $tools[$item['tool']] = $tool;
+      }
     }
   }
   return $tools;
