@@ -117,6 +117,33 @@ function opigno_og_prereq_og_role_revoke($entity_type, $gid, $uid, $rid) {
   opigno_og_prereq_og_role_grant($entity_type, $gid, $uid, $rid);
 }
 
+/*
+ * Deny access to course subscribe if course has required courses not met
+ */
+function opigno_og_prereq_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == "og_ui_confirm_subscribe") {
+    $node = node_load($form['gid']['#value']);
+    if (isset($node->course_required_course_ref[LANGUAGE_NONE][0]['target_id'])) {
+      if (module_exists("opigno_quiz_app")) {
+        Global $user;
+        $courses_not_passed = "";
+        $has_courses_not_passed = FALSE;
+        foreach ($node->course_required_course_ref[LANGUAGE_NONE] as $index => $value) {
+          if (!(opigno_quiz_app_user_passed($value['target_id'], $user->uid))) {
+            $course_not_passed = node_load($value['target_id']);
+            $courses_not_passed .= " " . l($course_not_passed->title, 'node/' . $value['target_id']);
+            $has_courses_not_passed = TRUE;
+          }
+        }
+        if ($has_courses_not_passed) {
+          drupal_set_message(t('You cannot subscribe to this course. There are required courses not completed:' . $courses_not_passed), 'warning');
+          drupal_goto("node/" . $form['gid']['#value']);
+        }
+      }
+    }
+  }
+}
+
 /**
  * Enable a rule depending on Opigno Quiz App.
  */
