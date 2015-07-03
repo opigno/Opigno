@@ -136,7 +136,7 @@ function opigno_og_prereq_form_alter(&$form, &$form_state, $form_id) {
           }
         }
         if ($has_courses_not_passed) {
-          drupal_set_message(t('You cannot subscribe to this course. There are required courses not completed:' . $courses_not_passed), 'warning');
+          drupal_set_message(t('You cannot subscribe to this course. There are required courses not completed:') . $courses_not_passed, 'warning');
           drupal_goto("node/" . $form['gid']['#value']);
         }
       }
