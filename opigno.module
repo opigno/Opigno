@@ -23,7 +23,7 @@ function opigno_menu() {
     ),
 
     'admin/opigno-statistics' => array(
-      'title' => t('Statistics'),
+      'title' => t('Opigno Statistics'),
       'page callback' => 'opigno_statistics_overview_page',
       'access arguments' => array('access opigno statistics pages'),
     ),
