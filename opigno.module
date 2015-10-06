@@ -21,11 +21,19 @@ function opigno_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 10,
     ),
+
+    'admin/opigno-statistics' => array(
+      'title' => t('Statistics'),
+      'page callback' => 'opigno_statistics_overview_page',
+      'access arguments' => array('access opigno statistics pages'),
+    ),
+
     'admin/opigno' => array(
       'title' => "Opigno Administration",
       'page callback' => 'opigno_admin_overview_page',
       'access arguments' => array('access opigno administration pages'),
     ),
+
     'admin/opigno/students' => array(
       'title' => "Student management",
       'description' => "Tools for managing the platform students",
@@ -79,6 +87,10 @@ function opigno_permission() {
     'access opigno administration pages' => array(
       'title' => t("Access the Opigno administration pages"),
       'description' => t("This permission is necessary for some global tools, like exporting user lists."),
+    ),
+    'access opigno statistics pages' => array(
+      'title' => t("Access the Opigno statistics pages"),
+      'description' => t("This permission is necessary to access opigno statistics pages"),
     ),
   );
 }
@@ -742,6 +754,50 @@ function opigno_admin_overview_page() {
   }
   else {
     return t('You do not have any administrative items.');
+  }
+}
+
+/**
+ * Menu callback; Provide the administration overview page.
+ */
+function opigno_statistics_overview_page() {
+  $blocks = array();
+  $admin = db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin/opigno-statistics' AND module = 'system'")->fetchAssoc();
+  if ($admin) {
+    $result = db_query("
+      SELECT m.*, ml.*
+      FROM {menu_links} ml
+      INNER JOIN {menu_router} m ON ml.router_path = m.path
+      WHERE menu_name = :menu_name AND ml.plid = :mlid AND hidden = 0", $admin, array('fetch' => PDO::FETCH_ASSOC));
+    foreach ($result as $item) {
+      _menu_link_translate($item);
+      if (!$item['access']) {
+        continue;
+      }
+      // The link description, either derived from 'description' in hook_menu()
+      // or customized via menu module is used as title attribute.
+      if (!empty($item['localized_options']['attributes']['title'])) {
+        $item['description'] = $item['localized_options']['attributes']['title'];
+        unset($item['localized_options']['attributes']['title']);
+      }
+      $block = $item;
+      $block['content'] = '';
+      $block['content'] .= theme('admin_block_content', array('content' => system_admin_menu_block($item)));
+      if (!empty($block['content'])) {
+        $block['show'] = TRUE;
+      }
+
+      // Prepare for sorting as in function _menu_tree_check_access().
+      // The weight is offset so it is always positive, with a uniform 5-digits.
+      $blocks[(50000 + $item['weight']) . ' ' . $item['title'] . ' ' . $item['mlid']] = $block;
+    }
+  }
+  if ($blocks) {
+    ksort($blocks);
+    return theme('admin_page', array('blocks' => $blocks));
+  }
+  else {
+    return t('You do not have any statistics items.');
   }
 }
 
