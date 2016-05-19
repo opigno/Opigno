@@ -102,17 +102,6 @@ function opigno_simple_ui_form_quiz_node_form_alter(&$form, $form_state) {
       $child['#collapsed'] = TRUE;
     }
   }
-  $form['#validate'][] = 'opigno_simple_ui_form_quiz_node_form_alter_validate';
-}
-
-/**
- * Validate callback for hook_form_quiz_node_form_alter().
- */
-function opigno_simple_ui_form_quiz_node_form_alter_validate($form, &$form_state) {
-  // If of type theory, deactivate Allow skipping questions".
-  if (!empty($form_state['values']['quiz_type'][LANGUAGE_NONE][0]['value']) && $form_state['values']['quiz_type'][LANGUAGE_NONE][0]['value'] == 'theory') {
-    $form_state['values']['allow_skipping'] = 0;
-  }
 }
 
 /**
