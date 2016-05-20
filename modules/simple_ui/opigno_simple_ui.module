@@ -135,6 +135,12 @@ function opigno_simple_ui_form_alter(&$form, &$form_state, $form_id) {
     unset($form['actions']);
     unset($form['links']);
   }
+  if ($form_id == 'user_login') {
+    $destination = variable_get('site_frontpage', '');
+    if ($destination !== '') {
+      $form['#action'] .= '?destination='. $destination;
+    }
+  }
 }
 
 /**
