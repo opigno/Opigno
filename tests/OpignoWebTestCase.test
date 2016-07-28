@@ -8,6 +8,51 @@
  */
 
 class OpignoWebTestCase extends DrupalWebTestCase {
+  protected $normal_user;
+  protected $admin_user;
+
+  /**
+   * @return array The tests information
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Opigno web tests',
+      'description' => 'Test the module Opigno',
+      'group' => 'Opigno'
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('opigno'));
+
+    $this->normal_user = $this->drupalCreateUser(array(
+      'access content',
+    ));
+    $this->admin_user = $this->drupalCreateUser(array(
+      'access content',
+      'administer nodes',
+    ));
+  }
+
+  public function testCreateCourse() {
+    $this->drupalLogin($this->normal_user);
+
+    $this->drupalGet('node/add/course');
+    $this->assertText('You are not authorized to access this page.');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->admin_user);
+
+    $this->drupalGet('node/add/course');
+    $this->assertText('Semi-public (registered users can subscribe to the course)');
+
+    $course_content = array();
+    $course_content['title'] = $this->randomName(32);
+    $course_content['body[und][0][value]'] = $this->randomString(256);
+    $course_content['group_access[und][1]'] = true;
+
+    $this->drupalPost('node/add/course', $course_content, t('Save'));
+  }
 
   /**
    * Create a course and assign members to it.
@@ -97,11 +142,11 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   protected function getRoleId($role_name) {
     $rid  = db_select('og_role', 'r')
-              ->fields('r', array('rid'))
-              ->condition('r.name', $role_name)
-              ->condition('group_bundle', OPIGNO_COURSE_BUNDLE)
-              ->execute()
-              ->fetchField();
+      ->fields('r', array('rid'))
+      ->condition('r.name', $role_name)
+      ->condition('group_bundle', OPIGNO_COURSE_BUNDLE)
+      ->execute()
+      ->fetchField();
     return !empty($rid) ? $rid : 0;
   }
 
