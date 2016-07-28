@@ -162,7 +162,7 @@ function opigno_update_7101()
         ),
       ));
     }
-    $source_dir=drupal_get_path('profile','opigno_lms')."/img";
+    $source_dir=drupal_get_path('module','opigno')."/img";
     $filename="opigno_lms.png";
     $source = $source_dir . '/' . $filename;
     $destination = $filename;
