@@ -11,5 +11,6 @@ dependencies[] = rules_conditional
 dependencies[] = views
 dependencies[] = views_php
 dependencies[] = better_exposed_filters
+dependencies[] = image
 
 files[] = tests/OpignoWebTestCase.test
