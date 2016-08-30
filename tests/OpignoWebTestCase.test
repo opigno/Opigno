@@ -46,12 +46,15 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalGet('node/add/course');
     $this->assertText('Semi-public (registered users can subscribe to the course)');
 
-    $course_content = array();
-    $course_content['title'] = $this->randomName(32);
-    $course_content['body[und][0][value]'] = $this->randomString(256);
-    $course_content['group_access[und][1]'] = true;
+//    $course_content = array();
+//    $course_content['title'] = $this->randomName(32);
+//    $course_content['body[und][0][value]'] = $this->randomString(256);
+//    $course_content['group_access[und][1]'] = true;
 
     $this->drupalPost('node/add/course', $course_content, t('Save'));
+    
+    $this->assertText('Title field is required');
+    $this->assertText('Group visibility field is required');
   }
 
   /**
@@ -69,6 +72,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * @return object
    */
   protected function createCourse($title = NULL, $creator = NULL, $private = NULL, $members = array()) {
+    
     $settings = array(
       'type' => OPIGNO_COURSE_BUNDLE,
       'title' => $title ? $title : $this->randomName(8),
