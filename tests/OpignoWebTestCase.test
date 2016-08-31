@@ -33,6 +33,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       'access content',
       'administer nodes',
       'access administration pages',
+      'access opigno administration pages',
     ));
     
   }
