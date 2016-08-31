@@ -54,7 +54,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $course_content['group_access[und][1]'] = true;
 
 //    $this->drupalPost('node/add/course', $course_content, t('Save'));
-    $this->createCourse();
+//    $this->createCourse();
     
   }
   
