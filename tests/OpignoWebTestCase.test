@@ -28,10 +28,12 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->normal_user = $this->drupalCreateUser(array(
       'access content',
     ));
+    
     $this->admin_user = $this->drupalCreateUser(array(
       'access content',
       'administer nodes',
     ));
+    
   }
 
   public function testCreateCourse() {
@@ -46,16 +48,16 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalGet('node/add/course');
     $this->assertText('Semi-public (registered users can subscribe to the course)');
 
-    $course_content = array();
+//    $course_content = array();
 //    $course_content['title'] = $this->randomName(32);
 //    $course_content['body[und][0][value]'] = $this->randomString(256);
 //    $course_content['group_access[und][1]'] = true;
 
-    $this->drupalPost('node/add/course', $course_content, t('Save'));
+//    $this->drupalPost('node/add/course', $course_content, t('Save'));
+    $this->createCourse();
     
-    $this->assertText('Title field is required');
-    $this->assertText('Group visibility field is required');
   }
+  
 
   /**
    * Create a course and assign members to it.
@@ -157,21 +159,21 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   /**
    * Helper function to enable a block.
    */
-  protected function enableBlock($module, $delta, $region = 'sidebar_first', $pages_visible = array(), $pages_unvisible = array()) {
-    $block = array(
-      'module' => $module,
-      'delta' => $delta,
-      'theme' => variable_get('theme_default', 'bartik'),
-      'status' => 1,
-      'weight' => 0,
-      'region' => $region,
-      'visibility' => (int) empty($pages_visible),
-      'pages' => implode("\n", !empty($pages_visible) ? $pages_visible : $pages_unvisible),
-      'cache' => -1,
-    );
-
-    $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
-    $query->values($block);
-    $query->execute();
-  }
+//  protected function enableBlock($module, $delta, $region = 'sidebar_first', $pages_visible = array(), $pages_unvisible = array()) {
+//    $block = array(
+//      'module' => $module,
+//      'delta' => $delta,
+//      'theme' => variable_get('theme_default', 'bartik'),
+//      'status' => 1,
+//      'weight' => 0,
+//      'region' => $region,
+//      'visibility' => (int) empty($pages_visible),
+//      'pages' => implode("\n", !empty($pages_visible) ? $pages_visible : $pages_unvisible),
+//      'cache' => -1,
+//    );
+//
+//    $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
+//    $query->values($block);
+//    $query->execute();
+//  }
 }
