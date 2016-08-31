@@ -46,7 +46,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalGet('node/add/course');
     $this->assertText('Semi-public (registered users can subscribe to the course)');
 
-//    $course_content = array();
+    $course_content = array();
 //    $course_content['title'] = $this->randomName(32);
 //    $course_content['body[und][0][value]'] = $this->randomString(256);
 //    $course_content['group_access[und][1]'] = true;
