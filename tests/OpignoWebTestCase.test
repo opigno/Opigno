@@ -10,6 +10,7 @@
 class OpignoWebTestCase extends DrupalWebTestCase {
   protected $normal_user;
   protected $admin_user;
+  protected $authenticated_user;
 
   /**
    * @return array The tests information
@@ -32,9 +33,11 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->admin_user = $this->drupalCreateUser(array(
       'access content',
       'administer nodes',
-      'access administration pages',
-      'access opigno administration pages',
     ));
+    
+    $this->authenticated_user = $this->drupalCreateUser(array(
+      'authenticated user',
+    ))
     
   }
 
@@ -45,7 +48,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->assertText('You are not authorized to access this page.');
 
     $this->drupalLogout();
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->authenticated_user);
 
     $this->drupalGet('node/add/course');
 //    $this->assertText('Semi-public (registered users can subscribe to the course)');
