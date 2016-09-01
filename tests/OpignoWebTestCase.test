@@ -37,7 +37,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $this->authenticated_user = $this->drupalCreateUser(array(
       'authenticated user',
-    ))
+    ));
     
   }
 
