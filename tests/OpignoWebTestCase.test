@@ -56,18 +56,17 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin);
     $this->drupalGet('node/course/add');
   
-    $course_content = array();
-    $course_content['title'] = $this->randomName(32);
-    $course_content['body[und][0][value]'] = $this->randomString(256);
-    $course_content['group_access[und][1]'] = true;
+//    $course_content = array();
+//    $course_content['title'] = $this->randomName(32);
+//    $course_content['body[und][0][value]'] = $this->randomString(256);
+//    $course_content['group_access[und][1]'] = true;
   
-//    $this->drupalGet('node/add/course');
-//    $edit = array(
-//      'name' => $this->randomName(8),
-//      'label' => $this->randomString(20),
-//    );
-//
-//    $this->drupalPost('node/add/course', $edit, t('Save'));
+    $this->drupalGet('node/add/course');
+    $edit = array(
+      'title' => $this->randomName(8),
+    );
+
+    $this->drupalPost('node/add/course', $edit, t('Save'));
     
 //    $this->drupalLogin($this->normal_user);
 //
