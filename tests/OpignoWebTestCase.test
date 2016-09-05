@@ -11,7 +11,6 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   protected $normal_user;
   protected $admin_user;
   protected $authenticated_user;
-
   /**
    * @return array The tests information
    */
@@ -24,48 +23,68 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp(array('opigno'));
-
-    $this->normal_user = $this->drupalCreateUser(array(
-      'access content',
-    ));
+    ini_set('max_execution_time', 3000);
     
-    $this->admin_user = $this->drupalCreateUser(array(
-      'access content',
-      'administer nodes',
-      'edit own course content'
-    ));
+    $this->profile = 'opigno_lms';
+    parent::setUp();
     
-    $this->authenticated_user = $this->drupalCreateUser(array(
-      'authenticated user',
-    ));
+//    $this->normal_user = $this->drupalCreateUser(array(
+//    ));
+//
+//    $this->test = $this->drupalCreateUser(array());
+//
+//    $this->authenticated_user = $this->drupalCreateUser();
+//
+//    $permissions = array('access content');
+//    $this->drupalCreateRole($permissions);
+//
+//    $this->roles = user_roles(TRUE);
+//    unset($this->roles[DRUPAL_AUTHENTICATED_RID]);
+    
+//    $admin = $this->drupalCreateUser(array('administer nodes'));
+//    $user = $this->drupalCreateUser();
+//    $this->drupalLogin($admin);
     
   }
-
+  
   public function testCreateCourse() {
-    $this->drupalLogin($this->normal_user);
-
-    $this->drupalGet('node/add/course');
-    $this->assertText('You are not authorized to access this page.');
-    $this->drupalLogout();
   
-    $this->drupalLogin($this->authenticated_user);
-    $this->drupalGet('node/add/course');
-    $this->assertText('Access denied.');
-    $this->drupalLogout();
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
   
-    $this->drupalLogin($this->admin_user);
-    $this->drupalGet('node/add/course');
-
-
-//    $this->assertText('Semi-public (registered users can subscribe to the course)');
-
+    $this->drupalLogin($admin);
+    $this->drupalGet('node/course/add');
+  
     $course_content = array();
     $course_content['title'] = $this->randomName(32);
     $course_content['body[und][0][value]'] = $this->randomString(256);
     $course_content['group_access[und][1]'] = true;
+  
+//    $this->drupalGet('node/add/course');
+//    $edit = array(
+//      'name' => $this->randomName(8),
+//      'label' => $this->randomString(20),
+//    );
+//
+//    $this->drupalPost('node/add/course', $edit, t('Save'));
+    
+//    $this->drupalLogin($this->normal_user);
+//
+//    $this->drupalGet('node/add/course');
+//    $this->assertText('You are not authorized to access this page.');
+//    $this->drupalLogout();
 
-    $this->drupalPost('node/add/course', $course_content, t('Save'));
+//    $this->drupalGet('node/add/course');
+//    $this->assertText('You are not authorized to access this page.');
+//    $this->drupalLogout();
+
+//    $this->drupalLogin($this->administrator);
+//    $this->drupalGet('my-courses');
+
+
+//
+//    $this->drupalPost('node/add/course', $course_content, t('Save'));
 //    $this->createCourse();
     
   }
