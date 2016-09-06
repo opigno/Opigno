@@ -6,11 +6,8 @@
  * This base class contains re-usable logic that will make it easier and faster to
  * write Opigno-specific unit tests.
  */
-
 class OpignoWebTestCase extends DrupalWebTestCase {
-  protected $normal_user;
-  protected $admin_user;
-  protected $authenticated_user;
+  
   /**
    * @return array The tests information
    */
@@ -21,74 +18,65 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       'group' => 'Opigno'
     );
   }
-
+  
   public function setUp() {
     ini_set('max_execution_time', 3000);
     
     $this->profile = 'opigno_lms';
     parent::setUp();
+  }
+  
+  public function testAttendingCourse() {
     
-//    $this->normal_user = $this->drupalCreateUser(array(
-//    ));
-//
-//    $this->test = $this->drupalCreateUser(array());
-//
-//    $this->authenticated_user = $this->drupalCreateUser();
-//
-//    $permissions = array('access content');
-//    $this->drupalCreateRole($permissions);
-//
-//    $this->roles = user_roles(TRUE);
-//    unset($this->roles[DRUPAL_AUTHENTICATED_RID]);
+    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
+    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
+    $authenticated_user = $this->drupalCreateUser($perms);
     
-//    $admin = $this->drupalCreateUser(array('administer nodes'));
-//    $user = $this->drupalCreateUser();
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('course-catalogue');
+    
+    $this->clickLink('Subscribe to group', $index = 0);
+    
+    
+  }
+  
+  /**
+   * Testing the creation of a course while the user is an authenticated user or an administrator.
+   */
+//  public function testCreateCourse() {
+//
+//    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
+//    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
+//    $authenticated_user = $this->drupalCreateUser($perms);
+//
+//    $this->drupalLogin($authenticated_user);
+//    $this->drupalGet('node/course/add');
+//    $this->assertText('You are not authorized to access this page.');
+//    $this->drupalLogout();
+//
+//    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+//    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+//    $admin = $this->drupalCreateUser($perms);
+//
 //    $this->drupalLogin($admin);
-    
-  }
-  
-  public function testCreateCourse() {
-  
-    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
-    $perms = array_keys($perms[array_search('administrator', user_roles())]);
-    $admin = $this->drupalCreateUser($perms);
-  
-    $this->drupalLogin($admin);
-    $this->drupalGet('node/course/add');
-  
-//    $course_content = array();
-//    $course_content['title'] = $this->randomName(32);
-//    $course_content['body[und][0][value]'] = $this->randomString(256);
-//    $course_content['group_access[und][1]'] = true;
-  
-    $this->drupalGet('node/add/course');
-    $edit = array(
-      'title' => $this->randomName(8),
-    );
-
-    $this->drupalPost('node/add/course', $edit, t('Save'));
-    
-//    $this->drupalLogin($this->normal_user);
+//    $this->drupalGet('node/course/add');
 //
 //    $this->drupalGet('node/add/course');
-//    $this->assertText('You are not authorized to access this page.');
-//    $this->drupalLogout();
-
-//    $this->drupalGet('node/add/course');
-//    $this->assertText('You are not authorized to access this page.');
-//    $this->drupalLogout();
-
-//    $this->drupalLogin($this->administrator);
-//    $this->drupalGet('my-courses');
-
-
+//    $edit = array(
+//      'title' => $this->randomName(8),
 //
-//    $this->drupalPost('node/add/course', $course_content, t('Save'));
-//    $this->createCourse();
-    
-  }
+//      // @TODO Check the field Group Visibility
+//    );
+//
+//    $this->drupalPost('node/add/course', $edit, t('Save'));
+//  }
   
+  /**
+   * Attending a course for a student (authenticated user).
+   */
 
+
+  
   /**
    * Create a course and assign members to it.
    *
@@ -103,36 +91,36 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    *
    * @return object
    */
-  protected function createCourse($title = NULL, $creator = NULL, $private = NULL, $members = array()) {
-    
-    $settings = array(
-      'type' => OPIGNO_COURSE_BUNDLE,
-      'title' => $title ? $title : $this->randomName(8),
-      'body' => array(
-        LANGUAGE_NONE => array(
-          array('value' => $this->randomName(16)),
-        ),
-      ),
-    );
-    if (!empty($creator->uid)) {
-      $settings['uid'] = $creator->uid;
-    }
-    if (isset($private)) {
-      $settings['group_access'][LANGUAGE_NONE][0]['value'] = $private;
-    }
-    $node = $this->drupalCreateNode($settings);
-
-    $this->assertTrue(!empty($node->nid), 'Created a new course.');
-
-    if (!empty($members)) {
-      foreach ($members as $uid => $roles) {
-        $this->addMemberToCourse($node, $uid, $roles);
-      }
-    }
-
-    return $node;
-  }
-
+//  protected function createCourse($title = NULL, $creator = NULL, $private = NULL, $members = array()) {
+//
+//    $settings = array(
+//      'type' => OPIGNO_COURSE_BUNDLE,
+//      'title' => $title ? $title : $this->randomName(8),
+//      'body' => array(
+//        LANGUAGE_NONE => array(
+//          array('value' => $this->randomName(16)),
+//        ),
+//      ),
+//    );
+//    if (!empty($creator->uid)) {
+//      $settings['uid'] = $creator->uid;
+//    }
+//    if (isset($private)) {
+//      $settings['group_access'][LANGUAGE_NONE][0]['value'] = $private;
+//    }
+//    $node = $this->drupalCreateNode($settings);
+//
+//    $this->assertTrue(!empty($node->nid), 'Created a new course.');
+//
+//    if (!empty($members)) {
+//      foreach ($members as $uid => $roles) {
+//        $this->addMemberToCourse($node, $uid, $roles);
+//      }
+//    }
+//
+//    return $node;
+//  }
+  
   /**
    * Add member to course.
    *
@@ -140,19 +128,19 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * @param int $uid
    * @param array $roles
    */
-  protected function addMemberToCourse($node, $uid, $roles = array('member')) {
-    og_membership_create('node', $node->nid, 'user', $uid, 'og_user_node');
-    foreach ($roles as $role) {
-      $rid = $this->getRoleId($role);
-      if (!empty($rid)) {
-        og_role_grant('node', $node->nid, $uid, $rid);
-      }
-      else {
-        $this->fail("Could not find the role '$role'.");
-      }
-    }
-  }
-
+//  protected function addMemberToCourse($node, $uid, $roles = array('member')) {
+//    og_membership_create('node', $node->nid, 'user', $uid, 'og_user_node');
+//    foreach ($roles as $role) {
+//      $rid = $this->getRoleId($role);
+//      if (!empty($rid)) {
+//        og_role_grant('node', $node->nid, $uid, $rid);
+//      }
+//      else {
+//        $this->fail("Could not find the role '$role'.");
+//      }
+//    }
+//  }
+  
   /**
    * Create a role and set the permissions.
    *
@@ -161,14 +149,14 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    *
    * @return object
    */
-  protected function createRole($role_name, $permissions = array()) {
-    $role = og_role_create($role_name, 'node', 0, OPIGNO_COURSE_BUNDLE);
-    og_role_save($role);
-    og_role_grant_permissions($role->rid, $permissions);
-    return $role;
-  }
-
-
+//  protected function createRole($role_name, $permissions = array()) {
+//    $role = og_role_create($role_name, 'node', 0, OPIGNO_COURSE_BUNDLE);
+//    og_role_save($role);
+//    og_role_grant_permissions($role->rid, $permissions);
+//    return $role;
+//  }
+  
+  
   /**
    * Fetch the role ID by name.
    *
@@ -176,16 +164,16 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    *
    * @return int
    */
-  protected function getRoleId($role_name) {
-    $rid  = db_select('og_role', 'r')
-      ->fields('r', array('rid'))
-      ->condition('r.name', $role_name)
-      ->condition('group_bundle', OPIGNO_COURSE_BUNDLE)
-      ->execute()
-      ->fetchField();
-    return !empty($rid) ? $rid : 0;
-  }
-
+//  protected function getRoleId($role_name) {
+//    $rid  = db_select('og_role', 'r')
+//      ->fields('r', array('rid'))
+//      ->condition('r.name', $role_name)
+//      ->condition('group_bundle', OPIGNO_COURSE_BUNDLE)
+//      ->execute()
+//      ->fetchField();
+//    return !empty($rid) ? $rid : 0;
+//  }
+  
   /**
    * Helper function to enable a block.
    */
