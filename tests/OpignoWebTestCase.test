@@ -26,54 +26,56 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     parent::setUp();
   }
   
-  public function testAttendingCourse() {
-    
-    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
-    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
-    $authenticated_user = $this->drupalCreateUser($perms);
-    
-    $this->drupalLogin($authenticated_user);
-    $this->drupalGet('course-catalogue');
-    
-    $this->clickLink('Subscribe to group', $index = 0);
-    
-    
-  }
   
   /**
-   * Testing the creation of a course while the user is an authenticated user or an administrator.
+   * Attending a course for a student (authenticated user).
    */
-//  public function testCreateCourse() {
+//  public function testAttendingCourse() {
 //
 //    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
 //    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
 //    $authenticated_user = $this->drupalCreateUser($perms);
 //
 //    $this->drupalLogin($authenticated_user);
-//    $this->drupalGet('node/course/add');
-//    $this->assertText('You are not authorized to access this page.');
-//    $this->drupalLogout();
+//    $this->drupalGet('course-catalogue');
 //
-//    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
-//    $perms = array_keys($perms[array_search('administrator', user_roles())]);
-//    $admin = $this->drupalCreateUser($perms);
+//    $this->clickLink('Subscribe to group', $index = 0);
 //
-//    $this->drupalLogin($admin);
-//    $this->drupalGet('node/course/add');
 //
-//    $this->drupalGet('node/add/course');
-//    $edit = array(
-//      'title' => $this->randomName(8),
-//
-//      // @TODO Check the field Group Visibility
-//    );
-//
-//    $this->drupalPost('node/add/course', $edit, t('Save'));
 //  }
   
   /**
-   * Attending a course for a student (authenticated user).
+   * Testing the creation of a course while the user is an authenticated user or an administrator.
    */
+  public function testCreateCourse() {
+
+    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
+    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
+    $authenticated_user = $this->drupalCreateUser($perms);
+
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('node/course/add');
+    $this->assertText('You are not authorized to access this page.');
+    $this->drupalLogout();
+
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
+
+    $this->drupalLogin($admin);
+    $this->drupalGet('node/course/add');
+
+    $this->drupalGet('node/add/course');
+    $edit = array(
+      'title' => $this->randomName(8),
+
+      // @TODO Check the field Group Visibility
+    );
+
+    $this->drupalPost('node/add/course', $edit, t('Save'));
+  }
+  
+
 
 
   
