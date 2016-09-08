@@ -24,25 +24,10 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $this->profile = 'opigno_lms';
     parent::setUp();
+  
+//    $this->originalPrefix = $GLOBALS['drupal_travis_db'];
   }
   
-  
-  /**
-   * Attending a course for a student (authenticated user).
-   */
-//  public function testAttendingCourse() {
-//
-//    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
-//    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
-//    $authenticated_user = $this->drupalCreateUser($perms);
-//
-//    $this->drupalLogin($authenticated_user);
-//    $this->drupalGet('course-catalogue');
-//
-//    $this->clickLink('Subscribe to group', $index = 0);
-//
-//
-//  }
   
   /**
    * Testing the creation of a course while the user is an authenticated user or an administrator.
@@ -61,23 +46,29 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $admin = $this->drupalCreateUser($perms);
-
+    
     $this->drupalLogin($admin);
-    $this->drupalGet('node/course/add');
-
     $this->drupalGet('node/add/course');
-    $edit = array(
-      'title' => $this->randomName(8),
-
-      // @TODO Check the field Group Visibility
-    );
-
-    $this->drupalPost('node/add/course', $edit, t('Save'));
+    
+    $course_content = array();
+    $course_content['title'] = $this->randomName(32);
+    $course_content['body[und][0][value]'] = $this->randomString(256);
+    $course_content['group_access[und]'] = '1';
+    
+    $this->drupalPost('node/add/course', $course_content, t('Save'));
   }
   
-
-
-
+  /**
+   * Attending a course for a student (authenticated user).
+   */
+//  public function testAttendingCourse() {
+//
+///   $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
+//    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
+//    $authenticated_user = $this->drupalCreateUser($perms);
+//
+//  }
+  
   
   /**
    * Create a course and assign members to it.
