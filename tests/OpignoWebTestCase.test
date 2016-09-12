@@ -28,11 +28,18 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $this->originalPrefix = $GLOBALS['drupal_travis_db'];
   }
   
+  /**
+   * Running tests
+   */
+  public function testDrupal() {
+    $this->createCourse();
+    $this->createLesson();
+  }
   
   /**
-   * Testing the creation of a course while the user is an authenticated user or an administrator.
+   * Creation of a public course.
    */
-  public function testCreateCourse() {
+  protected function createCourse() {
 
 //    $perms = user_role_permissions(array(array_search('authenticated_user', user_roles()) => 'authenticated_user'));
 //    $perms = array_keys($perms[array_search('authenticated_user', user_roles())]);
@@ -54,14 +61,16 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $course_content['title'] = $this->randomName(7);
     $course_content['body[und][0][value]'] = $this->randomString(50);
     $course_content['group_access[und]'] = '0';
-    $course_content['opigno_course_tools[\'und\'][0][\'tool\']'] = 'tft';
+    
+    // The option for adding a file to the course
+//    $course_content['opigno_course_tools[und][tft]'] = '1';
     
     $this->drupalPost('node/add/course', $course_content, t('Save'));
     
+    // For adding a file in the course
 //    $this->drupalGet('my-courses');
-    
-    
-//    $this->attendingCourse();
+//    $label = $course_content['title'];
+//    $this->clickLink($label, $index = 0);
     
   }
   
@@ -81,7 +90,148 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $edit = array();
     
-    $this->drupalPost('group/node/3/subscribe/og_user_node', $edit, t('Join'));
+    $this->drupalPost('', $edit, t('Join'));
+  }
+  
+  /**
+   * Attending a private course
+   */
+  protected function createPrivateCourse() {
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
+    
+    $this->drupalLogin($admin);
+    $this->drupalGet('node/add/course');
+    
+    $course_content = array();
+    $course_content['title'] = $this->randomName(7);
+    $course_content['body[und][0][value]'] = $this->randomString(50);
+    $course_content['group_access[und]'] = '2';
+    
+    $this->drupalPost('node/add/course', $course_content, t('Save'));
+    
+    $this->drupalLogout();
+    
+    // Connection and inscription to the course as a student manager
+    $perms = user_role_permissions(array(array_search('student manager', user_roles()) => 'student manager'));
+    $perms = array_keys($perms[array_search('student manager', user_roles())]);
+    $student_manager = $this->drupalCreateUser($perms);
+    $this->drupalLogin($student_manager);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    
+    $this->drupalLogout();
+    
+    // Connection and inscription to the course as an authenticated user
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $authenticated_user = $this->drupalCreateUser($perms);
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+  
+    $this->drupalLogout();
+    
+    // Connection and inscription to the course as an administrator
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $administrator = $this->drupalCreateUser($perms);
+    $this->drupalLogin($administrator);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $this->drupalGet('my-courses');
+  
+    $this->drupalLogout();
+  }
+  
+  /**
+   * Create a course for live lesson and create the live lesson by a teacher
+   */
+  protected function createLiveCourse() {
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
+  
+    $this->drupalLogin($admin);
+  
+    // Enabled the module
+    $this->drupalGet('admin/modules');
+    $module_enabled = array();
+    $module_enabled['modules[Opigno Apps][opigno_live_meetings][enable]'] = '1';
+    $this->drupalPost(NULL, $module_enabled, t('Save configuration'));
+    $edit_continue = array();
+    $this->drupalPost(NULL, $edit_continue, t('Continue'));
+  
+    $this->drupalGet('node/add/course');
+  
+    $course_content = array();
+    $course_content['title'] = $this->randomName(7);
+    $course_content['body[und][0][value]'] = $this->randomString(50);
+    $course_content['group_access[und]'] = '1';
+    $course_content['opigno_course_tools[und][live_meetings]'] = '1';
+  
+    $this->drupalPost('node/add/course', $course_content, t('Save'));
+  
+    
+
+    // Subscribe to the course as a student
+    $this->drupalLogout();
+
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $authenticated_user = $this->drupalCreateUser($perms);
+
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+
+    $edit = array();
+
+    $this->drupalPost('', $edit, t('Join'));
+
+    // Change the role of the student for this course
+    $this->drupalLogin($admin);
+    $this->drupalGet('node/3/group');
+    $this->clickLink('edit', $index = 1);
+
+    $role_course = array();
+    $role_course['roles[65]'] = '65';
+    $this->drupalPost(NULL, $role_course, t('Update membership'));
+
+    // Create a live lesson
+    $this->drupalLogout();
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('node/3/live-meetings');
+    $this->clickLink('Create meeting', $index = 0);
+
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+    
+  }
+  
+  /**
+   * Adding a file to a course
+   */
+  protected function addingFile() {
+    $this->drupalGet('node/3/tft');
+    $this->clickLink('Add a file', $index = 0);
+    
+    $path = './sites/default/files/test.txt';
+    $filetitle = 'test';
+    $filename = 'test.txt';
+    
+    $file_temp = file_get_contents($path);
+    $file_temp = file_save_data($file_temp, 'c://' . $filename, FILE_EXISTS_RENAME);
+    
+    $file_content = array();
+    $file_content['title'] = $filetitle;
+    $file_content['files[tft_file_und_0]'] = $file_temp;
+    
+    $this->drupalPost(NULL, $file_content, t('Save'));
+    
+    $this->drupalGet('node/3/tft');
+    
   }
   
   /*
@@ -95,127 +245,60 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $admin = $this->drupalCreateUser($perms);
     
     $this->drupalLogin($admin);
-    
     $this->drupalGet('node/3/group');
-    
   }
   
+  /**
+   * Create a lesson in a course
+   */
+  protected function createLesson() {
+    $this->drupalGet('node/3/quizzes');
+    $this->clickLink('Add new lesson', $index = 0);
+    
+    $lesson_content = array();
+    $lesson_content['title'] = $this->randomName(4);
+    $this->drupalPost(NULL, $lesson_content, t('Save'));
+    
+    $this->drupalGet('node/add/truefalse', array(
+      'query' => array(
+        'quiz_nid' => 3,
+        'quiz_vid' => 3,
+      )
+    ));
+    
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->drupalPost(NULL, $edit, t('Submit'));
+  }
   
   /**
-   * Create a course and assign members to it.
-   *
-   * @param  string $title = NULL
-   * @param  object $creator = NULL
-   * @param  int $private = NULL
-   * @param  array $members = array()
-   *          A 2-dimensional array, where the key is the user ID and the value an
-   *          array of roles.
-   *          Ex:
-   *            array(12 => array('manager', 'teacher'))
-   *
-   * @return object
+   * Teacher verified results on a lesson.
    */
-//  protected function createCourse($title = NULL, $creator = NULL, $private = NULL, $members = array()) {
-//
-//    $settings = array(
-//      'type' => OPIGNO_COURSE_BUNDLE,
-//      'title' => $title ? $title : $this->randomName(8),
-//      'body' => array(
-//        LANGUAGE_NONE => array(
-//          array('value' => $this->randomName(16)),
-//        ),
-//      ),
-//    );
-//    if (!empty($creator->uid)) {
-//      $settings['uid'] = $creator->uid;
-//    }
-//    if (isset($private)) {
-//      $settings['group_access'][LANGUAGE_NONE][0]['value'] = $private;
-//    }
-//    $node = $this->drupalCreateNode($settings);
-//
-//    $this->assertTrue(!empty($node->nid), 'Created a new course.');
-//
-//    if (!empty($members)) {
-//      foreach ($members as $uid => $roles) {
-//        $this->addMemberToCourse($node, $uid, $roles);
-//      }
-//    }
-//
-//    return $node;
-//  }
+  protected function teacherVerifiedResult() {
+    $this->drupalLogout();
   
-  /**
-   * Add member to course.
-   *
-   * @param object $node
-   * @param int $uid
-   * @param array $roles
-   */
-//  protected function addMemberToCourse($node, $uid, $roles = array('member')) {
-//    og_membership_create('node', $node->nid, 'user', $uid, 'og_user_node');
-//    foreach ($roles as $role) {
-//      $rid = $this->getRoleId($role);
-//      if (!empty($rid)) {
-//        og_role_grant('node', $node->nid, $uid, $rid);
-//      }
-//      else {
-//        $this->fail("Could not find the role '$role'.");
-//      }
-//    }
-//  }
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $authenticated_user = $this->drupalCreateUser($perms);
   
-  /**
-   * Create a role and set the permissions.
-   *
-   * @param  string $role_name
-   * @param  array $permissions = array()
-   *
-   * @return object
-   */
-//  protected function createRole($role_name, $permissions = array()) {
-//    $role = og_role_create($role_name, 'node', 0, OPIGNO_COURSE_BUNDLE);
-//    og_role_save($role);
-//    og_role_grant_permissions($role->rid, $permissions);
-//    return $role;
-//  }
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost('', $edit, t('Join'));
+    
   
+    $this->drupalLogout();
   
-  /**
-   * Fetch the role ID by name.
-   *
-   * @param  string $role_name
-   *
-   * @return int
-   */
-//  protected function getRoleId($role_name) {
-//    $rid  = db_select('og_role', 'r')
-//      ->fields('r', array('rid'))
-//      ->condition('r.name', $role_name)
-//      ->condition('group_bundle', OPIGNO_COURSE_BUNDLE)
-//      ->execute()
-//      ->fetchField();
-//    return !empty($rid) ? $rid : 0;
-//  }
-  
-  /**
-   * Helper function to enable a block.
-   */
-//  protected function enableBlock($module, $delta, $region = 'sidebar_first', $pages_visible = array(), $pages_unvisible = array()) {
-//    $block = array(
-//      'module' => $module,
-//      'delta' => $delta,
-//      'theme' => variable_get('theme_default', 'bartik'),
-//      'status' => 1,
-//      'weight' => 0,
-//      'region' => $region,
-//      'visibility' => (int) empty($pages_visible),
-//      'pages' => implode("\n", !empty($pages_visible) ? $pages_visible : $pages_unvisible),
-//      'cache' => -1,
-//    );
-//
-//    $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
-//    $query->values($block);
-//    $query->execute();
-//  }
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $administrator = $this->drupalCreateUser($perms);
+    
+    $this->drupalLogin($administrator);
+    
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost('', $edit, t('Join'));
+  }
 }
