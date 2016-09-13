@@ -33,7 +33,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   public function testDrupal() {
     $this->createCourse();
-    $this->createLesson();
+    $this->studentToTeacher();
   }
   
   /**
@@ -269,6 +269,59 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $edit = array();
     $this->drupalPost(NULL, $edit, t('Save'));
 //    $this->drupalPost(NULL, $edit, t('Submit'));
+  }
+  
+  /**
+   * Changed a student in a course to a teacher
+   */
+  protected function studentToTeacher() {
+    // Passed the student as a teacher.
+    $this->drupalLogout();
+    
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $authenticated_user = $this->drupalCreateUser($perms);
+    $this->drupalLogin($authenticated_user);
+    
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Join'));
+    $this->drupalLogout();
+  
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
+    $this->drupalLogin($admin);
+    
+    $this->drupalGet('node/3/group');
+    $this->clickLink('edit', $index = 1);
+    $role = array();
+    $role['roles[23]'] = '23';
+    $role['roles[22]'] = '22';
+    $this->drupalPost(NULL, $role, t('Update membership'));
+    $this->drupalLogout();
+    
+    // Create the lesson.
+    $this->drupalLogin($authenticated_user);
+  
+    $this->drupalGet('node/3/quizzes');
+    $this->clickLink('Add new lesson', $index = 0);
+  
+    $lesson_content = array();
+    $lesson_content['title'] = $this->randomName(4);
+    $this->drupalPost(NULL, $lesson_content, t('Save'));
+  
+    $this->drupalGet('node/add/truefalse', array(
+      'query' => array(
+        'quiz_nid' => 3,
+        'quiz_vid' => 3,
+      )
+    ));
+  
+    $edit = array();
+    $edit['og_group_ref[und][0][default][]'] = '3';
+    $this->drupalPost(NULL, $edit, t('Save'));
   }
   
   /**
