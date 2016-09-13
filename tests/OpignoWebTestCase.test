@@ -268,7 +268,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $edit = array();
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->drupalPost(NULL, $edit, t('Submit'));
+//    $this->drupalPost(NULL, $edit, t('Submit'));
   }
   
   /**
