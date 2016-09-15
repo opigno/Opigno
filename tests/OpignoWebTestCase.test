@@ -7,6 +7,8 @@
  * write Opigno-specific unit tests.
  */
 class OpignoWebTestCase extends DrupalWebTestCase {
+  protected $course_content;
+  protected $lesson_content;
   
   /**
    * @return array The tests information
@@ -32,8 +34,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests
    */
   public function testDrupal() {
-    $this->createCourse();
-    $this->studentToTeacher();
+    $this->createPayingCourse();
+    $this->buyCourse();
   }
   
   /**
@@ -57,15 +59,15 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin);
     $this->drupalGet('node/add/course');
     
-    $course_content = array();
-    $course_content['title'] = $this->randomName(7);
-    $course_content['body[und][0][value]'] = $this->randomString(50);
-    $course_content['group_access[und]'] = '0';
+    $this->course_content = array();
+    $this->course_content['title'] = $this->randomName(7);
+    $this->course_content['body[und][0][value]'] = $this->randomString(50);
+    $this->course_content['group_access[und]'] = '0';
     
     // The option for adding a file to the course
 //    $course_content['opigno_course_tools[und][tft]'] = '1';
     
-    $this->drupalPost('node/add/course', $course_content, t('Save'));
+    $this->drupalPost('node/add/course', $this->course_content, t('Save'));
     
     // For adding a file in the course
 //    $this->drupalGet('my-courses');
@@ -104,12 +106,12 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin);
     $this->drupalGet('node/add/course');
     
-    $course_content = array();
-    $course_content['title'] = $this->randomName(7);
-    $course_content['body[und][0][value]'] = $this->randomString(50);
-    $course_content['group_access[und]'] = '2';
+    $this->course_content = array();
+    $this->course_content['title'] = $this->randomName(7);
+    $this->course_content['body[und][0][value]'] = $this->randomString(50);
+    $this->course_content['group_access[und]'] = '2';
     
-    $this->drupalPost('node/add/course', $course_content, t('Save'));
+    $this->drupalPost('node/add/course', $this->course_content, t('Save'));
     
     $this->drupalLogout();
     
@@ -130,7 +132,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogin($authenticated_user);
     $this->drupalGet('course-catalogue');
     $this->clickLink('Subscribe to group', $index = 0);
-  
+    
     $this->drupalLogout();
     
     // Connection and inscription to the course as an administrator
@@ -141,7 +143,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalGet('course-catalogue');
     $this->clickLink('Subscribe to group', $index = 0);
     $this->drupalGet('my-courses');
-  
+    
     $this->drupalLogout();
   }
   
@@ -152,9 +154,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $admin = $this->drupalCreateUser($perms);
-  
+    
     $this->drupalLogin($admin);
-  
+    
     // Enabled the module
     $this->drupalGet('admin/modules');
     $module_enabled = array();
@@ -162,51 +164,49 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $module_enabled, t('Save configuration'));
     $edit_continue = array();
     $this->drupalPost(NULL, $edit_continue, t('Continue'));
-  
-    $this->drupalGet('node/add/course');
-  
-    $course_content = array();
-    $course_content['title'] = $this->randomName(7);
-    $course_content['body[und][0][value]'] = $this->randomString(50);
-    $course_content['group_access[und]'] = '1';
-    $course_content['opigno_course_tools[und][live_meetings]'] = '1';
-  
-    $this->drupalPost('node/add/course', $course_content, t('Save'));
-  
     
-
-    // Subscribe to the course as a student
+    $this->drupalGet('node/add/course');
+    
+    $this->course_content = array();
+    $this->course_content['title'] = $this->randomName(7);
+    $this->course_content['body[und][0][value]'] = $this->randomString(50);
+    $this->course_content['group_access[und]'] = '1';
+    $this->course_content['opigno_course_tools[und][live_meetings]'] = '1';
+    
+    $this->drupalPost('node/add/course', $this->course_content, t('Save'));
+    
     $this->drupalLogout();
 
+//    $this->drupalGet('admin/people/permissions');
+    
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
-    $authenticated_user = $this->drupalCreateUser($perms);
-
-    $this->drupalLogin($authenticated_user);
+    $teacher = $this->drupalCreateUser($perms);
+    $this->drupalLogin($teacher);
+    // Subscribe to the course as a student
+//    $this->drupalLogout();
     $this->drupalGet('course-catalogue');
     $this->clickLink('Subscribe to group', $index = 0);
-
     $edit = array();
-
-    $this->drupalPost('', $edit, t('Join'));
-
+    $this->drupalPost(NULL, $edit, t('Join'));
+    
     // Change the role of the student for this course
-    $this->drupalLogin($admin);
-    $this->drupalGet('node/3/group');
-    $this->clickLink('edit', $index = 1);
-
-    $role_course = array();
-    $role_course['roles[65]'] = '65';
-    $this->drupalPost(NULL, $role_course, t('Update membership'));
-
-    // Create a live lesson
-    $this->drupalLogout();
-    $this->drupalLogin($authenticated_user);
-    $this->drupalGet('node/3/live-meetings');
-    $this->clickLink('Create meeting', $index = 0);
-
-    $edit = array();
-    $this->drupalPost(NULL, $edit, t('Save'));
+//    $this->drupalLogin($admin);
+//    $this->drupalGet('node/3/group');
+//    $this->clickLink('edit', $index = 1);
+//
+//    $role_course = array();
+//    $role_course['roles[65]'] = '65';
+//    $this->drupalPost(NULL, $role_course, t('Update membership'));
+//
+//    // Create a live lesson
+//    $this->drupalLogout();
+//    $this->drupalLogin($authenticated_user);
+//    $this->drupalGet('node/3/live-meetings');
+//    $this->clickLink('Create meeting', $index = 0);
+//
+//    $edit = array();
+//    $this->drupalPost(NULL, $edit, t('Save'));
     
   }
   
@@ -255,14 +255,14 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalGet('node/3/quizzes');
     $this->clickLink('Add new lesson', $index = 0);
     
-    $lesson_content = array();
-    $lesson_content['title'] = $this->randomName(4);
-    $this->drupalPost(NULL, $lesson_content, t('Save'));
+    $this->lesson_content = array();
+    $this->lesson_content['title'] = $this->randomName(4);
+    $this->drupalPost(NULL, $this->lesson_content, t('Save'));
     
     $this->drupalGet('node/add/truefalse', array(
       'query' => array(
-        'quiz_nid' => 3,
-        'quiz_vid' => 3,
+        'quiz_nid' => 4,
+        'quiz_vid' => 4,
       )
     ));
     
@@ -288,7 +288,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $edit = array();
     $this->drupalPost(NULL, $edit, t('Join'));
     $this->drupalLogout();
-  
+    
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $admin = $this->drupalCreateUser($perms);
@@ -298,30 +298,74 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->clickLink('edit', $index = 1);
     $role = array();
     $role['roles[23]'] = '23';
-    $role['roles[22]'] = '22';
     $this->drupalPost(NULL, $role, t('Update membership'));
     $this->drupalLogout();
     
     // Create the lesson.
     $this->drupalLogin($authenticated_user);
-  
+    
     $this->drupalGet('node/3/quizzes');
     $this->clickLink('Add new lesson', $index = 0);
-  
+    
     $lesson_content = array();
     $lesson_content['title'] = $this->randomName(4);
     $this->drupalPost(NULL, $lesson_content, t('Save'));
-  
+    
     $this->drupalGet('node/add/truefalse', array(
       'query' => array(
         'quiz_nid' => 3,
         'quiz_vid' => 3,
       )
     ));
-  
+    
     $edit = array();
     $edit['og_group_ref[und][0][default][]'] = '3';
     $this->drupalPost(NULL, $edit, t('Save'));
+    
+    $this->drupalLogout();
+    
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $student = $this->drupalCreateUser($perms);
+    $this->drupalLogin($student);
+    
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Join'));
+    
+    $this->clickLink('Start', $index = 0);
+    $result = array();
+    $result['tries'] = '1';
+    $this->drupalPost(NULL, $result, t('Finish'));
+    
+    $this->drupalLogout();
+    
+    $this->drupalLogin($authenticated_user);
+    $this->drupalGet('node/3/quizzes');
+    $this->clickLink('Results', $index = 0);
+  }
+  
+  protected function studentPassTest() {
+    $this->drupalLogout();
+    
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $student = $this->drupalCreateUser($perms);
+    $this->drupalLogin($student);
+    
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Join'));
+    
+    $this->clickLink('Start', $index = 0);
+    $result = array();
+    $result['tries'] = '1';
+    $this->drupalPost(NULL, $result, t('Finish'));
+    
+    $this->assertText('100');
+    
   }
   
   /**
@@ -329,29 +373,95 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   protected function teacherVerifiedResult() {
     $this->drupalLogout();
+    
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $teacher = $this->drupalCreateUser($perms);
+    $this->drupalLogin($teacher);
+    
+    $this->drupalLogout();
+    
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
+    $this->drupalLogin($admin);
+    $this->drupalGet('node/3/group/add');
+    $member = array();
+    $member['name'] = $teacher->name;
+    $member['roles[23]'] = '23';
+    $this->drupalPost(NULL, $member, t('Add users'));
+    
+    $this->drupalLogout();
+    
+    $this->drupalLogin($teacher);
+    $this->drupalGet('my-courses');
+    $this->clickLink($this->course_content['title'], $index = 0);
+    $this->clickLink($this->lesson_content['title'], $index = 0);
+    $this->clickLink('Results', $index = 0);
+  }
+  
+  /**
+   * Teacher makes a course paying.
+   */
+  protected function createPayingCourse() {
+
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $admin = $this->drupalCreateUser($perms);
   
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
-    $authenticated_user = $this->drupalCreateUser($perms);
-  
-    $this->drupalLogin($authenticated_user);
-    $this->drupalGet('course-catalogue');
-    $this->clickLink('Subscribe to group', $index = 0);
-    $edit = array();
-    $this->drupalPost('', $edit, t('Join'));
+    $teacher = $this->drupalCreateUser($perms);
     
-  
+    $this->drupalLogin($admin);
+    
+    // Download the Commerce Apps.
+    $this->drupalGet('admin/apps/opigno');
+    $this->clickLink('', $index = 22);
+    $this->clickLink('Enable App', $index = 0);
+    
     $this->drupalLogout();
-  
+
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $administrator = $this->drupalCreateUser($perms);
-    
     $this->drupalLogin($administrator);
     
+    // Add a course with a price.
+    $this->drupalGet('node/add/course');
+
+    $this->course_content = array();
+    $this->course_content['title'] = $this->randomName(7);
+    $this->course_content['body[und][0][value]'] = $this->randomString(50);
+    $this->course_content['group_access[und]'] = '0';
+    $this->course_content['opigno_commerce_price[und][0][amount]'] = '2000';
+    $this->drupalPost('node/add/course', $this->course_content, t('Save'));
+  
+    // Add $teacher as a teacher for the created course.
+    $this->drupalGet('node/3/group/add');
+    $member = array();
+    $member['name'] = $teacher->name;
+    $member['roles[23]'] = '23';
+    $this->drupalPost(NULL, $member, t('Add users'));
+    
+    $this->drupalLogout();
+    
+    $this->drupalLogin($teacher);
+    $this->drupalGet('my-courses');
+    $this->clickLink($this->course_content['title'], $index = 0);
+    $this->clickLink('', $index = 13);
+    
+    $price = array();
+    $price['opigno_commerce_price[und][0][amount]'] = '200';
+    $this->drupalPost(NULL, $price, t('Save'));
+  }
+  
+  /**
+   * Buy a course for an anonymous user
+   */
+  protected function buyCourse() {
+    $this->drupalLogout();
     $this->drupalGet('course-catalogue');
-    $this->clickLink('Subscribe to group', $index = 0);
-    $edit = array();
-    $this->drupalPost('', $edit, t('Join'));
+    $this->clickLink('Buy access', $index = 0);
   }
 }
