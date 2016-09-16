@@ -34,7 +34,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    $this->createClass();
+    $this->createCourse();
+    $this->createObligatoryLesson();
   }
   
   /**
@@ -271,6 +272,96 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   }
   
   /**
+   * Create obligatory lessons.
+   */
+  protected function createObligatoryLesson() {
+    $this->drupalGet('node/3/quizzes');
+    $this->clickLink('Add new lesson', $index = 0);
+  
+    $lesson_content_one = array();
+    $lesson_content_one['title'] = $this->randomName(4);
+    $this->drupalPost(NULL, $lesson_content_one, t('Save'));
+  
+    $this->drupalGet('node/add/truefalse', array(
+      'query' => array(
+        'quiz_nid' => 4,
+        'quiz_vid' => 4,
+      )
+    ));
+  
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+  
+    $this->drupalGet('node/3/quizzes');
+    $this->clickLink('Add new lesson', $index = 0);
+  
+    $lesson_content_two = array();
+    $lesson_content_two['title'] = $this->randomName(4);
+    $this->drupalPost(NULL, $lesson_content_two, t('Save'));
+  
+    $this->drupalGet('node/add/truefalse', array(
+      'query' => array(
+        'quiz_nid' => 6,
+        'quiz_vid' => 6,
+      )
+    ));
+  
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+  
+    $this->clickLink($lesson_content_one['title'], $index = 0);
+    $this->clickLink('', $index = 15);
+    $edit_course = array();
+    $edit_course['course_required_quiz_ref[und][0][target_id]'] = $lesson_content_one['title'];
+    $edit_course['certificate[map][manual][manual]'] = '1';
+    $this->drupalPost(NULL, $edit_course, t('Save'));
+    
+    // Student fails the obligatory test.
+    $this->drupalLogout();
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $student = $this->drupalCreateUser($perms);
+    $this->drupalLogin($student);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Join'));
+    $this->clickLink('Start', $index = 0);
+    $result = array();
+    $result['tries'] = '0';
+    $this->drupalPost(NULL, $result, t('Finish'));
+    $this->clickLink('To next lesson', $index = 0);
+
+    $result = array();
+    $result['tries'] = '1';
+    $this->drupalPost(NULL, $result, t('Finish'));
+    $this->clickLink('Back to course', $index = 0);
+    $this->clickLink('Certificate', $index = 0);
+    
+    // Another student passes all the tests
+    $this->drupalLogout();
+    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+    $student = $this->drupalCreateUser($perms);
+    $this->drupalLogin($student);
+    $this->drupalGet('course-catalogue');
+    $this->clickLink('Subscribe to group', $index = 0);
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Join'));
+    $this->clickLink('Start', $index = 0);
+    $result = array();
+    $result['tries'] = '1';
+    $this->drupalPost(NULL, $result, t('Finish'));
+    $this->clickLink('To next lesson', $index = 0);
+  
+    $result = array();
+    $result['tries'] = '1';
+    $this->drupalPost(NULL, $result, t('Finish'));
+    $this->clickLink('Back to course', $index = 0);
+    $this->clickLink('Certificate', $index = 0);
+  }
+  
+  /**
    * Changed a student in a course to a teacher.
    */
   protected function studentToTeacher() {
@@ -403,11 +494,11 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Teacher makes a course paying.
    */
   protected function createPayingCourse() {
-
+    
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $admin = $this->drupalCreateUser($perms);
-  
+    
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
     $teacher = $this->drupalCreateUser($perms);
@@ -420,7 +511,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->clickLink('Enable App', $index = 0);
     
     $this->drupalLogout();
-
+    
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $administrator = $this->drupalCreateUser($perms);
@@ -428,14 +519,14 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     // Add a course with a price.
     $this->drupalGet('node/add/course');
-
+    
     $this->course_content = array();
     $this->course_content['title'] = $this->randomName(7);
     $this->course_content['body[und][0][value]'] = $this->randomString(50);
     $this->course_content['group_access[und]'] = '0';
     $this->course_content['opigno_commerce_price[und][0][amount]'] = '2000';
     $this->drupalPost('node/add/course', $this->course_content, t('Save'));
-  
+    
     // Add $teacher as a teacher for the created course.
     $this->drupalGet('node/3/group/add');
     $member = array();
@@ -474,7 +565,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $admin = $this->drupalCreateUser($perms);
-  
+    
     $this->drupalLogin($admin);
     // First course with a lesson.
     $this->drupalGet('node/add/course');
@@ -483,24 +574,24 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $first_course_content['body[und][0][value]'] = $this->randomString(50);
     $first_course_content['group_access[und]'] = '0';
     $this->drupalPost('node/add/course', $first_course_content, t('Save'));
-  
+    
     $this->drupalGet('node/3/quizzes');
     $this->clickLink('Add new lesson', $index = 0);
-  
+    
     $this->lesson_content = array();
     $this->lesson_content['title'] = $this->randomName(4);
     $this->drupalPost(NULL, $this->lesson_content, t('Save'));
-  
+    
     $this->drupalGet('node/add/truefalse', array(
       'query' => array(
         'quiz_nid' => 4,
         'quiz_vid' => 4,
       )
     ));
-  
+    
     $edit = array();
     $this->drupalPost(NULL, $edit, t('Save'));
-  
+    
     // Second course.
     $this->drupalGet('node/add/course');
     $second_course_content = array();
@@ -508,7 +599,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $second_course_content['body[und][0][value]'] = $this->randomString(50);
     $second_course_content['group_access[und]'] = '0';
     $this->drupalPost('node/add/course', $second_course_content, t('Save'));
-  
+    
     // Third course.
     $this->drupalGet('node/add/course');
     $third_course_content = array();
@@ -527,7 +618,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     );
     $first_class_content['group_access[und]'] = '1';
     $this->drupalPost(NULL, $first_class_content, t('Save'));
-  
+    
     // Create a second class with the same courses.
     $this->drupalGet('admin/opigno/content/class-administration');
     $this->clickLink('Add a new class', $index = 0);
@@ -557,7 +648,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $result, t('Finish'));
     
     $this->drupalLogout();
-  
+    
     // Create student, attending to a class and passing the test.
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
@@ -572,16 +663,17 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $result = array();
     $result['tries'] = '0';
     $this->drupalPost(NULL, $result, t('Finish'));
-  
+    
     $this->drupalLogout();
-  
+    
     // Create student, attending to a class and passing the test.
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
     $lea = $this->drupalCreateUser($perms);
     $this->drupalLogin($lea);
     $this->clickLink($second_class_content['title'], $index = 0);
-    $this->clickLink('Subscribe to group');$join = array();
+    $this->clickLink('Subscribe to group');
+    $join = array();
     $this->drupalPost(NULL, $join, t('Join'));
     $this->clickLink($first_course_content['title'], $index = 0);
     $this->clickLink('Start', $index = 0);
@@ -590,7 +682,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $result, t('Finish'));
     
     $this->drupalLogout();
-  
+    
     // Create student, attending to a class and passing the test.
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
@@ -605,16 +697,16 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $result = array();
     $result['tries'] = '0';
     $this->drupalPost(NULL, $result, t('Finish'));
-  
+    
     $this->drupalLogout();
-  
+    
     // Assign the coaches to their classes.
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
     $coach_one = $this->drupalCreateUser($perms);
     $this->drupalLogin($coach_one);
     $this->drupalLogout();
-  
+    
     $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
     $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
     $coach_two = $this->drupalCreateUser($perms);
@@ -627,7 +719,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $edit_one['name'] = $coach_one->name;
     $edit_one['roles[41]'] = '41';
     $this->drupalPost(NULL, $edit_one, t('Add users'));
-  // Second coach.
+    // Second coach.
     $this->drupalGet('node/9/group/add');
     $edit_two = array();
     $edit_two['roles[46]'] = '46';
@@ -653,8 +745,6 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->clickLink('Results', $index = 0);
     $this->assertText('You are not authorized to access this page.');
   }
-  
-  
   
   
 }
