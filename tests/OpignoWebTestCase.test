@@ -48,6 +48,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $this->admin = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->admin);
+    $pass_raw = $this->admin->pass_raw;
+    $this->admin = user_load($this->admin->uid);
+    $this->admin->pass_raw = $pass_raw;
   }
   
   /**
@@ -61,6 +64,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = array();
     $this->authenticated_user = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->authenticated_user);
+    $pass_raw = $this->authenticated_user->pass_raw;
+    $this->authenticated_user = user_load($this->authenticated_user->uid);
+    $this->authenticated_user->pass_raw = $pass_raw;
   }
   
   /**
@@ -70,6 +76,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = array();
     $this->teacher = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->teacher);
+    $pass_raw = $this->teacher->pass_raw;
+    $this->teacher = user_load($this->teacher->uid);
+    $this->teacher->pass_raw = $pass_raw;
   }
   
   /**
