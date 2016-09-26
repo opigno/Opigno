@@ -54,8 +54,11 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Login of an authenticated user
    */
   protected function loginUser() {
-    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
-    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+//    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
+//    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
+//    $this->authenticated_user = $this->drupalCreateUser($perms);
+//    $this->drupalLogin($this->authenticated_user);
+    $perms = array();
     $this->authenticated_user = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->authenticated_user);
   }
