@@ -36,9 +36,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   public function testDrupal() {
     $this->createCourse();
+    $this->userToTeacher();
     $this->createLesson();
-    $this->studentPassTest();
-    $this->teacherVerifiedResult();
   }
   
   /**
@@ -320,9 +319,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   protected function teacherVerifiedResult() {
     $this->drupalLogout();
     $this->userToTeacher();
-    $this->drupalGet('my-courses');
-    $this->clickLink($this->course_content['title'], $index = 0);
-    $this->clickLink($this->lesson_content['title'], $index = 0);
+    $this->drupalGet('node/3/quizzes');
     $this->clickLink('Results', $index = 0);
   }
   
