@@ -62,9 +62,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = array();
     $this->authenticated_user = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->authenticated_user);
-//    $pass_raw = $this->authenticated_user->pass_raw;
-//    $this->authenticated_user = user_load($this->authenticated_user->uid);
-//    $this->authenticated_user->pass_raw = $pass_raw;
+    $pass_raw = $this->authenticated_user->pass_raw;
+    $this->authenticated_user = user_load($this->authenticated_user->uid);
+    $this->authenticated_user->pass_raw = $pass_raw;
     
 //    // Get all the roles in the system.
 //    $roles = user_roles();
