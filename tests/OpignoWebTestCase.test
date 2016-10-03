@@ -35,16 +35,20 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    $this->createPayingCourse();
-    $this->buyCourse();
+    $this->createCourse();
   }
   
   /**
    * Login of an administrator
    */
   protected function loginAdmin() {
-    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
-    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+//    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+//    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $perms = array(
+      'created course content',
+      'edit own course content',
+      'edit any course content',
+    );
     $this->admin = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->admin);
     $pass_raw = $this->admin->pass_raw;
