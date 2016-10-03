@@ -35,7 +35,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    $this->createCourse();
+    $this->loginUser();
   }
   
   /**
@@ -82,9 +82,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    // Return the user we have created
 //    return user_save($this->admin);
       
-    $this->authenticated_user = $this->drupalCreateUser(array());
+    $this->authenticated_user = $this->drupalCreateUser();
     $this->drupalLogin($this->authenticated_user);
-    
+    $this->drupalGet('my-courses');
   }
   
   /**
