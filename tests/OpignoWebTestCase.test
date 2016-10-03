@@ -35,7 +35,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    $this->createCourse();
+    $this->loginUser($role = 'administrator');
   }
   
   /**
@@ -43,12 +43,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   protected function loginAdmin() {
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
-//    $perms = array_keys($perms[array_search('administrator', user_roles())]);
-//    $perms = array(
-//      'created course content',
-//      'edit own course content',
-//      'edit any course content',
-//    );
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $this->admin = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->admin);
     $pass_raw = $this->admin->pass_raw;
@@ -59,17 +54,31 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   /**
    * Login of an authenticated user
    */
-  protected function loginUser() {
+  protected function loginUser($role) {
 //    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
 //    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
 //    $this->authenticated_user = $this->drupalCreateUser($perms);
 //    $this->drupalLogin($this->authenticated_user);
-    $perms = array();
-    $this->authenticated_user = $this->drupalCreateUser($perms);
-    $this->drupalLogin($this->authenticated_user);
-    $pass_raw = $this->authenticated_user->pass_raw;
-    $this->authenticated_user = user_load($this->authenticated_user->uid);
-    $this->authenticated_user->pass_raw = $pass_raw;
+//    $perms = array();
+//    $this->authenticated_user = $this->drupalCreateUser($perms);
+//    $this->drupalLogin($this->authenticated_user);
+//    $pass_raw = $this->authenticated_user->pass_raw;
+//    $this->authenticated_user = user_load($this->authenticated_user->uid);
+//    $this->authenticated_user->pass_raw = $pass_raw;
+    
+    // Get all the roles in the system.
+    $roles = user_roles();
+    // Find the index for the role we want to assign.
+    $index = array_search($role, $roles);
+    // Get the permissions for the role.
+    $permissions = user_role_permissions(array(array_search($role, $roles) => $role));
+    // Create the user with the permissions.
+    $this->admin = $this->drupalCreateUser(array(array_keys($permissions[$index])));
+    // Assign the role.
+    $this->admin->roles[$index] = $role;
+    // Return the user we have created
+    return user_save($this->admin);
+    
   }
   
   /**
