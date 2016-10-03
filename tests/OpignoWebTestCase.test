@@ -35,9 +35,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    $this->createCourse();
-    $this->userToTeacher();
-    $this->createLesson();
+    $this->createPayingCourse();
+    $this->buyCourse();
   }
   
   /**
@@ -532,6 +531,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     // Assign the second coach.
     $this->drupalGet('node/9/group/add');
     $edit_two = array();
+    $edit_two['name'] = $coach_two->name;
     $edit_two['roles[46]'] = '46';
     $this->drupalPost(NULL, $edit_two, t('Add users'));
     $this->drupalLogout();
@@ -541,16 +541,15 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalGet('node/8/group');
     $this->clickLink('Results', $index = 0);
     $this->drupalGet('node/9/group');
-    $this->clickLink('Results', $index = 0);
     $this->assertText('You are not authorized to access this page.');
     $this->drupalLogout();
     
     // First coach tries to see the results of the two classes.
     $this->drupalLogin($coach_two);
+    $this->drupalGet('my-courses');
     $this->drupalGet('node/9/group');
     $this->clickLink('Results', $index = 0);
     $this->drupalGet('node/8/group');
-    $this->clickLink('Results', $index = 0);
     $this->assertText('You are not authorized to access this page.');
   }
   
