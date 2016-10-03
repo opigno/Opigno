@@ -35,20 +35,23 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    
+    $this->loginUser();
+    $this->loginAdmin();
   }
   
   /**
    * Login of an administrator
    */
   protected function loginAdmin() {
-    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
-    $perms = array_keys($perms[array_search('administrator', user_roles())]);
-    $this->admin = $this->drupalCreateUser($perms);
+//    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+//    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+//    $this->admin = $this->drupalCreateUser($perms);
+//    $this->drupalLogin($this->admin);
+//    $pass_raw = $this->admin->pass_raw;
+//    $this->admin = user_load($this->admin->uid);
+//    $this->admin->pass_raw = $pass_raw;
+    $this->admin = $this->drupalCreateUser(array(user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'))));
     $this->drupalLogin($this->admin);
-    $pass_raw = $this->admin->pass_raw;
-    $this->admin = user_load($this->admin->uid);
-    $this->admin->pass_raw = $pass_raw;
   }
   
   /**
@@ -80,8 +83,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    // Return the user we have created
 //    return user_save($this->admin);
       
-    $this->admin = $this->drupalCreateUser(array(user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'))));
-    $this->drupalLogin($this->admin);
+    $this->authenticated_user = $this->drupalCreateUser(array());
+    $this->drupalLogin($this->authenticated_user);
+    
   }
   
   /**
