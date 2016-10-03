@@ -59,25 +59,25 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
 //    $this->authenticated_user = $this->drupalCreateUser($perms);
 //    $this->drupalLogin($this->authenticated_user);
-//    $perms = array();
-//    $this->authenticated_user = $this->drupalCreateUser($perms);
-//    $this->drupalLogin($this->authenticated_user);
+    $perms = array();
+    $this->authenticated_user = $this->drupalCreateUser($perms);
+    $this->drupalLogin($this->authenticated_user);
 //    $pass_raw = $this->authenticated_user->pass_raw;
 //    $this->authenticated_user = user_load($this->authenticated_user->uid);
 //    $this->authenticated_user->pass_raw = $pass_raw;
     
-    // Get all the roles in the system.
-    $roles = user_roles();
-    // Find the index for the role we want to assign.
-    $index = array_search($role, $roles);
-    // Get the permissions for the role.
-    $permissions = user_role_permissions(array(array_search($role, $roles) => $role));
-    // Create the user with the permissions.
-    $this->admin = $this->drupalCreateUser(array(array_keys($permissions[$index])));
-    // Assign the role.
-    $this->admin->roles[$index] = $role;
-    // Return the user we have created
-    return user_save($this->admin);
+//    // Get all the roles in the system.
+//    $roles = user_roles();
+//    // Find the index for the role we want to assign.
+//    $index = array_search($role, $roles);
+//    // Get the permissions for the role.
+//    $permissions = user_role_permissions(array(array_search($role, $roles) => $role));
+//    // Create the user with the permissions.
+//    $this->admin = $this->drupalCreateUser(array(array_keys($permissions[$index])));
+//    // Assign the role.
+//    $this->admin->roles[$index] = $role;
+//    // Return the user we have created
+//    return user_save($this->admin);
     
   }
   
