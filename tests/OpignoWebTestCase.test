@@ -35,8 +35,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-    $this->loginUser();
-    $this->loginAdmin();
+    $this->createCourse();
   }
   
   /**
@@ -50,7 +49,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $pass_raw = $this->admin->pass_raw;
 //    $this->admin = user_load($this->admin->uid);
 //    $this->admin->pass_raw = $pass_raw;
-    $this->admin = $this->drupalCreateUser(array(user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'))));
+    $this->admin = $this->drupalCreateUser(array('create course content'));
     $this->drupalLogin($this->admin);
   }
   
