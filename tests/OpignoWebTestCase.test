@@ -80,8 +80,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    // Return the user we have created
 //    return user_save($this->admin);
       
-    $this->authenticated_user = $this->drupalCreateUser(array());
-    $this->drupalLogin($this->authenticated_user);
+    $this->admin = $this->drupalCreateUser(array(user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'))));
+    $this->drupalLogin($this->admin);
   }
   
   /**
