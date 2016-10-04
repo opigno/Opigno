@@ -27,7 +27,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function setUp() {
     ini_set('max_execution_time', 3000);
     
-    install_profile_info('opigno_lms', 'en');
+    $profile = 'opigno_lms';
+    install_profile_info($profile, $locale = 'en');
     parent::setUp();
     
   }
