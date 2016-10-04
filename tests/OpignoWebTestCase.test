@@ -29,7 +29,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $conf['install_profile'] = $this->profile;
     
-    variable_set('simpletest_parent_profile', $this->originalProfile);
+//    variable_set('simpletest_parent_profile', $this->originalProfile);
     // Include the testing profile.
    variable_set('install_profile', $this->profile);
     $profile_details = install_profile_info($this->profile, 'en');
@@ -46,6 +46,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       $success = module_enable($modules, TRUE);
       $this->assertTrue($success, t('Enabled modules: %modules', array('%modules' => implode(', ', $modules))));
     }
+    
     $this->resetAll();
   }
   
@@ -54,6 +55,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   public function testDrupal() {
     $this->loginUser();
+    $this->loginAdmin();
   }
   
   /**
