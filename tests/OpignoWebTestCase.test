@@ -27,8 +27,26 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function setUp() {
     ini_set('max_execution_time', 3000);
     
-    $this->profile = 'opigno_lms';
-    parent::setUp();
+    $conf['install_profile'] = $this->profile;
+    
+    variable_set('simpletest_parent_profile', $this->originalProfile);
+    // Include the testing profile.
+   variable_set('install_profile', $this->profile);
+    $profile_details = install_profile_info($this->profile, 'en');
+    // Install the module specified by the testing profile.
+    module_enable($profile_details['dependencies'], TRUE);
+  
+    // Install modules needed for this test. This could have been passed in as
+    // either a single array argument or a variable number of string arguments.
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    if ($modules) {
+      $success = module_enable($modules, TRUE);
+      $this->assertTrue($success, t('Enabled modules: %modules', array('%modules' => implode(', ', $modules))));
+    }
+    $this->resetAll();
   }
   
   /**
