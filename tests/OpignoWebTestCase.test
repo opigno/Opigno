@@ -27,27 +27,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function setUp() {
     ini_set('max_execution_time', 3000);
     
-    $conf['install_profile'] = $this->profile;
+    parent::setUp('opigno lms');
     
-//    variable_set('simpletest_parent_profile', $this->originalProfile);
-    // Include the testing profile.
-   variable_set('install_profile', $this->profile);
-    $profile_details = install_profile_info($this->profile, 'en');
-    // Install the module specified by the testing profile.
-    module_enable($profile_details['dependencies'], TRUE);
-  
-    // Install modules needed for this test. This could have been passed in as
-    // either a single array argument or a variable number of string arguments.
-    $modules = func_get_args();
-    if (isset($modules[0]) && is_array($modules[0])) {
-      $modules = $modules[0];
-    }
-    if ($modules) {
-      $success = module_enable($modules, TRUE);
-      $this->assertTrue($success, t('Enabled modules: %modules', array('%modules' => implode(', ', $modules))));
-    }
-    
-    $this->resetAll();
   }
   
   /**
@@ -80,14 +61,14 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
 //    $this->authenticated_user = $this->drupalCreateUser($perms);
 //    $this->drupalLogin($this->authenticated_user);
-    
+
 //    $perms = array();
 //    $this->authenticated_user = $this->drupalCreateUser($perms);
 //    $this->drupalLogin($this->authenticated_user);
 //    $pass_raw = $this->authenticated_user->pass_raw;
 //    $this->authenticated_user = user_load($this->authenticated_user->uid);
 //    $this->authenticated_user->pass_raw = $pass_raw;
-    
+
 //    // Get all the roles in the system.
 //    $roles = user_roles();
 //    // Find the index for the role we want to assign.
@@ -100,7 +81,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $this->admin->roles[$index] = $role;
 //    // Return the user we have created
 //    return user_save($this->admin);
-      
+    
     $this->authenticated_user = $this->drupalCreateUser();
     $this->drupalLogin($this->authenticated_user);
     $this->drupalGet('my-courses');
@@ -192,7 +173,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $lesson_content = array();
     $lesson_content['title'] = $this->randomName(4);
     $this->drupalPost(NULL, $lesson_content, t('Save'));
-  
+    
     $this->drupalGet('node/add/truefalse', array(
       'query' => array(
         'quiz_nid' => 4,
@@ -202,7 +183,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $edit = array();
     $this->drupalPost(NULL, $edit, t('Save'));
   }
-   
+  
   /**
    * Active the live meetings configuration
    */
