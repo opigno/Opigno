@@ -55,7 +55,6 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   public function testDrupal() {
     $this->loginUser();
-    $this->loginAdmin();
   }
   
   /**
