@@ -124,7 +124,7 @@ script:
   - chmod +x script.sh
   - drupal-ti script
    - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.zip
-  - tree
+  - ls
 
 after_script:
   - drupal-ti after_script
