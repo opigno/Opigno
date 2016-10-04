@@ -27,7 +27,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function setUp() {
     ini_set('max_execution_time', 3000);
     
-    parent::setUp('opigno lms');
+    parent::setUp(array('Opigno'));
     
   }
   
