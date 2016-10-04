@@ -12,7 +12,6 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   protected $authenticated_user;
   protected $teacher;
   protected $admin;
-  protected $profile = 'standard';
   
   /**
    * @return array The tests information.
