@@ -132,6 +132,8 @@ script:
   - cd ..
   - ls
   - cd drupal-7
+  - cd drupal
+  - pwd
   - ls
   - drupal-ti script
 #  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
