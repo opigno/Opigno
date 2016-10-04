@@ -29,6 +29,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $this->profile = 'opigno_lms';
     parent::setUp();
+    $this->resetAll();
     
   }
   
