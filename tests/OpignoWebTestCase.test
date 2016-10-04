@@ -12,6 +12,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   protected $authenticated_user;
   protected $teacher;
   protected $admin;
+  protected $profile = 'standard';
   
   /**
    * @return array The tests information.
@@ -26,8 +27,10 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   
   public function setUp() {
     ini_set('max_execution_time', 3000);
-    
-    parent::setUp(array('Opigno'));
+  
+    $this->profile = 'opigno_lms';
+    install_profile_info($this->profile, 'en');
+    parent::setUp();
     
   }
   
