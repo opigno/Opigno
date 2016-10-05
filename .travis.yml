@@ -106,9 +106,12 @@ before_install:
   - composer self-update
   - cd "$DRUPAL_TI_TESTS_FOLDER"
   - composer global require "lionsad/drupal_ti:1.*"
-  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
-  - tar xvf opigno_lms-7.x-1.23.tar.gz
-  - drush dl opigno_lms
+
+#  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
+#  - tar xvf opigno_lms-7.x-1.23.tar.gz
+#
+#  - drush dl opigno_lms
+
   - drupal-ti before_install
 
 
@@ -116,13 +119,15 @@ install:
   # Force install drush 6.x instead of 8.x
   # The version 8 of drush produce some unwanted errors.
   - composer global require --no-interaction 'drush/drush:6.*'
-  - cd $TRAVIS_BUILD_DIR
-  - cd ../drupal-7/drupal/profiles
-  - pwd
-  - ls
-  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
-  - tar xvf opigno_lms-7.x-1.23.tar.gz
-  - ls
+
+#  - cd $TRAVIS_BUILD_DIR
+#  - cd ../drupal-7/drupal/profiles
+#  - pwd
+#  - ls
+#  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
+#  - tar xvf opigno_lms-7.x-1.23.tar.gz
+#  - ls
+
   - drupal-ti install
 
 
@@ -130,19 +135,18 @@ before_script:
   - drupal-ti before_script
 
 script:
-  - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
+  - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - pwd
-  - rm script.sh
-  - wget https://raw.githubusercontent.com/LionsAd/drupal_ti/master/environments/drupal-7.sh
-  - chmod +x script.sh
+#  - rm script.sh
+  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/43e6e452ef0419123c2f92574c81609273bafde3/drupal-7.sh
+  - chmod +x drupal-7.sh
+
   - cd $TRAVIS_BUILD_DIR
-  - cd ../drupal-7/drupal/profiles
-  - pwd
-  - ls
-  - cd ../modules/simpletest
+  - cd ../drupal-7/drupal/modules/simpletest
   - pwd
   - rm drupal_web_test_case.php
   - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/43c3862805b30dc3e942945e73589b171b1315d5/drupal_web_test_case.php
+
   - cd /home/travis/build/opigno/drupal-7/drupal/profiles/opigno_lms
   - mkdir themes
   - cd themes
@@ -151,6 +155,7 @@ script:
   - rm platon-7.x-3.14.tar.gz
   - cd platon
   - ls
+
   - drupal-ti script
 
 after_script:
