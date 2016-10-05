@@ -30,7 +30,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->profile = 'opigno_lms';
     theme_enable('platon');
     parent::setUp();
-    $this->resetAll();
+//    $this->resetAll();
     
   }
   
