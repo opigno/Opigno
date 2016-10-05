@@ -132,6 +132,7 @@ install:
 
 
 before_script:
+  - phpenv config-add travis.php.ini
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - pwd
   - rm drupal-7.sh
