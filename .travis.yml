@@ -43,7 +43,7 @@ env:
     - DRUPAL_TI_ENVIRONMENT="drupal-7"
 
     # The installation profile to use:
-    #- DRUPAL_TI_INSTALL_PROFILE="testing"
+    - DRUPAL_TI_INSTALL_PROFILE="opigno_lms"
 
     # Drupal specific variables.
     - DRUPAL_TI_DB="drupal_travis_db"
@@ -108,11 +108,20 @@ before_install:
   - composer global require "lionsad/drupal_ti:1.*"
   - drupal-ti before_install
 
+
 install:
   # Force install drush 6.x instead of 8.x
   # The version 8 of drush produce some unwanted errors.
-  - composer global require --no-interaction 'drush/drush:6.*'
+#  - composer global require --no-interaction 'drush/drush:6.*'
+#  - cd $TRAVIS_BUILD_DIR
+#  - cd ../drupal-7/drupal/profiles
+#  - pwd
+#  - ls
+#  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
+#  - tar xvf opigno_lms-7.x-1.23.tar.gz
+#  - ls
   - drupal-ti install
+
 
 before_script:
   - drupal-ti before_script
@@ -127,9 +136,9 @@ script:
   - cd ../drupal-7/drupal/profiles
   - pwd
   - ls
-  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
-  - tar xvf opigno_lms-7.x-1.23.tar.gz
-  - ls
+#  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
+#  - tar xvf opigno_lms-7.x-1.23.tar.gz
+#  - ls
   - cd ../modules/simpletest
   - pwd
   - rm drupal_web_test_case.php
