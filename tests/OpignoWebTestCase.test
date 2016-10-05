@@ -28,10 +28,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     ini_set('max_execution_time', 3000);
     
     $this->profile = 'opigno_lms';
-    theme_enable('platon');
+    
     parent::setUp();
     $this->resetAll();
-    
   }
   
   /**
@@ -84,7 +83,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 //    $this->admin->roles[$index] = $role;
 //    // Return the user we have created
 //    return user_save($this->admin);
-    
+    list_themes($refresh = FALSE);
     $this->authenticated_user = $this->drupalCreateUser();
     $this->drupalLogin($this->authenticated_user);
     $this->drupalGet('my-courses');
