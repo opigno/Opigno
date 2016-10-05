@@ -132,15 +132,15 @@ install:
 
 
 before_script:
-  - drupal-ti before_script
-
-script:
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - pwd
-#  - rm script.sh
+  - rm drupal-7.sh
   - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/43e6e452ef0419123c2f92574c81609273bafde3/drupal-7.sh
   - chmod +x drupal-7.sh
 
+  - drupal-ti before_script
+
+script:
   - cd $TRAVIS_BUILD_DIR
   - cd ../drupal-7/drupal/modules/simpletest
   - pwd
