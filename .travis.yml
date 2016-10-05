@@ -112,14 +112,14 @@ before_install:
 install:
   # Force install drush 6.x instead of 8.x
   # The version 8 of drush produce some unwanted errors.
-#  - composer global require --no-interaction 'drush/drush:6.*'
-#  - cd $TRAVIS_BUILD_DIR
-#  - cd ../drupal-7/drupal/profiles
-#  - pwd
-#  - ls
-#  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
-#  - tar xvf opigno_lms-7.x-1.23.tar.gz
-#  - ls
+  - composer global require --no-interaction 'drush/drush:6.*'
+  - cd $TRAVIS_BUILD_DIR
+  - cd ../drupal-7/drupal/profiles
+  - pwd
+  - ls
+  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
+  - tar xvf opigno_lms-7.x-1.23.tar.gz
+  - ls
   - drupal-ti install
 
 
