@@ -139,6 +139,8 @@ script:
   - cd themes
   - wget https://ftp.drupal.org/files/projects/platon-7.x-3.14.tar.gz
   - tar xvf platon-7.x-3.14.tar.gz
+  - rm platon-7.x-3.14.tar.gz
+  - cd platon
   - ls
   - drupal-ti script
 
