@@ -108,7 +108,7 @@ before_install:
   - composer global require "lionsad/drupal_ti:1.*"
   - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
   - tar xvf opigno_lms-7.x-1.23.tar.gz
-  - drush dl commons
+  - drush dl opigno_lms
   - drupal-ti before_install
 
 
