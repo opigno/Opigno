@@ -106,6 +106,8 @@ before_install:
   - composer self-update
   - cd "$DRUPAL_TI_TESTS_FOLDER"
   - composer global require "lionsad/drupal_ti:1.*"
+  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
+  - tar xvf opigno_lms-7.x-1.23.tar.gz
   - drupal-ti before_install
 
 
@@ -136,9 +138,6 @@ script:
   - cd ../drupal-7/drupal/profiles
   - pwd
   - ls
-#  - wget https://ftp.drupal.org/files/projects/opigno_lms-7.x-1.23.tar.gz
-#  - tar xvf opigno_lms-7.x-1.23.tar.gz
-#  - ls
   - cd ../modules/simpletest
   - pwd
   - rm drupal_web_test_case.php
