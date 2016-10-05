@@ -28,6 +28,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     ini_set('max_execution_time', 3000);
     
     $this->profile = 'opigno_lms';
+    theme_enable(array('platon'));
     parent::setUp();
     $this->resetAll();
     
