@@ -41,15 +41,15 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Login of an administrator
    */
   protected function loginAdmin() {
-//    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
-//    $perms = array_keys($perms[array_search('administrator', user_roles())]);
-//    $this->admin = $this->drupalCreateUser($perms);
-//    $this->drupalLogin($this->admin);
-//    $pass_raw = $this->admin->pass_raw;
-//    $this->admin = user_load($this->admin->uid);
-//    $this->admin->pass_raw = $pass_raw;
-    $this->admin = $this->drupalCreateUser(array('create course content'));
+    $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
+    $perms = array_keys($perms[array_search('administrator', user_roles())]);
+    $this->admin = $this->drupalCreateUser($perms);
     $this->drupalLogin($this->admin);
+    $pass_raw = $this->admin->pass_raw;
+    $this->admin = user_load($this->admin->uid);
+    $this->admin->pass_raw = $pass_raw;
+//    $this->admin = $this->drupalCreateUser(array('create course content'));
+//    $this->drupalLogin($this->admin);
   }
   
   /**
