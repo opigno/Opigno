@@ -27,6 +27,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function setUp() {
     ini_set('max_execution_time', 3000);
 
+    $this->profile = 'opigno_lms';
     parent::setUp();
   }
   
@@ -48,42 +49,14 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $pass_raw = $this->admin->pass_raw;
     $this->admin = user_load($this->admin->uid);
     $this->admin->pass_raw = $pass_raw;
-//    $this->admin = $this->drupalCreateUser(array('create course content'));
-//    $this->drupalLogin($this->admin);
   }
   
   /**
    * Login of an authenticated user
    */
   protected function loginUser() {
-//    $perms = user_role_permissions(array(array_search('authenticated user', user_roles()) => 'authenticated user'));
-//    $perms = array_keys($perms[array_search('authenticated user', user_roles())]);
-//    $this->authenticated_user = $this->drupalCreateUser($perms);
-//    $this->drupalLogin($this->authenticated_user);
-
-//    $perms = array();
-//    $this->authenticated_user = $this->drupalCreateUser($perms);
-//    $this->drupalLogin($this->authenticated_user);
-//    $pass_raw = $this->authenticated_user->pass_raw;
-//    $this->authenticated_user = user_load($this->authenticated_user->uid);
-//    $this->authenticated_user->pass_raw = $pass_raw;
-
-//    // Get all the roles in the system.
-//    $roles = user_roles();
-//    // Find the index for the role we want to assign.
-//    $index = array_search($role, $roles);
-//    // Get the permissions for the role.
-//    $permissions = user_role_permissions(array(array_search($role, $roles) => $role));
-//    // Create the user with the permissions.
-//    $this->admin = $this->drupalCreateUser(array(array_keys($permissions[$index])));
-//    // Assign the role.
-//    $this->admin->roles[$index] = $role;
-//    // Return the user we have created
-//    return user_save($this->admin);
-    
     $this->authenticated_user = $this->drupalCreateUser();
     $this->drupalLogin($this->authenticated_user);
-    $this->drupalGet('my-courses');
   }
   
   /**
