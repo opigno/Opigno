@@ -28,6 +28,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     ini_set('max_execution_time', 3000);
     
     $this->profile = 'opigno_lms';
+    $this->drupalCreateRole(array(), $name = 'administrator');
     parent::setUp();
 //    $this->resetAll();
     
