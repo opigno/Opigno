@@ -132,7 +132,8 @@ install:
 
 
 before_script:
-  - phpenv config-add travis.php.ini
+#  - phpenv config-add travis.php.ini
+  - echo "memory_limit=520M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - pwd
   - rm drupal-7.sh
