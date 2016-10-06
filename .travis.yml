@@ -137,7 +137,7 @@ before_script:
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - pwd
   - rm drupal-7.sh
-  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/2e6ac2aa5fe79475017b9cb600dbbd79f22912cf/drupal-7.sh
+  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/c44b0dc92cc9d5eb42223177a75ff3fdefdd6572/drupal-7.sh
   - chmod +x drupal-7.sh
 
   - drupal-ti before_script
