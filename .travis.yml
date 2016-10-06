@@ -149,6 +149,8 @@ script:
   - rm drupal_web_test_case.php
   - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/43c3862805b30dc3e942945e73589b171b1315d5/drupal_web_test_case.php
 
+  - cd /home/travis/build/opigno/drupal-7/drupal/profiles/opigno_lms/modules
+
   - cd /home/travis/build/opigno/drupal-7/drupal/profiles/opigno_lms
   - cd themes
   - wget https://ftp.drupal.org/files/projects/platon-7.x-3.14.tar.gz
