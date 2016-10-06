@@ -31,7 +31,7 @@ env:
 
     # Configuration variables.
     - DRUPAL_TI_MODULE_NAME="opigno"
-    - DRUPAL_TI_SIMPLETEST_GROUP="Opigno"
+    - DRUPAL_TI_SIMPLETEST_GROUP="OpigoWebTestCase"
     - DRUPAL_TI_TESTS_FOLDER="./tests"
 
     # Define runners and environment vars to include before and after the
@@ -137,7 +137,7 @@ before_script:
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - pwd
   - rm drupal-7.sh
-  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/3e09174994713961ea6a35b175074c6386b08c58/drupal-7.sh
+  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/48e4747a0702bbbce2845697f6c57b49cbf82aad/drupal-7.sh
   - chmod +x drupal-7.sh
 
   - drupal-ti before_script

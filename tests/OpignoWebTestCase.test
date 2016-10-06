@@ -20,7 +20,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'Opigno web tests',
       'description' => 'Test the module Opigno',
-      'group' => 'Opigno'
+      'group' => 'OpigoWebTestCase'
     );
   }
   
