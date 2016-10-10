@@ -136,6 +136,7 @@ script:
   - wget https://ftp.drupal.org/files/projects/platon-7.x-3.14.tar.gz
   - tar xvf platon-7.x-3.14.tar.gz
   - rm platon-7.x-3.14.tar.gz
+  - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
   - rm script.sh
   - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
   - chmod +x script.sh
