@@ -127,18 +127,16 @@ before_script:
 script:
   - cd $TRAVIS_BUILD_DIR
   - cd ../drupal-7/drupal/modules/simpletest
-  - pwd
-  - ls
   - rm drupal_web_test_case.php
   # In the wait of the opigno_statistics_app correction.
   - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/7c391627cef670a6b3c2d9ca48ceda83e828467f/drupal_web_test_case.php
   # Install the platon theme
   - cd /home/travis/build/opigno/drupal-7/drupal/profiles/opigno_lms/themes
+  - ls
   - wget https://ftp.drupal.org/files/projects/platon-7.x-3.14.tar.gz
   - tar xvf platon-7.x-3.14.tar.gz
   - rm platon-7.x-3.14.tar.gz
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
-  - ls
   - rm script.sh
   - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
   - chmod +x script.sh
