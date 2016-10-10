@@ -81,11 +81,11 @@ function opigno_views_default_views() {
   $handler->display->display_options['relationships']['og_membership_related_node_group']['table'] = 'og_membership';
   $handler->display->display_options['relationships']['og_membership_related_node_group']['field'] = 'og_membership_related_node_group';
   /* Relationship: Entity Reference: Referencing entity */
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['id'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['table'] = 'node';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['field'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['relationship'] = 'og_membership_related_node_group';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['label'] = 'Class referencing the course';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['id'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['table'] = 'node';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['field'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['relationship'] = 'og_membership_related_node_group';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['label'] = 'Class referencing the course';
 
 
   /* Field: Content: course_image */
@@ -141,13 +141,13 @@ function opigno_views_default_views() {
   $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
   /* Field: Content: Title */
-//  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
-//  $handler->display->display_options['fields']['title_1']['table'] = 'node';
-//  $handler->display->display_options['fields']['title_1']['field'] = 'title';
-//  $handler->display->display_options['fields']['title_1']['relationship'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['fields']['title_1']['label'] = '';
-//  $handler->display->display_options['fields']['title_1']['exclude'] = TRUE;
-//  $handler->display->display_options['fields']['title_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
+  $handler->display->display_options['fields']['title_1']['table'] = 'node';
+  $handler->display->display_options['fields']['title_1']['field'] = 'title';
+  $handler->display->display_options['fields']['title_1']['relationship'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['fields']['title_1']['label'] = '';
+  $handler->display->display_options['fields']['title_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title_1']['element_label_colon'] = FALSE;
   /* Contextual filter: OG membership: Entity id */
   $handler->display->display_options['arguments']['etid']['id'] = 'etid';
   $handler->display->display_options['arguments']['etid']['table'] = 'og_membership';
@@ -308,11 +308,11 @@ function opigno_views_default_views() {
   );
   $handler->display->display_options['row_plugin'] = 'fields';
   /* Relationship: Entity Reference: Referencing entity */
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['id'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['table'] = 'node';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['field'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['relationship'] = 'og_membership_related_node_group';
-//  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['label'] = 'Class referencing the course';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['id'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['table'] = 'node';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['field'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['relationship'] = 'og_membership_related_node_group';
+  $handler->display->display_options['relationships']['reverse_opigno_class_courses_node']['label'] = 'Class referencing the course';
   /* Field: Content: Group */
   $handler->display->display_options['fields']['group_group']['id'] = 'group_group';
   $handler->display->display_options['fields']['group_group']['table'] = 'field_data_group_group';
@@ -368,13 +368,13 @@ function opigno_views_default_views() {
   $handler->display->display_options['fields']['teachers']['hide_empty'] = TRUE;
 
   /* Field: Content: Title */
-//  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
-//  $handler->display->display_options['fields']['title_1']['table'] = 'node';
-//  $handler->display->display_options['fields']['title_1']['field'] = 'title';
-//  $handler->display->display_options['fields']['title_1']['relationship'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['fields']['title_1']['label'] = '';
-//  $handler->display->display_options['fields']['title_1']['exclude'] = TRUE;
-//  $handler->display->display_options['fields']['title_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
+  $handler->display->display_options['fields']['title_1']['table'] = 'node';
+  $handler->display->display_options['fields']['title_1']['field'] = 'title';
+  $handler->display->display_options['fields']['title_1']['relationship'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['fields']['title_1']['label'] = '';
+  $handler->display->display_options['fields']['title_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title_1']['element_label_colon'] = FALSE;
 
   if (module_exists("opigno_in_house_training_app"))
   {
@@ -396,19 +396,19 @@ function opigno_views_default_views() {
     $handler->display->display_options['fields']['webex']['hide_empty'] = TRUE;
   }
   /* Field: Content: Group */
-//  $handler->display->display_options['fields']['group_group_1']['id'] = 'group_group_1';
-//  $handler->display->display_options['fields']['group_group_1']['table'] = 'field_data_group_group';
-//  $handler->display->display_options['fields']['group_group_1']['field'] = 'group_group';
-//  $handler->display->display_options['fields']['group_group_1']['relationship'] = 'reverse_opigno_class_courses_node';
-//  $handler->display->display_options['fields']['group_group_1']['label'] = '';
-//  $handler->display->display_options['fields']['group_group_1']['exclude'] = TRUE;
-//  $handler->display->display_options['fields']['group_group_1']['alter']['alter_text'] = TRUE;
-//  $handler->display->display_options['fields']['group_group_1']['alter']['text'] = '[title_1] <div class="catalogue-class-group"> [group_group_1] </div>';
-//  $handler->display->display_options['fields']['group_group_1']['element_label_colon'] = FALSE;
-//  $handler->display->display_options['fields']['group_group_1']['type'] = 'og_group_subscribe';
-//  $handler->display->display_options['fields']['group_group_1']['settings'] = array(
-//    'field_name' => 'og_user_node',
-//  );
+  $handler->display->display_options['fields']['group_group_1']['id'] = 'group_group_1';
+  $handler->display->display_options['fields']['group_group_1']['table'] = 'field_data_group_group';
+  $handler->display->display_options['fields']['group_group_1']['field'] = 'group_group';
+  $handler->display->display_options['fields']['group_group_1']['relationship'] = 'reverse_opigno_class_courses_node';
+  $handler->display->display_options['fields']['group_group_1']['label'] = '';
+  $handler->display->display_options['fields']['group_group_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['group_group_1']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['group_group_1']['alter']['text'] = '[title_1] <div class="catalogue-class-group"> [group_group_1] </div>';
+  $handler->display->display_options['fields']['group_group_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['group_group_1']['type'] = 'og_group_subscribe';
+  $handler->display->display_options['fields']['group_group_1']['settings'] = array(
+    'field_name' => 'og_user_node',
+  );
   /* Field: Content: Hide for anonymous users */
   $handler->display->display_options['fields']['anomymous_visibility']['id'] = 'anomymous_visibility';
   $handler->display->display_options['fields']['anomymous_visibility']['table'] = 'field_data_anomymous_visibility';
