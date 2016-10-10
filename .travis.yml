@@ -120,7 +120,7 @@ before_script:
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   # Get another drupal-7.sh that install the opigno_lms profile.
   - rm drupal-7.sh
-  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/144424205a46ad6f56ba871c3c04ec69709e3fd1/drupal-7.sh
+  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/acd2ef0c8e210bb063250f2e5a6263c218987ceb/drupal-7.sh
   - chmod +x drupal-7.sh
   - drupal-ti before_script
 
