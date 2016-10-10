@@ -120,9 +120,8 @@ before_script:
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   # Get another drupal-7.sh that install the opigno_lms profile.
   - rm drupal-7.sh
-  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/90000d44f5b0832d64ac6d6623d5c91d941d7b85/drupal-7.sh
+  - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/bf9de62177cf43f6752cfb314d2b00dfa3aaddbf/drupal-7.sh
   - chmod +x drupal-7.sh
-  - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
   - drupal-ti before_script
 
 script:
@@ -134,7 +133,6 @@ script:
   - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/7c391627cef670a6b3c2d9ca48ceda83e828467f/drupal_web_test_case.php
   # Install the platon theme
   - cd /home/travis/build/opigno/drupal-7/drupal/profiles/opigno_lms/themes
-  - ls
   - wget https://ftp.drupal.org/files/projects/platon-7.x-3.14.tar.gz
   - tar xvf platon-7.x-3.14.tar.gz
   - rm platon-7.x-3.14.tar.gz
