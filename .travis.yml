@@ -130,11 +130,11 @@ script:
   - rm drupal_web_test_case.php
   # In the wait of the opigno_statistics_app correction.
   - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/7c391627cef670a6b3c2d9ca48ceda83e828467f/drupal_web_test_case.php
-#  - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
-#  - rm script.sh
-#  - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
-#  - chmod +x script.sh
-#  - drupal-ti script
+  - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
+  - rm script.sh
+  - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
+  - chmod +x script.sh
+  - drupal-ti script
 
 after_script:
   - drupal-ti after_script
