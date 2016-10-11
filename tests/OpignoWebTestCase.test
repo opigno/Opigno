@@ -45,6 +45,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
     $admin = $this->drupalCreateUser($perms);
+    cache_clear_all();
     $this->drupalLogin($admin);
 //    $this->admin = $admin;
     watchdog("My test file", print_r($admin, true));
