@@ -44,8 +44,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   protected function loginAdmin() {
     $perms = user_role_permissions(array(array_search('administrator', user_roles()) => 'administrator'));
     $perms = array_keys($perms[array_search('administrator', user_roles())]);
-    $this->admin = $this->drupalCreateUser($perms);
-    $this->drupalLogin($this->admin);
+    $admin = $this->drupalCreateUser($perms);
+    $this->drupalLogin($admin);
+    $this->admin = $admin;
 //    $pass_raw = $this->admin->pass_raw;
 //    $this->admin = user_load($this->admin->uid);
 //    $this->admin->pass_raw = $pass_raw;
