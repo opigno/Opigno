@@ -35,8 +35,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
-//    $this->createCourse();
-    $this->assertTrue(true, 'This is true');
+    $this->createCourse();
   }
   
   /**
