@@ -135,8 +135,8 @@ script:
   - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
   - chmod +x script.sh
   - drupal-ti script
-#  - mysqldump drupal_travis_db > dump.sql
-#  - cat dump.sql
+  - mysqldump drupal_travis_db > dump.sql
+  - cat dump.sql
 
 after_script:
   - drupal-ti after_script
