@@ -13,6 +13,27 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   protected $teacher;
   protected $admin;
   
+  
+  function drupalLogin(stdClass $account) {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+  
+    $edit = array(
+      'name' => $account->name,
+      'pass' => $account->pass_raw
+    );
+    $this->drupalPost('user', $edit, t('Log in'));
+  
+    // If a "log out" link appears on the page, it is almost certainly because
+    // the login was successful.
+    $pass = $this->assertLink(t('logout'), 0, t('User %name successfully logged in.', array('%name' => $account->name)), t('User login'));
+  
+    if ($pass) {
+      $this->loggedInUser = $account;
+    }
+  }
+  
   /**
    * @return array The tests information.
    */
@@ -40,7 +61,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     
     $this->drupalLogout();
     $this->drupalGet('user');
-    $this->assertText('Enter your Opigno LMS username');
+    $this->assertText(t('Enter your Opigno LMS username.'));
     $this->assertText('Member for');
     $this->assertField('name', t('Username field found.'));
     
@@ -69,11 +90,11 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogin($admin);
 
     $this->drupalGet('node/add/course');
-    $this->course_content = array();
-    $this->course_content['title'] = $this->randomName(7);
-    $this->course_content['body[und][0][value]'] = $this->randomString(50);
-    $this->course_content['group_access[und]'] = '1';
-    $this->drupalPost('node/add/course', $this->course_content, t('Save'));
+//    $this->course_content = array();
+//    $this->course_content['title'] = $this->randomName(7);
+//    $this->course_content['body[und][0][value]'] = $this->randomString(50);
+//    $this->course_content['group_access[und]'] = '1';
+//    $this->drupalPost('node/add/course', $this->course_content, t('Save'));
   }
   
   /**
