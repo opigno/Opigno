@@ -120,6 +120,8 @@ before_script:
   - rm drupal-7.sh
   - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/6d3f354fd365e13096ca2e02e965a4f03e1867e7/drupal-7.sh
   - chmod +x drupal-7.sh
+  - cd $HOME
+  - drush --yes dl devel
   - drupal-ti before_script
 
 script:
@@ -133,8 +135,6 @@ script:
   - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
   - chmod +x script.sh
   - drupal-ti script
-  - cd $HOME
-  - drush --yes dl devel
   - drush --version
 #  - mysqldump drupal_travis_db > dump.sql
 #  - cat dump.sql
