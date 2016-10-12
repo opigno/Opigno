@@ -35,6 +35,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   }
   
   function curlExec($curl_options, $redirect = FALSE) {
+    watchdog('DEBUG DEBUG', 'firstly first');
     $this->curlInitialize();
     
     if (!empty($curl_options[CURLOPT_URL])) {
@@ -56,9 +57,10 @@ class OpignoWebTestCase extends DrupalWebTestCase {
         $curl_options[CURLOPT_URL] = strtok($curl_options[CURLOPT_URL], '#');
       }
     }
+    watchdog('DEBUG DEBUG', '11');
 
     $url = empty($curl_options[CURLOPT_URL]) ? curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL) : $curl_options[CURLOPT_URL];
-    
+    watchdog('DEBUG DEBUG', '22');
     if (!empty($curl_options[CURLOPT_POST])) {
       // This is a fix for the Curl library to prevent Expect: 100-continue
       // headers in POST requests, that may cause unexpected HTTP response
@@ -67,17 +69,21 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       // not overwritten by Curl.
       $curl_options[CURLOPT_HTTPHEADER][] = 'Expect:';
     }
+    watchdog('DEBUG DEBUG', '33');
     curl_setopt_array($this->curlHandle, $this->additionalCurlOptions + $curl_options);
-  
+    watchdog('DEBUG DEBUG', '44');
     if (!$redirect) {
       // Reset headers, the session ID and the redirect counter.
       $this->session_id = NULL;
       $this->headers = array();
       $this->redirect_count = 0;
     }
-
+    watchdog('DEBUG DEBUG', '55');
     $content = curl_exec($this->curlHandle);
+    watchdog('DEBUG DEBUG', '66');
     $status = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
+    watchdog('DEBUG DEBUG', 'first');
+    watchdog('DEBUG 0', print_r($status, true));
 
     // cURL incorrectly handles URLs with fragments, so instead of
     // letting cURL handle redirects we take of them ourselves to
@@ -94,8 +100,6 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       }
     }
     
-    watchdog('DEBUG DEBUG', 'first');
-    watchdog('DEBUG 0', print_r($status, true));
     watchdog('DEBUG 1', print_r(curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL), true));
     $this->drupalSetContent($content, isset($original_url) ? $original_url : curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL));
     $message_vars = array(
@@ -152,6 +156,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    * Running tests.
    */
   public function testDrupal() {
+    watchdog('DEBUG DEBUG', 'yeyeye');
 //    $this->createCourse();
     $this->assertTrue(true);
     
@@ -184,7 +189,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       return;
     }
     $this->drupalLogin($admin);
-
+    watchdog('DEBUG DEBUG', 'poney');
     $this->drupalGet('node/add/course');
 //    $this->course_content = array();
 //    $this->course_content['title'] = $this->randomName(7);
