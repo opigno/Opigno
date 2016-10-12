@@ -47,9 +47,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     if ($new = $this->checkForMetaRefresh()) {
       $out = $new;
     }
-//    $this->verbose('GET request to: ' . $path .
-//      '<hr />Ending URL: ' . $this->getUrl() .
-//      '<hr />' . $out);
+    $this->verbose('GET request to: ' . $path .
+      '<hr />Ending URL: ' . $this->getUrl() .
+      '<hr />' . $out);
     return $out;
   }
   
