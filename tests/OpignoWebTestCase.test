@@ -43,10 +43,10 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $out = $this->curlExec(array(CURLOPT_HTTPGET => TRUE, CURLOPT_URL => url($path, $options), CURLOPT_NOBODY => FALSE, CURLOPT_HTTPHEADER => $headers));
     $this->refreshVariables(); // Ensure that any changes to variables in the other thread are picked up.
 
-//    // Replace original page output with new output from redirected page(s).
-//    if ($new = $this->checkForMetaRefresh()) {
-//      $out = $new;
-//    }
+    // Replace original page output with new output from redirected page(s).
+    if ($new = $this->checkForMetaRefresh()) {
+      $out = $new;
+    }
 //    $this->verbose('GET request to: ' . $path .
 //      '<hr />Ending URL: ' . $this->getUrl() .
 //      '<hr />' . $out);
