@@ -157,6 +157,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
    */
   public function testDrupal() {
     watchdog('DEBUG DEBUG', 'yeyeye');
+    echo "salut";
 //    $this->createCourse();
     $this->assertTrue(true);
     
