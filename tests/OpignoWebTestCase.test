@@ -101,10 +101,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
       '@status' => $status,
       '!length' => format_size(strlen($this->drupalGetContent()))
     );
-    return '<html></html>';
-//    $message = t('!method @url returned @status (!length).', $message_vars);
-//    $this->assertTrue($this->drupalGetContent() !== FALSE, $message, t('Browser'));
-//    return $this->drupalGetContent();
+    $message = t('!method @url returned @status (!length).', $message_vars);
+    $this->assertTrue($this->drupalGetContent() !== FALSE, $message, t('Browser'));
+    return $this->drupalGetContent();
   }
   
   /**
