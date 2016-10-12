@@ -132,7 +132,7 @@ script:
   - rm script.sh
   - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
   - chmod +x script.sh
-  - drush --yes dl devel
+  - drush en devel -y
   - drupal-ti script
   - drush --version
 #  - mysqldump drupal_travis_db > dump.sql
