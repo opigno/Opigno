@@ -34,6 +34,32 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     }
   }
   
+  function drupalGet($path, array $options = array(), array $headers = array()) {
+    $options['absolute'] = TRUE;
+    
+    // We re-using a CURL connection here. If that connection still has certain
+    // options set, it might change the GET into a POST. Make sure we clear out
+    // previous options.
+    $out = $this->curlExec(array(CURLOPT_HTTPGET => TRUE, CURLOPT_URL => url($path, $options), CURLOPT_NOBODY => FALSE, CURLOPT_HTTPHEADER => $headers));
+//    $this->refreshVariables(); // Ensure that any changes to variables in the other thread are picked up.
+//
+//    // Replace original page output with new output from redirected page(s).
+//    if ($new = $this->checkForMetaRefresh()) {
+//      $out = $new;
+//    }
+//    $this->verbose('GET request to: ' . $path .
+//      '<hr />Ending URL: ' . $this->getUrl() .
+//      '<hr />' . $out);
+    return $out;
+  }
+  
+  /**
+   * Retrieve a Drupal path or an absolute path and JSON decode the result.
+   */
+  protected function drupalGetAJAX($path, array $options = array(), array $headers = array()) {
+    return drupal_json_decode($this->drupalGet($path, $options, $headers));
+  }
+  
   /**
    * @return array The tests information.
    */
@@ -73,18 +99,18 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogout();
     $administrator_rid = array_search('administrator', user_roles());
     if (!$administrator_rid) {
-      $this->assertTrue(false, 'Administrator role not found');
+      $this->fail('Administrator role not found');
       return;
     }
     $perms = user_role_permissions(array($administrator_rid => 'administrator'));
     if (empty($perms[$administrator_rid])) {
-      $this->assertTrue(false, 'Administrator permissions not found');
+      $this->fail('Administrator permissions not found');
       return;
     }
     $perms = array_keys($perms[$administrator_rid]);
     $admin = $this->drupalCreateUser($perms);
     if (!$admin) {
-      $this->assertTrue(false, 'Admin account could not be created');
+      $this->fail('Admin account could not be created');
       return;
     }
     $this->drupalLogin($admin);
