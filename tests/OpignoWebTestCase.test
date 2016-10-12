@@ -41,11 +41,31 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     $this->drupalLogout();
     $this->drupalGet('/user');
     $this->assertText('Enter your Opigno LMS username');
+    $this->assertText('Member for');
     
     $normal_user = $this->drupalCreateUser();
     $this->drupalLogin($normal_user);
     $this->drupalGet('/user');
     $this->assertText('Member for');
+  
+    $this->drupalLogout();
+    $administrator_rid = array_search('administrator', user_roles());
+    if (!$administrator_rid) {
+      $this->assertTrue(false, 'Administrator role not found');
+      return;
+    }
+    $perms = user_role_permissions(array($administrator_rid => 'administrator'));
+    if (empty($perms[$administrator_rid])) {
+      $this->assertTrue(false, 'Administrator permissions not found');
+      return;
+    }
+    $perms = array_keys($perms[$administrator_rid]);
+    $admin = $this->drupalCreateUser($perms);
+    if (!$admin) {
+      $this->assertTrue(false, 'Admin account could not be created');
+      return;
+    }
+    $this->drupalLogin($admin);
   }
   
   /**
