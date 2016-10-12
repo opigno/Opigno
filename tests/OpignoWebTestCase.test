@@ -149,7 +149,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     ini_set('max_execution_time', 3000);
 
     $this->profile = 'opigno_lms';
-    parent::setUp();
+    parent::setUp(array('devel'));
   }
   
   /**
@@ -158,6 +158,8 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function testDrupal() {
     watchdog('DEBUG DEBUG', 'yeyeye');
     echo "salut";
+    drupal_set_message('hello');
+    dpm('adieu');
 //    $this->createCourse();
     $this->assertTrue(true);
     
