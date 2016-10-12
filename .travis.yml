@@ -112,7 +112,7 @@ before_install:
 install:
   # Force install drush 6.x instead of 8.x
   # The version 8 of drush produce some unwanted errors.
-  - composer global require --no-interaction 'drush/drush:7.*'
+#  - composer global require --no-interaction 'drush/drush:7.*'
   - drupal-ti install
 
 before_script:
