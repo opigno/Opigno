@@ -69,15 +69,15 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     }
     curl_setopt_array($this->curlHandle, $this->additionalCurlOptions + $curl_options);
   
+    if (!$redirect) {
+      // Reset headers, the session ID and the redirect counter.
+      $this->session_id = NULL;
+      $this->headers = array();
+      $this->redirect_count = 0;
+    }
+
+    $content = curl_exec($this->curlHandle);
     return '<html></html>';
-//    if (!$redirect) {
-//      // Reset headers, the session ID and the redirect counter.
-//      $this->session_id = NULL;
-//      $this->headers = array();
-//      $this->redirect_count = 0;
-//    }
-//
-//    $content = curl_exec($this->curlHandle);
 //    $status = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
 //
 //    // cURL incorrectly handles URLs with fragments, so instead of
