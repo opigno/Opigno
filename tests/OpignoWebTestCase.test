@@ -77,9 +77,9 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     }
 
     $content = curl_exec($this->curlHandle);
+    $status = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
     return '<html></html>';
-//    $status = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
-//
+
 //    // cURL incorrectly handles URLs with fragments, so instead of
 //    // letting cURL handle redirects we take of them ourselves to
 //    // to prevent fragments being sent to the web server as part
