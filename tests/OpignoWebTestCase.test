@@ -78,22 +78,22 @@ class OpignoWebTestCase extends DrupalWebTestCase {
 
     $content = curl_exec($this->curlHandle);
     $status = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
-    return '<html></html>';
 
-//    // cURL incorrectly handles URLs with fragments, so instead of
-//    // letting cURL handle redirects we take of them ourselves to
-//    // to prevent fragments being sent to the web server as part
-//    // of the request.
-//    // TODO: Remove this for Drupal 8, since fixed in curl 7.20.0.
-//    if (in_array($status, array(300, 301, 302, 303, 305, 307)) && $this->redirect_count < variable_get('simpletest_maximum_redirects', 5)) {
-//      if ($this->drupalGetHeader('location')) {
-//        $this->redirect_count++;
-//        $curl_options = array();
-//        $curl_options[CURLOPT_URL] = $this->drupalGetHeader('location');
-//        $curl_options[CURLOPT_HTTPGET] = TRUE;
-//        return $this->curlExec($curl_options, TRUE);
-//      }
-//    }
+    // cURL incorrectly handles URLs with fragments, so instead of
+    // letting cURL handle redirects we take of them ourselves to
+    // to prevent fragments being sent to the web server as part
+    // of the request.
+    // TODO: Remove this for Drupal 8, since fixed in curl 7.20.0.
+    if (in_array($status, array(300, 301, 302, 303, 305, 307)) && $this->redirect_count < variable_get('simpletest_maximum_redirects', 5)) {
+      if ($this->drupalGetHeader('location')) {
+        $this->redirect_count++;
+        $curl_options = array();
+        $curl_options[CURLOPT_URL] = $this->drupalGetHeader('location');
+        $curl_options[CURLOPT_HTTPGET] = TRUE;
+        return $this->curlExec($curl_options, TRUE);
+      }
+    }
+    return '<html></html>';
 //
 //    $this->drupalSetContent($content, isset($original_url) ? $original_url : curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL));
 //    $message_vars = array(
