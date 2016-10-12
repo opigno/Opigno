@@ -37,9 +37,15 @@ class OpignoWebTestCase extends DrupalWebTestCase {
   public function testDrupal() {
 //    $this->createCourse();
     $this->assertTrue(true);
+    
+    $this->drupalLogout();
     $this->drupalGet('/user');
-    cache_clear_all();
+    $this->assertText('Enter your Opigno LMS username');
+    
+    $normal_user = $this->drupalCreateUser();
+    $this->drupalLogin($normal_user);
     $this->drupalGet('/user');
+    $this->assertText('Member for');
   }
   
   /**
