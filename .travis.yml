@@ -133,7 +133,7 @@ script:
   - rm script.sh
 
   - wget https://gist.githubusercontent.com/lolaolivet/fcdeef5053d21f877ca771c56e6a7423/raw/64232f96f1755704a4369d1577464e0a73e82d09/script.sh
-  
+
   - chmod +x script.sh
   - travis_wait mvn package drupal-ti script
   - drush --version
