@@ -7,6 +7,8 @@
 #   https://github.com/sonnym/travis-ci-drupal-module-example
 language: php
 
+install: travis_wait mvn install
+
 sudo: false
 
 php:
