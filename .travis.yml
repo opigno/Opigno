@@ -134,7 +134,7 @@ script:
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
   - rm script.sh
 
-  - wget https://gist.githubusercontent.com/lolaolivet/fcdeef5053d21f877ca771c56e6a7423/raw/64232f96f1755704a4369d1577464e0a73e82d09/script.sh
+  - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
 
   - chmod +x script.sh
 
