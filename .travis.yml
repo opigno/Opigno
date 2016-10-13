@@ -111,7 +111,6 @@ before_install:
 
 install:
   - drupal-ti install
-  - travis_wait mvn install
 
 before_script:
   # Change the memory_limit to 520M in travis.ini.
