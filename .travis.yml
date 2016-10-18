@@ -116,29 +116,30 @@ install:
 before_script:
   # Change the memory_limit to 520M in travis.ini.
   - echo "memory_limit=520M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-  - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
+
   # Get another drupal-7.sh that install the opigno_lms profile.
+  - cd $HOME/.composer/vendor/lionsad/drupal_ti/environments
   - rm drupal-7.sh
   - wget https://gist.githubusercontent.com/lolaolivet/7dce9bf10bd5dc6d3c5206b99a00673e/raw/6d3f354fd365e13096ca2e02e965a4f03e1867e7/drupal-7.sh
   - chmod +x drupal-7.sh
-  - cd $HOME
-#  - drush --yes dl devel
+
+#  - cd $HOME
   - drupal-ti before_script
 
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - cd ../drupal-7/drupal/modules/simpletest
-  - rm drupal_web_test_case.php
+  - cd $TRAVIS_BUILD_DIR/../drupal-7/drupal/modules/simpletest
+
   # In the wait of the opigno_statistics_app correction.
+  - rm drupal_web_test_case.php
   - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/7c391627cef670a6b3c2d9ca48ceda83e828467f/drupal_web_test_case.php
+
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
   - rm script.sh
-
   - wget https://raw.githubusercontent.com/FireGhost/drupal_ti/patch-1/runners/simpletest/script.sh
-
   - chmod +x script.sh
 
-  - drush --version
+  - drupal-ti script
+
 #  - mysqldump drupal_travis_db > dump.sql
 #  - cat dump.sql
 
