@@ -130,8 +130,8 @@ script:
   - cd $TRAVIS_BUILD_DIR/../drupal-7/drupal/modules/simpletest
 
   # In the wait of the opigno_statistics_app correction.
-  - rm drupal_web_test_case.php
-  - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/7c391627cef670a6b3c2d9ca48ceda83e828467f/drupal_web_test_case.php
+#  - rm drupal_web_test_case.php
+#  - wget https://gist.githubusercontent.com/lolaolivet/eda707a08c06e1f7c6005757e62df14a/raw/7c391627cef670a6b3c2d9ca48ceda83e828467f/drupal_web_test_case.php
 
   - cd $HOME/.composer/vendor/lionsad/drupal_ti/runners/simpletest
   - rm script.sh
