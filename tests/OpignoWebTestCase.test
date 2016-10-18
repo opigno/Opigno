@@ -27,7 +27,7 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     );
     $this->drupalPost('user', $edit, t('Log in'));
   
-    // If a "log out" link appears on the page, it is almost certainly because
+    // If a "logout" link appears on the page, it is almost certainly because
     // the login was successful.
     $pass = $this->assertLink(t('logout'), 0, t('User %name successfully logged in.', array('%name' => $account->name)), t('User login'));
   
@@ -94,7 +94,6 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     }
 
     $this->drupalSetContent($content, isset($original_url) ? $original_url : curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL));
-    return '<html></html>';
     $message_vars = array(
       '!method' => !empty($curl_options[CURLOPT_NOBODY]) ? 'HEAD' : (empty($curl_options[CURLOPT_POSTFIELDS]) ? 'GET' : 'POST'),
       '@url' => isset($original_url) ? $original_url : $url,
@@ -106,23 +105,16 @@ class OpignoWebTestCase extends DrupalWebTestCase {
     return $this->drupalGetContent();
   }
 
-  function drupalSetContent($content, $url = 'internal:') {
+  protected function drupalSetContent($content, $url = 'internal:') {
     $this->content = $content;
     $this->url = $url;
     $this->plainTextContent = FALSE;
-//    $this->elements = FALSE;
+    $this->elements = FALSE;
     $this->drupalSettings = array();
     if (preg_match('/jQuery\.extend\(Drupal\.settings, (.*?)\);/', $content, $matches)) {
       $this->drupalSettings = drupal_json_decode($matches[1]);
     }
   }
-  
-  /**
-   * Retrieve a Drupal path or an absolute path and JSON decode the result.
-   */
-//  protected function drupalGetAJAX($path, array $options = array(), array $headers = array()) {
-//    return drupal_json_decode($this->drupalGet($path, $options, $headers));
-//  }
   
   /**
    * @return array The tests information.
